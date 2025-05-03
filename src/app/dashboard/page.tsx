@@ -21,13 +21,13 @@ export default function DashboardPage() {
   const totalVideos = videos.length;
   const totalViews = analyticsData.reduce((sum, data) => sum + data.totalViews, 0);
   
-  // 視聴データ準備
-  const viewsData = analyticsData.length > 0 && analyticsData[0].views
-    ? analyticsData[0].views.map(item => ({
-        date: item.date.toLocaleDateString(),
-        views: item.count
-      }))
-    : [];
+  // 視聴データ準備 (現在は未使用)
+  // const viewsData = analyticsData.length > 0 && analyticsData[0].views
+  //   ? analyticsData[0].views.map(item => ({
+  //       date: item.date.toLocaleDateString(),
+  //       views: item.count
+  //     }))
+  //   : [];
   
   return (
     <div className="space-y-6">
