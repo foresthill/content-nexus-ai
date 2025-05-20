@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import useContentStore from '@/store/contentStore';
@@ -98,7 +98,8 @@ const publishPlatforms = [
   { id: 'note', name: 'note', icon: '📝' },
 ];
 
-export default function NewContentPage() {
+// URLパラメータからキーワードを取得するコンポーネント
+function ContentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { createContent } = useContentStore();
@@ -807,5 +808,14 @@ ${includeLinks ? `
         </div>
       </div>
     </div>
+  );
+}
+
+// メインの新規コンテンツページコンポーネント
+export default function NewContentPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">読み込み中...</div>}>
+      <ContentForm />
+    </Suspense>
   );
 }
