@@ -8,34 +8,42 @@ import { VideoStatus, VideoEffect } from '@/types/video';
 
 type EffectType = 'filter' | 'transition' | 'text' | 'sound';
 
+// 定義されたEffectType型に合わせたエフェクトオブジェクト型
+type EffectObject = {
+  id: string;
+  name: string;
+  type: EffectType;
+  iconPath: string;
+};
+
 // 編集効果のモック
 const mockEffects = {
   filters: [
-    { id: 'filter1', name: 'ナチュラル', type: 'filter', iconPath: '🌈' },
-    { id: 'filter2', name: 'モノクロ', type: 'filter', iconPath: '⚫️' },
-    { id: 'filter3', name: 'セピア', type: 'filter', iconPath: '🟤' },
-    { id: 'filter4', name: 'ビビッド', type: 'filter', iconPath: '🔆' },
-    { id: 'filter5', name: 'ドラマチック', type: 'filter', iconPath: '🎭' },
-    { id: 'filter6', name: 'レトロ', type: 'filter', iconPath: '📺' },
+    { id: 'filter1', name: 'ナチュラル', type: 'filter' as EffectType, iconPath: '🌈' },
+    { id: 'filter2', name: 'モノクロ', type: 'filter' as EffectType, iconPath: '⚫️' },
+    { id: 'filter3', name: 'セピア', type: 'filter' as EffectType, iconPath: '🟤' },
+    { id: 'filter4', name: 'ビビッド', type: 'filter' as EffectType, iconPath: '🔆' },
+    { id: 'filter5', name: 'ドラマチック', type: 'filter' as EffectType, iconPath: '🎭' },
+    { id: 'filter6', name: 'レトロ', type: 'filter' as EffectType, iconPath: '📺' },
   ],
   transitions: [
-    { id: 'transition1', name: 'カット', type: 'transition', iconPath: '✂️' },
-    { id: 'transition2', name: 'フェード', type: 'transition', iconPath: '🌫️' },
-    { id: 'transition3', name: 'ワイプ', type: 'transition', iconPath: '↔️' },
-    { id: 'transition4', name: 'ズーム', type: 'transition', iconPath: '🔍' },
+    { id: 'transition1', name: 'カット', type: 'transition' as EffectType, iconPath: '✂️' },
+    { id: 'transition2', name: 'フェード', type: 'transition' as EffectType, iconPath: '🌫️' },
+    { id: 'transition3', name: 'ワイプ', type: 'transition' as EffectType, iconPath: '↔️' },
+    { id: 'transition4', name: 'ズーム', type: 'transition' as EffectType, iconPath: '🔍' },
   ],
   texts: [
-    { id: 'text1', name: 'シンプル', type: 'text', iconPath: 'Aa' },
-    { id: 'text2', name: 'ポップ', type: 'text', iconPath: 'Aa' },
-    { id: 'text3', name: 'アニメ風', type: 'text', iconPath: 'Aa' },
-    { id: 'text4', name: 'キャプション', type: 'text', iconPath: 'Aa' },
+    { id: 'text1', name: 'シンプル', type: 'text' as EffectType, iconPath: 'Aa' },
+    { id: 'text2', name: 'ポップ', type: 'text' as EffectType, iconPath: 'Aa' },
+    { id: 'text3', name: 'アニメ風', type: 'text' as EffectType, iconPath: 'Aa' },
+    { id: 'text4', name: 'キャプション', type: 'text' as EffectType, iconPath: 'Aa' },
   ],
   sounds: [
-    { id: 'sound1', name: 'トレンド曲1', type: 'sound', iconPath: '🎵' },
-    { id: 'sound2', name: 'トレンド曲2', type: 'sound', iconPath: '🎵' },
-    { id: 'sound3', name: 'アンビエント', type: 'sound', iconPath: '🎵' },
-    { id: 'sound4', name: 'エネルギッシュ', type: 'sound', iconPath: '🎵' },
-    { id: 'sound5', name: 'ロマンチック', type: 'sound', iconPath: '🎵' },
+    { id: 'sound1', name: 'トレンド曲1', type: 'sound' as EffectType, iconPath: '🎵' },
+    { id: 'sound2', name: 'トレンド曲2', type: 'sound' as EffectType, iconPath: '🎵' },
+    { id: 'sound3', name: 'アンビエント', type: 'sound' as EffectType, iconPath: '🎵' },
+    { id: 'sound4', name: 'エネルギッシュ', type: 'sound' as EffectType, iconPath: '🎵' },
+    { id: 'sound5', name: 'ロマンチック', type: 'sound' as EffectType, iconPath: '🎵' },
   ],
 };
 
@@ -102,7 +110,7 @@ export default function VideoEditPage() {
   }, [videos, currentVideo]);
   
   // 動画効果の追加
-  const addEffect = (effect: {id: string, name: string, type: EffectType, iconPath: string}) => {
+  const addEffect = (effect: EffectObject) => {
     // 効果のタイプに応じた設定
     let settings: Record<string, unknown> = {};
     
