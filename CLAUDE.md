@@ -135,6 +135,16 @@ npm run test
 - **Type Checking**: TypeScript errors will cause build failures even if the app runs locally
 - **PR Workflow**: Create Pull Requests for significant changes, especially those affecting build
 - **Branch Strategy**: Use feature branches for new features, fix branches for bug fixes
+- **Type Safety Validation**: Always run `npm run build` locally before pushing to catch type errors
+  - When adding new properties to objects in store mock data, ensure the property exists in the corresponding interface
+  - Example issue: Adding `status` to `PlatformData` objects requires that property in the interface
+
+## Common Build Issues and Solutions
+- **Type Error - Object literal may only specify known properties**: 
+  - **Issue**: Adding properties to objects that don't exist in their type definition
+  - **Example**: `PlatformData` objects with `status` property when it wasn't defined in the interface
+  - **Solution**: Always check and update type definitions in `/src/types/` when modifying data structures
+  - **Prevention**: Run `npm run build` locally before pushing changes to remote
 
 ## UI Design Principles
 - **Consistency**: Maintain consistent UI patterns across all pages

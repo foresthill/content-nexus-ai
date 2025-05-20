@@ -44,9 +44,9 @@ const Sidebar = ({ currentPath }: { currentPath: string }) => {
 
   const navigation: NavItem[] = [
     { name: 'ダッシュボード', href: '/dashboard', icon: ChartBarIcon, current: currentPath === '/dashboard' },
-    { name: 'コンテンツ管理', href: '/content', icon: DocumentIcon, current: currentPath.startsWith('/content') },
+    { name: 'コンテンツ生成', href: '/content', icon: DocumentIcon, current: currentPath.startsWith('/content') },
     { name: '動画管理', href: '/videos', icon: VideoIcon, current: currentPath.startsWith('/videos') },
-    { name: 'コメント管理', href: '/comments', icon: ChatBubbleIcon, current: currentPath === '/comments' },
+    { name: 'キーワード検索', href: '/keywords', icon: ChatBubbleIcon, current: currentPath === '/keywords' },
   ];
 
   return (

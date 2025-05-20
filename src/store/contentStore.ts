@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Content, ContentStatus } from '../types/content';
+import { Content, ContentStatus, PlatformType } from '../types/content';
 
 // モックデータの生成
 const generateMockContents = (): Content[] => {
@@ -25,6 +25,28 @@ const generateMockContents = (): Content[] => {
           imageUrl: '/images/book-cover.jpg',
           description: '初心者から上級者まで役立つ完全ガイド'
         }
+      ],
+      platforms: [
+        {
+          type: PlatformType.BLOG,
+          url: 'https://example.com/blog/content-marketing-tips',
+          publishedAt: new Date('2025-04-15'),
+          engagement: {
+            likes: 124,
+            comments: 32,
+            shares: 48
+          }
+        },
+        {
+          type: PlatformType.TWITTER,
+          url: 'https://twitter.com/example/status/123456789',
+          publishedAt: new Date('2025-04-16'),
+          engagement: {
+            likes: 89,
+            shares: 24,
+            comments: 12
+          }
+        }
       ]
     },
     {
@@ -48,6 +70,37 @@ const generateMockContents = (): Content[] => {
           imageUrl: '/images/seo-tool.jpg',
           description: 'プロフェッショナルのためのSEO分析ツール'
         }
+      ],
+      platforms: [
+        {
+          type: PlatformType.BLOG,
+          url: 'https://example.com/blog/seo-trends-2025',
+          publishedAt: new Date('2025-04-20'),
+          engagement: {
+            likes: 245,
+            comments: 56,
+            shares: 103
+          }
+        },
+        {
+          type: PlatformType.FACEBOOK,
+          url: 'https://facebook.com/posts/987654321',
+          publishedAt: new Date('2025-04-21'),
+          engagement: {
+            likes: 324,
+            shares: 87,
+            comments: 43
+          }
+        },
+        {
+          type: PlatformType.NOTE,
+          url: 'https://note.com/example/n/123456',
+          publishedAt: new Date('2025-04-22'),
+          engagement: {
+            likes: 156,
+            comments: 28
+          }
+        }
       ]
     },
     {
@@ -61,7 +114,19 @@ const generateMockContents = (): Content[] => {
       status: ContentStatus.DRAFT,
       updatedAt: new Date('2025-04-28'),
       createdAt: new Date('2025-04-28'),
-      affiliateLinks: []
+      affiliateLinks: [],
+      platforms: [
+        {
+          type: PlatformType.INSTAGRAM,
+          scheduledAt: new Date('2025-05-10'),
+          status: ContentStatus.DRAFT
+        },
+        {
+          type: PlatformType.TWITTER,
+          scheduledAt: new Date('2025-05-12'),
+          status: ContentStatus.DRAFT
+        }
+      ]
     }
   ];
 };
