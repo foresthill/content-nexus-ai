@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import useContentStore from '@/store/contentStore';
-import { ContentStatus } from '@/types/content';
+import { ContentStatus, PlatformType, PlatformData } from '@/types/content';
 
 // 記事タイプの定義
 type ArticleType = 'howto' | 'review' | 'guide' | 'list' | 'opinion' | 'news';
@@ -91,11 +91,12 @@ const contentLengths: Record<ContentLength, { label: string; description: string
 
 // モックの投稿プラットフォーム
 const publishPlatforms = [
-  { id: 'wordpress', name: 'WordPress', icon: '🌐' },
-  { id: 'twitter', name: 'X (旧Twitter)', icon: '✖' },
-  { id: 'facebook', name: 'Facebook', icon: '👍' },
-  { id: 'instagram', name: 'Instagram', icon: '📸' },
-  { id: 'note', name: 'note', icon: '📝' },
+  { id: PlatformType.BLOG, name: 'WordPress', icon: '🌐' },
+  { id: PlatformType.TWITTER, name: 'X (旧Twitter)', icon: '✖' },
+  { id: PlatformType.FACEBOOK, name: 'Facebook', icon: '👍' },
+  { id: PlatformType.INSTAGRAM, name: 'Instagram', icon: '📸' },
+  { id: PlatformType.NOTE, name: 'note', icon: '📝' },
+  { id: PlatformType.OTHER, name: 'その他', icon: '🔗' },
 ];
 
 // URLパラメータからキーワードを取得するコンポーネント
@@ -115,7 +116,7 @@ function ContentForm() {
   const [tagInput, setTagInput] = useState('');
   const [includeImages, setIncludeImages] = useState(true);
   const [includeLinks, setIncludeLinks] = useState(true);
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['wordpress']);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<PlatformType[]>([PlatformType.BLOG]);
   
   // 生成状態
   const [isGenerating, setIsGenerating] = useState(false);
@@ -178,7 +179,7 @@ function ContentForm() {
   };
   
   // 投稿プラットフォーム選択処理
-  const togglePlatform = (platformId: string) => {
+  const togglePlatform = (platformId: PlatformType) => {
     if (selectedPlatforms.includes(platformId)) {
       setSelectedPlatforms(selectedPlatforms.filter(id => id !== platformId));
     } else {
@@ -383,6 +384,13 @@ ${includeLinks ? `
     setIsSaving(true);
     
     try {
+      // 選択されたプラットフォームからプラットフォームデータを生成
+      const platformsData: PlatformData[] = selectedPlatforms.map(platformType => ({
+        type: platformType,
+        // ブログは初期状態で下書き状態のまま
+        scheduledAt: platformType !== PlatformType.BLOG ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) : undefined, // 1週間後に予定設定
+      }));
+      
       // 新規コンテンツの作成
       const newContent = {
         title,
@@ -393,6 +401,7 @@ ${includeLinks ? `
         tags,
         status: ContentStatus.DRAFT,
         affiliateLinks: [],
+        platforms: platformsData,
       };
       
       const createdContent = await createContent(newContent);
