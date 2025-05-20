@@ -96,6 +96,19 @@ npm run test
 - Conversion rate and revenue tracking for affiliate content
 - AI-powered trend analysis and content recommendations
 
+### Chart Components
+- **Technology**: Using Recharts for data visualization
+- **Component Structure**:
+  - `AnalyticsChart`: Core chart component supporting multiple visualization types
+  - Supports line, area, bar, and pie charts
+  - Accepts both time-series (ViewCount[]) and categorical (Record<string, number>) data
+  - Provides consistent styling and responsive design
+- **Dashboard Integration**:
+  - Multiple chart types used for different metrics
+  - Demographics visualization using pie charts
+  - Time-series data using area and line charts
+  - Comparative data using bar charts
+
 ## Code Style Guidelines
 - **TypeScript**: Use strict mode with complete type annotations
 - **Formatting**: 2 space indentation, 100 char line limit, single quotes
@@ -105,6 +118,23 @@ npm run test
 - **Error Handling**: Use try/catch blocks with centralized error logging
 - **State Management**: Use context/hooks for state, avoid prop drilling
 - **CSS**: Prefer Tailwind CSS with componentized styling
+
+## ESLint Rules and Type Safety
+- **Unused Imports**: Always remove unused imports to avoid ESLint errors
+- **Unused Variables**: Comment or remove unused variables; for future use, comment with explanation
+- **Image Elements**: When using `<img>` tags, always add:
+  - Meaningful `alt` attribute
+  - Add `eslint-disable-next-line @next/next/no-img-element` comment (or use `next/image`)
+- **Type Assertions**: For string literal unions, use explicit type assertions (`as EffectType`)
+- **String Escaping**: Always escape quotes in JSX strings using entities (`&ldquo;`, `&rdquo;`)
+- **Object Types**: Define interface or type aliases for complex object structures
+
+## Deployment Considerations
+- **Vercel Deployment**: The project uses Vercel for deployment
+- **Build Process**: Ensure all ESLint and TypeScript errors are resolved before pushing
+- **Type Checking**: TypeScript errors will cause build failures even if the app runs locally
+- **PR Workflow**: Create Pull Requests for significant changes, especially those affecting build
+- **Branch Strategy**: Use feature branches for new features, fix branches for bug fixes
 
 ## UI Design Principles
 - **Consistency**: Maintain consistent UI patterns across all pages
