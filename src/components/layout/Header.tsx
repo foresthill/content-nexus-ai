@@ -39,8 +39,8 @@ const Header = () => {
               <Link href="/videos" className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 動画管理
               </Link>
-              <Link href="/comments" className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                収益管理
+              <Link href="/keywords" className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                キーワード検索
               </Link>
             </nav>
           </div>
@@ -104,11 +104,11 @@ const Header = () => {
               動画管理
             </Link>
             <Link 
-              href="/comments" 
+              href="/keywords" 
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
               onClick={() => setMobileMenuOpen(false)}
             >
-              収益管理
+              キーワード検索
             </Link>
             <Link 
               href="#" 
