@@ -33,7 +33,7 @@ npm run test
 ### Project Structure
 - **`/src/app`**: Next.js App Router pages
   - `/dashboard`: Analytics dashboard
-  - `/shorts`: Short-form video management
+  - `/videos`: Video management (upload, edit, complete)
 - **`/src/components`**: Reusable React components
   - `/comments`: Comment-related components
   - `/content`: Content management components
@@ -68,17 +68,33 @@ npm run test
 - Supports article creation with markdown content
 - Handles affiliate links and featured images
 - Content status workflow: Draft → Published → Archived
+- AI-powered content generation and keyword suggestions
 
 ### Video Management
 - Supports multiple video types (short/long form)
-- Platform-specific formatting (TikTok, YouTube Shorts, Instagram Reels)
+- Platform-specific formatting (TikTok, YouTube Shorts, Instagram Reels, LINE VOOM)
 - Video projects with effects, transitions, and sound management
+- Video workflow: Upload → Edit → Export → Publish
+- Multi-platform publishing support with automated optimization
+
+### Short Video Feature
+- **Upload Flow**: Multi-platform upload with metadata management
+- **Edit Capabilities**: 
+  - Filter effects (Monochrome, Sepia, Vivid, etc.)
+  - Text overlays with customizable styles
+  - Transitions between scenes
+  - Sound/Music integration
+- **Timeline Editor**: Visual timeline for precise effect placement
+- **AI Assistance**: Content suggestions and optimal hashtags
+- **Export Options**: Platform-specific resolution and format options
+- **Publishing**: Direct platform connection with scheduled posting
 
 ### Analytics Dashboard
 - Performance metrics visualization
 - User demographics tracking
 - Engagement analytics (views, likes, shares, comments)
 - Conversion rate and revenue tracking for affiliate content
+- AI-powered trend analysis and content recommendations
 
 ## Code Style Guidelines
 - **TypeScript**: Use strict mode with complete type annotations
@@ -89,3 +105,12 @@ npm run test
 - **Error Handling**: Use try/catch blocks with centralized error logging
 - **State Management**: Use context/hooks for state, avoid prop drilling
 - **CSS**: Prefer Tailwind CSS with componentized styling
+
+## UI Design Principles
+- **Consistency**: Maintain consistent UI patterns across all pages
+- **Responsiveness**: All pages should be fully responsive (mobile, tablet, desktop)
+- **Accessibility**: Use semantic HTML and ARIA attributes where necessary
+- **Language**: Primary interface language is Japanese
+- **Color Scheme**: Indigo primary, with supportive blues, greens, and purples
+- **Interactions**: Provide visual feedback for all user interactions
+- **Loading States**: Show appropriate loading states for async operations
