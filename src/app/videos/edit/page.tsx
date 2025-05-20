@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import useVideoStore from '@/store/videoStore';
-import { VideoType, VideoStatus, VideoEffect } from '@/types/video';
+import { VideoStatus, VideoEffect } from '@/types/video';
 
 type EffectType = 'filter' | 'transition' | 'text' | 'sound';
 
@@ -102,7 +102,7 @@ export default function VideoEditPage() {
   }, [videos, currentVideo]);
   
   // 動画効果の追加
-  const addEffect = (effect: any) => {
+  const addEffect = (effect: {id: string, name: string, type: EffectType, iconPath: string}) => {
     // 効果のタイプに応じた設定
     let settings: Record<string, unknown> = {};
     

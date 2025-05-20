@@ -8,7 +8,7 @@ import { VideoType, VideoStatus } from '@/types/video';
 
 export default function VideoUploadPage() {
   const router = useRouter();
-  const { createVideo, isLoading, error } = useVideoStore();
+  const { createVideo, isLoading } = useVideoStore();
   
   // アップロードファイル状態
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -19,7 +19,8 @@ export default function VideoUploadPage() {
   // フォーム状態
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [videoType, setVideoType] = useState<VideoType>(VideoType.SHORT);
+  // videoTypeは現在使用されていないが、将来的に使用する可能性があるため定義は維持
+  const videoType = VideoType.SHORT;
   const [category, setCategory] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
