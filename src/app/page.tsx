@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function HomePage() {
   // 主要機能
@@ -133,6 +132,7 @@ export default function HomePage() {
         </div>
         <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
           <div className="h-56 w-full bg-indigo-800 bg-opacity-50 sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src="/window.svg" 
               alt="デモ画面" 
@@ -228,6 +228,7 @@ export default function HomePage() {
                   <div className="p-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-12 w-12 rounded-full overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={testimonial.image} alt={testimonial.name} className="h-full w-full object-cover" />
                       </div>
                       <div className="ml-4">
@@ -236,7 +237,7 @@ export default function HomePage() {
                       </div>
                     </div>
                     <div className="mt-4">
-                      <p className="text-base text-gray-600 italic">"{testimonial.comment}"</p>
+                      <p className="text-base text-gray-600 italic">&ldquo;{testimonial.comment}&rdquo;</p>
                     </div>
                   </div>
                 </div>

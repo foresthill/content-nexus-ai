@@ -93,7 +93,7 @@ export default function VideosPage() {
             <select
               className="bg-white border border-gray-300 rounded-md shadow-sm py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               value={activeFilter}
-              onChange={(e) => setActiveFilter(e.target.value as any)}
+              onChange={(e) => setActiveFilter(e.target.value as 'all' | 'published' | 'processing' | 'draft')}
             >
               <option value="all">すべてのステータス</option>
               <option value="published">公開済み</option>
@@ -140,6 +140,7 @@ export default function VideosPage() {
               <div className="relative">
                 <div className="aspect-[9/16] bg-gray-100">
                   {/* サムネイル画像 */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
                     src={video.thumbnailUrl} 
                     alt={video.title}

@@ -1,13 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import useVideoStore from '@/store/videoStore';
-import { VideoType } from '@/types/video';
 
 export default function VideoCompletePage() {
-  const router = useRouter();
+  // router未使用
+  // const router = useRouter();
   const { videos } = useVideoStore();
   
   // 最新の動画を取得（実際のアプリでは特定のIDを使用します）
