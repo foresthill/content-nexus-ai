@@ -19,6 +19,7 @@ export interface PlatformData {
   accountName?: string;
   scheduledAt?: Date;
   publishedAt?: Date;
+  status?: ContentStatus;
   engagement?: {
     likes?: number;
     shares?: number;
