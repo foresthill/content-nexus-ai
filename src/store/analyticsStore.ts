@@ -3,27 +3,45 @@ import { AnalyticsData } from '../types/analytics';
 
 // モックデータの生成
 const generateMockAnalytics = (): AnalyticsData[] => {
-  // コンテンツ分析データ
-  const contentAnalytics: AnalyticsData = {
+  // 日付の生成ヘルパー関数
+  const generateDateRange = (days: number): Date[] => {
+    const dates: Date[] = [];
+    const today = new Date();
+    
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(today.getDate() - i);
+      dates.push(date);
+    }
+    
+    return dates;
+  };
+  
+  // 過去30日間の日付を生成
+  const dates = generateDateRange(30);
+  
+  // コンテンツ分析データの詳細化
+  const contentAnalytics1: AnalyticsData = {
     id: 'analytics1',
     contentId: '1',
-    totalViews: 1250,
-    views: [
-      { date: new Date('2025-04-10'), count: 120 },
-      { date: new Date('2025-04-11'), count: 145 },
-      { date: new Date('2025-04-12'), count: 95 },
-      { date: new Date('2025-04-13'), count: 110 },
-      { date: new Date('2025-04-14'), count: 180 },
-      { date: new Date('2025-04-15'), count: 220 },
-      { date: new Date('2025-04-16'), count: 130 },
-      { date: new Date('2025-04-17'), count: 90 },
-      { date: new Date('2025-04-18'), count: 160 },
-    ],
+    totalViews: 3250,
+    views: dates.map((date, index) => {
+      // トレンドを付けて自然な増減を再現
+      const baseViews = 80;
+      const weekPattern = Math.sin(index / 7 * Math.PI) * 40; // 週次のパターン
+      const randomVariation = Math.random() * 30 - 15; // ランダム変動
+      const trend = index * 1.5; // 上昇トレンド
+      
+      return {
+        date: new Date(date),
+        count: Math.max(20, Math.round(baseViews + weekPattern + randomVariation + trend))
+      };
+    }),
     engagement: {
-      likes: 85,
-      shares: 42,
-      comments: 36,
-      bounceRate: 0.35,
+      likes: 185,
+      shares: 92,
+      comments: 76,
+      bounceRate: 0.32,
     },
     demographics: {
       ageGroups: {
@@ -46,39 +64,86 @@ const generateMockAnalytics = (): AnalyticsData[] => {
         'tablet': 5
       }
     },
-    conversionRate: 0.028,
-    revenue: 1250
+    conversionRate: 0.032,
+    revenue: 3250
+  };
+  
+  // SEO記事の分析データ
+  const contentAnalytics2: AnalyticsData = {
+    id: 'analytics2',
+    contentId: '2',
+    totalViews: 2100,
+    views: dates.map((date, index) => {
+      // SEO記事は最初は低く、後半に上昇するパターン
+      const baseViews = 30;
+      const growth = Math.pow(index / 15, 2) * 80; // 指数関数的な成長
+      const randomVariation = Math.random() * 20 - 10;
+      
+      return {
+        date: new Date(date),
+        count: Math.max(10, Math.round(baseViews + growth + randomVariation))
+      };
+    }),
+    engagement: {
+      likes: 120,
+      shares: 68,
+      comments: 42,
+      bounceRate: 0.28,
+    },
+    demographics: {
+      ageGroups: {
+        '18-24': 10,
+        '25-34': 45,
+        '35-44': 30,
+        '45-54': 10,
+        '55+': 5
+      },
+      regions: {
+        'Tokyo': 25,
+        'Osaka': 18,
+        'Nagoya': 12,
+        'Other Japan': 30,
+        'International': 15
+      },
+      devices: {
+        'mobile': 55,
+        'desktop': 40,
+        'tablet': 5
+      }
+    },
+    conversionRate: 0.045,
+    revenue: 4200
   };
 
   // 動画分析データ
-  const videoAnalytics: AnalyticsData = {
-    id: 'analytics2',
+  const videoAnalytics1: AnalyticsData = {
+    id: 'analytics3',
     videoId: '1',
-    totalViews: 4500,
-    views: [
-      { date: new Date('2025-04-10'), count: 420 },
-      { date: new Date('2025-04-11'), count: 645 },
-      { date: new Date('2025-04-12'), count: 495 },
-      { date: new Date('2025-04-13'), count: 510 },
-      { date: new Date('2025-04-14'), count: 380 },
-      { date: new Date('2025-04-15'), count: 520 },
-      { date: new Date('2025-04-16'), count: 430 },
-      { date: new Date('2025-04-17'), count: 390 },
-      { date: new Date('2025-04-18'), count: 710 },
-    ],
+    totalViews: 8500,
+    views: dates.map((date, index) => {
+      // 動画は公開直後に急上昇し、その後安定するパターン
+      const baseViews = 150;
+      const initialSpike = index < 7 ? Math.max(0, 500 - index * 70) : 0;
+      const stabilizedViews = index >= 7 ? 200 + Math.random() * 50 : 0;
+      
+      return {
+        date: new Date(date),
+        count: Math.round(baseViews + initialSpike + stabilizedViews)
+      };
+    }),
     engagement: {
-      likes: 350,
-      shares: 125,
-      comments: 78,
+      likes: 720,
+      shares: 350,
+      comments: 180,
       averageViewDuration: 480, // 8分（12分の動画の平均視聴時間）
     },
     demographics: {
       ageGroups: {
-        '18-24': 25,
+        '18-24': 30,
         '25-34': 35,
         '35-44': 20,
-        '45-54': 12,
-        '55+': 8
+        '45-54': 10,
+        '55+': 5
       },
       regions: {
         'Tokyo': 25,
@@ -88,14 +153,61 @@ const generateMockAnalytics = (): AnalyticsData[] => {
         'International': 25
       },
       devices: {
-        'mobile': 70,
-        'desktop': 25,
+        'mobile': 75,
+        'desktop': 20,
         'tablet': 5
+      }
+    },
+    conversionRate: 0.015,
+    revenue: 1800
+  };
+  
+  // ショート動画の分析データ
+  const videoAnalytics2: AnalyticsData = {
+    id: 'analytics4',
+    videoId: '2',
+    totalViews: 12800,
+    views: dates.map((date, index) => {
+      // ショート動画はバイラル的に急成長するパターン
+      const baseViews = 50;
+      const viralGrowth = index > 5 && index < 15 ? Math.pow(index - 5, 2) * 10 : 0;
+      const decline = index >= 15 ? Math.max(0, 1000 - (index - 15) * 100) : 0;
+      
+      return {
+        date: new Date(date),
+        count: Math.round(baseViews + viralGrowth + decline)
+      };
+    }),
+    engagement: {
+      likes: 1850,
+      shares: 980,
+      comments: 320,
+      averageViewDuration: 40, // 40秒（45秒の動画の平均視聴時間）
+    },
+    demographics: {
+      ageGroups: {
+        '18-24': 45,
+        '25-34': 30,
+        '35-44': 15,
+        '45-54': 7,
+        '55+': 3
+      },
+      regions: {
+        'Tokyo': 30,
+        'Osaka': 15,
+        'Nagoya': 10,
+        'Other Japan': 25,
+        'International': 20
+      },
+      devices: {
+        'mobile': 90,
+        'desktop': 8,
+        'tablet': 2
       }
     }
   };
 
-  return [contentAnalytics, videoAnalytics];
+  return [contentAnalytics1, contentAnalytics2, videoAnalytics1, videoAnalytics2];
 };
 
 interface AnalyticsStore {
