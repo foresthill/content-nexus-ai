@@ -347,15 +347,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Conditionally include gap analysis and recommendations
-    const response: Partial<EngagementComparison> & {
-      metadata: {
-        generatedAt: Date;
-        requestedCompetitors: string[];
-        timeframe: string;
-        platforms: string[] | string;
-      };
-    } = {
-      ...comparisonData,
+    const baseResponse = {
+      id: comparisonData.id,
+      analysisDate: comparisonData.analysisDate,
+      timeframe: comparisonData.timeframe,
+      overallComparison: comparisonData.overallComparison,
+      platformComparisons: comparisonData.platformComparisons,
+      contentTypeComparison: comparisonData.contentTypeComparison,
+      engagementTrends: comparisonData.engagementTrends,
       metadata: {
         generatedAt: new Date(),
         requestedCompetitors: competitorIds,
@@ -364,13 +363,19 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    if (!includeGapAnalysis) {
-      delete response.gapAnalysis;
-    }
-
-    if (!includeRecommendations && response.gapAnalysis) {
-      delete response.gapAnalysis.recommendations;
-    }
+    // Build response object based on conditions
+    const response = includeGapAnalysis 
+      ? {
+          ...baseResponse,
+          gapAnalysis: includeRecommendations 
+            ? comparisonData.gapAnalysis 
+            : {
+                opportunities: comparisonData.gapAnalysis.opportunities,
+                threats: comparisonData.gapAnalysis.threats,
+                // Exclude recommendations
+              }
+        }
+      : baseResponse;
 
     return NextResponse.json(response);
 
