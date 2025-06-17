@@ -50,8 +50,8 @@ export default function SocialPostEditor({
     const newSelected = new Set(selectedPlatforms);
     if (newSelected.has(platform)) {
       newSelected.delete(platform);
-      const newContents = { ...platformContents };
-      delete newContents[platform];
+      // Create new object without the platform key
+      const { [platform]: _, ...newContents } = platformContents;
       setPlatformContents(newContents);
     } else {
       newSelected.add(platform);
