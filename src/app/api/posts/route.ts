@@ -42,13 +42,22 @@ export async function POST(request: NextRequest) {
     }
     const authData = verifyAuthToken(request, platform) as AuthData;
     
+    // userIdの検証
+    const userId = authData.userId || authData.openId;
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID not found in authentication data' },
+        { status: 400 }
+      );
+    }
+    
     // ジョブデータの構築
     const jobData = {
       id: crypto.randomUUID(),
       platform: platform as 'twitter' | 'instagram' | 'tiktok',
       content,
       scheduledAt: scheduledAt ? new Date(scheduledAt) : undefined,
-      userId: authData.userId || authData.openId,
+      userId,
       credentials: {
         accessToken: authData.accessToken,
         accessTokenSecret: authData.accessTokenSecret,
