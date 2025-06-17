@@ -261,7 +261,7 @@ const CompetitorAnalysisDashboard: React.FC = () => {
       {/* Competitive Advantages */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center">
-          <ArrowArrowTrendingUpIcon className="w-5 h-5 mr-2 text-green-600" />
+          <ArrowTrendingUpIcon className="w-5 h-5 mr-2 text-green-600" />
           Competitive Advantages & Gaps
         </h3>
         <div className="space-y-4">
@@ -277,9 +277,9 @@ const CompetitorAnalysisDashboard: React.FC = () => {
                     isAdvantage ? 'text-green-600' : 'text-red-600'
                   }`}>
                     {isAdvantage ? (
-                      <ArrowArrowTrendingUpIcon className="w-4 h-4 mr-1" />
+                      <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
                     ) : (
-                      <ArrowArrowTrendingDownIcon className="w-4 h-4 mr-1" />
+                      <ArrowTrendingDownIcon className="w-4 h-4 mr-1" />
                     )}
                     {item.advantage}
                   </div>
