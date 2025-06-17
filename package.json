@@ -11,10 +11,19 @@
   "dependencies": {
     "@headlessui/react": "^2.2.2",
     "@heroicons/react": "^2.2.0",
+    "@tensorflow/tfjs": "^4.21.0",
+    "axios": "^1.10.0",
+    "bcryptjs": "^3.0.2",
+    "bull": "^4.16.5",
+    "ioredis": "^5.6.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.1",
     "next": "15.3.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.15.3",
+    "redis": "^5.5.6",
+    "sharp": "^0.34.2",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

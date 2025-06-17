@@ -39,6 +39,9 @@ const Header = () => {
               <Link href="/videos" className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 動画管理
               </Link>
+              <Link href="/social" className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                SNS投稿
+              </Link>
               <Link href="/keywords" className="text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 キーワード検索
               </Link>
@@ -102,6 +105,13 @@ const Header = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               動画管理
+            </Link>
+            <Link 
+              href="/social" 
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              SNS投稿
             </Link>
             <Link 
               href="/keywords" 

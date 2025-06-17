@@ -11,6 +11,7 @@ import {
   TopPerformers,
   KeywordSuggestions
 } from '@/components/dashboard';
+import HashtagAnalytics from '@/components/social/HashtagAnalytics';
 
 export default function DashboardPage() {
   const { fetchContents } = useContentStore();
@@ -57,6 +58,9 @@ export default function DashboardPage() {
       
       {/* キーワードサジェスト */}
       <KeywordSuggestions />
+      
+      {/* ハッシュタグトレンド分析 */}
+      <HashtagAnalytics />
     </div>
   );
 }
