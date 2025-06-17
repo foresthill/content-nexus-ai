@@ -71,7 +71,7 @@ const generateEngagementComparison = (
 
   // Filter competitors based on request
   const filteredCompetitors = competitors.filter(c => 
-    competitorIds.length === 0 || competitorIds.includes(c.competitorId)
+    competitorIds.length === 0 || (c.competitorId && competitorIds.includes(c.competitorId))
   );
 
   // Generate industry average
@@ -206,7 +206,8 @@ const generateEngagementComparison = (
       trend: Array.from({ length: daysBack }, (_, i) => ({
         timestamp: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)),
         value: 4.2 + (Math.random() - 0.5) * 0.8,
-        label: `Day ${i + 1}`
+        label: `Day ${i + 1}`,
+        metric: 'engagement'
       })) as TimeSeriesData[],
       growthRate: 12.5
     },
@@ -216,7 +217,8 @@ const generateEngagementComparison = (
       trend: Array.from({ length: daysBack }, (_, i) => ({
         timestamp: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)),
         value: comp.averageEngagementRate + (Math.random() - 0.5) * 1.2,
-        label: `Day ${i + 1}`
+        label: `Day ${i + 1}`,
+        metric: 'engagement'
       })) as TimeSeriesData[],
       growthRate: comp.followerGrowthRate
     }))

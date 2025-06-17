@@ -13,10 +13,8 @@ import {
   ArrowUpIcon
 } from '@heroicons/react/24/outline';
 import {
-  BarChart,
   Bar,
   Line,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -170,7 +168,14 @@ const EngagementComparison: React.FC<{data: EngagementComparison['overallCompari
   );
 };
 
-const TrendingTopics: React.FC<{topics: any[]}> = ({ topics }) => {
+interface TrendingTopic {
+  topic: string;
+  sentiment: 'positive' | 'neutral' | 'negative';
+  volume: number;
+  growth: number;
+}
+
+const TrendingTopics: React.FC<{topics: TrendingTopic[]}> = ({ topics }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Trending Topics</h3>
@@ -190,7 +195,7 @@ const TrendingTopics: React.FC<{topics: any[]}> = ({ topics }) => {
             
             <div className="space-y-2">
               <div className="text-xs font-medium text-gray-700">Top Participants:</div>
-              {topic.competitorParticipation.slice(0, 2).map((participant: any, pIndex: number) => (
+              {topic.competitorParticipation?.slice(0, 2).map((participant: {competitorName: string; shareOfVoice: number}, pIndex: number) => (
                 <div key={pIndex} className="flex items-center justify-between text-xs">
                   <span>{participant.competitorName}</span>
                   <div className="flex items-center">

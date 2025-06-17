@@ -193,6 +193,7 @@ export default function SocialPostDetailPage() {
                           {platform.media.map((media) => (
                             <div key={media.id} className="relative">
                               {media.type === 'image' ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                   src={media.url}
                                   alt={media.filename}

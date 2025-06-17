@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     // ジョブデータの構築
     const jobData = {
       id: crypto.randomUUID(),
-      platform,
+      platform: platform as 'twitter' | 'instagram' | 'tiktok',
       content,
       scheduledAt: scheduledAt ? new Date(scheduledAt) : undefined,
       userId: authData.userId || authData.openId,
