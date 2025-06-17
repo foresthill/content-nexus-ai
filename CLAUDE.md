@@ -154,3 +154,144 @@ npm run test
 - **Color Scheme**: Indigo primary, with supportive blues, greens, and purples
 - **Interactions**: Provide visual feedback for all user interactions
 - **Loading States**: Show appropriate loading states for async operations
+
+## SNS投稿機能 (Social Media Posting Feature)
+
+### 概要
+X（Twitter）、Instagram、TikTokへのマルチプラットフォーム投稿を実現する統合SNS管理機能。AI駆動の最適化と包括的な分析機能を搭載。
+
+### 主要機能
+1. **マルチプラットフォーム投稿管理**
+   - 一つのインターフェースから複数SNSへ同時投稿
+   - プラットフォーム別の文字数制限とメディア制限に対応
+   - ドラフト、予約投稿、公開済みステータス管理
+
+2. **革新的UI/UXコンポーネント**
+   - **フローティング・コンポーザー**: 作業を中断しない浮動型投稿エディタ
+   - **マルチバース・プレビュー**: 3D空間での投稿プレビュー
+   - **タイムライン・フュージョン**: 統合スケジューリングビュー
+
+3. **バックエンド機能**
+   - OAuth2.0認証フロー（各プラットフォーム対応）
+   - Bull/Redisキューイングシステム
+   - Smart Retry Engine（インテリジェントリトライ機構）
+   - Webhook通知システム
+
+### 実装ファイル構造
+```
+/src/
+  /types/social.ts         # SNS投稿関連の型定義
+  /store/socialPostStore.ts # Zustandストア
+  /app/social/            # SNS投稿ページ
+  /components/social/     # SNS投稿コンポーネント
+    - SocialPostEditor.tsx
+    - PlatformContentEditor.tsx
+    - SocialPostList.tsx
+    - HashtagSuggestions.tsx
+  /app/api/social/        # API Routes
+    - auth/               # OAuth認証
+    - posts/              # 投稿管理
+    - media/              # メディアアップロード
+    - queue/              # キューイング
+```
+
+## AI分析機能 (AI Analytics Features)
+
+### 1. エモーショナル・レゾナンス・エンジン
+感情分析によるコンテンツ最適化システム。投稿内容の感情的インパクトをリアルタイムで分析し、エンゲージメント向上のための提案を提供。
+
+### 2. AIハッシュタグ提案システム
+- トレンド分析に基づく最適ハッシュタグ提案
+- プラットフォーム別最適化
+- パフォーマンススコアリング
+- 使用方法: `<HashtagSuggestions />` コンポーネントを投稿エディタに配置
+
+### 3. 最適投稿時間予測
+- TensorFlow.jsによる機械学習モデル
+- オーディエンス行動パターン分析
+- プラットフォーム別最適時間提案
+- 使用方法: `<PostingTimeRecommendations />` コンポーネントで表示
+
+### 4. AIバイラル・プレディクター
+- バイラル化確率の事前予測
+- コンテンツ改善提案
+- A/Bテスト機能統合
+
+### 実装ファイル
+```
+/src/lib/ai/
+  - content-optimizer.ts    # Neural Content Optimizer
+  - emotion-analyzer.ts     # 感情分析エンジン
+  - hashtag-engine.ts       # ハッシュタグ提案
+  - viral-predictor.ts      # バイラル予測
+  - posting-time-ml.ts      # 最適時間予測モデル
+```
+
+## 競合分析機能 (Competitor Analysis)
+
+### 機能概要
+競合他社のSNS戦略を分析し、自社の差別化ポイントを可視化する包括的な分析ツール。
+
+### 主要機能
+1. **競合SNS戦略分析**
+   - コンテンツ戦略パターン認識
+   - 投稿頻度・タイミング分析
+   - エンゲージメント率比較
+
+2. **業界ベンチマーク**
+   - パーセンタイル分析
+   - 業界標準との比較
+   - 市場リーダー特定
+
+3. **差別化ポイント可視化**
+   - 競合優位性マップ
+   - SWOT分析
+   - 戦略的推奨事項
+
+### 使用方法
+```typescript
+// 競合分析ページへアクセス
+/competitors
+
+// APIエンドポイント
+/api/competitors/analyze
+/api/competitors/benchmark
+```
+
+### 実装ファイル
+```
+/src/app/competitors/       # 競合分析ページ
+/src/components/competitors/ # 分析コンポーネント
+  - CompetitorDashboard.tsx
+  - BenchmarkChart.tsx
+  - StrategyAnalysis.tsx
+/src/lib/competitors/       # 分析ロジック
+```
+
+## チームの革新的貢献
+
+### Worker1の貢献
+- **Neural Content Optimizer**: AIによる投稿内容の自動最適化エンジン
+- **Distributed Queue Orchestra**: 分散型キューシステムで高可用性を実現
+- **Smart Retry Engine**: 失敗パターンを学習するインテリジェントリトライ
+
+### Worker2の貢献
+- **フローティング・コンポーザー**: 業界初の浮動型投稿エディタUI
+- **マルチバース・プレビュー**: 3D空間でのプラットフォーム横断プレビュー
+- **AI駆動型ビジュアルコンポーザー**: テキストから豊かなビジュアルコンテンツ生成
+
+### Worker3の貢献
+- **エモーショナル・レゾナンス・エンジン**: 感情レベルでの最適化を実現
+- **クロスプラットフォーム・シナジー・オプティマイザー**: プラットフォーム間の相乗効果最大化
+- **AIバイラル・プレディクター**: 業界初のバイラル化予測システム
+
+## 今後の開発者へ
+
+この革新的なSNSマーケティングプラットフォームは、次世代のデジタルマーケティングを実現する基盤として設計されています。各機能は拡張可能で、新しいSNSプラットフォームの追加や、より高度なAI機能の統合が容易に行えます。
+
+### 拡張のポイント
+1. 新SNSプラットフォーム追加: `/src/types/social.ts` にプラットフォーム定義を追加
+2. AI機能強化: `/src/lib/ai/` に新しい分析エンジンを実装
+3. UI/UX改善: `/src/components/social/` に新コンポーネントを追加
+
+革新的な機能開発を継続し、さらなる価値創造を目指してください！
