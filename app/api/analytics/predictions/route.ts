@@ -4,7 +4,7 @@ import { PredictiveAnalytics, TimeSeriesData } from '@/types/analytics';
 // Simulate ML model predictions using statistical analysis
 const generatePredictiveModel = (historicalData: TimeSeriesData[]) => {
   // Simple trend analysis and forecasting
-  const engagementData = historicalData.filter(d => d.metric === 'engagement_rate');
+  const engagementData = historicalData.filter(d => d.metric === 'engagementRate');
   const viewsData = historicalData.filter(d => d.metric === 'views');
   
   // Calculate trends
@@ -229,7 +229,7 @@ const generatePredictions = (contentId?: string, contentType?: string, platform?
       {
         timestamp: date,
         value: Math.random() * 12 + 3,
-        metric: 'engagement_rate'
+        metric: 'engagementRate'
       }
     );
   }

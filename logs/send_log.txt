@@ -109,3 +109,14 @@ engagement_rate → engagementRate のプロパティ名不一致が原因です
 fix/lint-errorsブランチで追加修正をお願いします。
 
 vercel buildで確認後、PRを更新してください。"
+[2025-06-17 17:35:50] boss1: SENT - "【確認】engagement-comparison/route.tsファイルの修正
+
+まだ同じエラーが出ています：
+- engagement_rate → engagementRate
+
+特に以下のファイルを確認してください：
+./app/api/analytics/competitors/engagement-comparison/route.ts:312
+
+platformComparisons変数内で、まだengagement_rateが使われているようです。
+
+もう一度確認して修正をお願いします。"

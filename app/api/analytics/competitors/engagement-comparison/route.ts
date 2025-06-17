@@ -97,7 +97,7 @@ const generateEngagementComparison = (
         saves: 800,
         reach: 320000,
         impressions: 450000,
-        engagement_rate: 4.5
+        engagementRate: 4.5
       },
       competitorMetrics: filteredCompetitors.map(comp => ({
         competitorId: comp.competitorId,
@@ -109,7 +109,7 @@ const generateEngagementComparison = (
           saves: comp.totalEngagement * 0.12,
           reach: comp.totalReach * 0.4,
           impressions: comp.totalReach * 0.6,
-          engagement_rate: comp.averageEngagementRate
+          engagementRate: comp.averageEngagementRate
         }
       })),
       benchmark: {
@@ -119,7 +119,7 @@ const generateEngagementComparison = (
         saves: 650,
         reach: 280000,
         impressions: 400000,
-        engagement_rate: 4.1
+        engagementRate: 4.1
       }
     },
     {
@@ -131,7 +131,7 @@ const generateEngagementComparison = (
         saves: 1500,
         reach: 520000,
         impressions: 780000,
-        engagement_rate: 5.8
+        engagementRate: 5.8
       },
       competitorMetrics: filteredCompetitors.map(comp => ({
         competitorId: comp.competitorId,
@@ -143,7 +143,7 @@ const generateEngagementComparison = (
           saves: comp.totalEngagement * 0.1,
           reach: comp.totalReach * 0.6,
           impressions: comp.totalReach * 0.9,
-          engagement_rate: comp.averageEngagementRate * 1.2
+          engagementRate: comp.averageEngagementRate * 1.2
         }
       })),
       benchmark: {
@@ -153,7 +153,7 @@ const generateEngagementComparison = (
         saves: 1200,
         reach: 480000,
         impressions: 720000,
-        engagement_rate: 5.2
+        engagementRate: 5.2
       }
     }
   ];

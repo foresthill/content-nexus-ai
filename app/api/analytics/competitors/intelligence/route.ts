@@ -127,7 +127,7 @@ const generateCompetitiveIntelligence = (
         impact: 'high',
         effort: 'medium',
         timeline: 'short_term',
-        success_metrics: ['engagement_rate', 'reach', 'video_completion_rate']
+        success_metrics: ['engagementRate', 'reach', 'video_completion_rate']
       },
       {
         recommendation: 'Implement UGC campaign strategy based on industry trend analysis',
@@ -135,7 +135,7 @@ const generateCompetitiveIntelligence = (
         impact: 'high',
         effort: 'medium',
         timeline: 'short_term',
-        success_metrics: ['brand_mentions', 'engagement_rate', 'authenticity_score']
+        success_metrics: ['brand_mentions', 'engagementRate', 'authenticity_score']
       },
       {
         recommendation: 'Explore morning posting times (6-9 AM) as competitors focus on evenings',
@@ -143,7 +143,7 @@ const generateCompetitiveIntelligence = (
         impact: 'medium',
         effort: 'low',
         timeline: 'immediate',
-        success_metrics: ['reach', 'engagement_rate', 'impression_share']
+        success_metrics: ['reach', 'engagementRate', 'impression_share']
       },
       {
         recommendation: 'Develop AR filter strategy to match competitor innovation',
