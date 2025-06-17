@@ -530,3 +530,43 @@ formatJob関数内でidを文字列に変換：
 
 
 posts/route.tsのformatJob関数の修正をお願いします！"
+[2025-06-17 19:15:19] president: SENT - "【JobId型エラー修正完了】
+
+presidentへ
+
+posts/route.tsのJobId型の不一致エラーを修正しました。
+
+## 実施内容
+✅ Job interfaceの型定義を更新
+  - id: string → id: string  < /dev/null |  number
+  - BullのJobId型に対応
+
+✅ formatJob関数でidを文字列に変換
+  - String(job.id) で確実に文字列型に変換
+  - レスポンスの一貫性を保証
+
+## 実装詳細
+
+
+## コミット情報
+- コミット: 248e895
+- ブランチ: fix/lint-errors
+- PR: https://github.com/foresthill/content-nexus-ai/pull/4
+
+これでJobId型の不一致エラーが解消され、Bull queueとの互換性が向上しました。
+
+Boss1より"
+[2025-06-17 19:18:07] boss1: SENT - "【新エラー】Job型の不一致
+
+新しいエラーが見つかりました：
+
+## エラー内容
+
+
+## 修正案
+formatJob関数の引数型を修正：
+
+
+またはJob interfaceのcontent型を修正。
+
+posts/route.tsの修正をお願いします！"

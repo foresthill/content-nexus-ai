@@ -138,13 +138,16 @@ export async function GET(request: NextRequest) {
 }
 
 // ジョブデータのフォーマット
+interface JobData {
+  platform: string;
+  content: any; // Bull allows any type for job data
+  scheduledAt?: Date;
+  [key: string]: any; // Allow additional properties
+}
+
 interface Job {
   id: string | number;
-  data: {
-    platform: string;
-    content: string;
-    scheduledAt?: Date;
-  };
+  data: JobData;
   opts: {
     delay?: number;
   };
@@ -158,7 +161,7 @@ function formatJob(job: Job) {
   return {
     id: String(job.id),
     platform: job.data.platform,
-    content: job.data.content,
+    content: typeof job.data.content === 'string' ? job.data.content : JSON.stringify(job.data.content),
     scheduledAt: job.data.scheduledAt,
     status: job.opts.delay ? 'scheduled' : 'pending',
     progress: job.progress(),
