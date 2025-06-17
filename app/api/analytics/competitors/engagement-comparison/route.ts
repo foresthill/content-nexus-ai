@@ -371,8 +371,7 @@ export async function GET(request: NextRequest) {
             ? comparisonData.gapAnalysis 
             : {
                 opportunities: comparisonData.gapAnalysis.opportunities,
-                threats: comparisonData.gapAnalysis.threats,
-                // Exclude recommendations
+                threats: comparisonData.gapAnalysis.threats
               }
         }
       : baseResponse;
