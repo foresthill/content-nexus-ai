@@ -10,34 +10,20 @@ import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
   LightBulbIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  ArrowRightIcon
+  ArrowUpIcon
 } from '@heroicons/react/24/outline';
 import {
   BarChart,
   Bar,
-  LineChart,
   Line,
-  PieChart,
-  Pie,
   Cell,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ScatterChart,
-  Scatter,
-  ComposedChart,
-  Area,
-  AreaChart
+  ComposedChart
 } from 'recharts';
 import { CompetitorDashboardData, CompetitiveIntelligence, EngagementComparison } from '@/types/competitor';
 
@@ -151,11 +137,6 @@ const EngagementComparison: React.FC<{data: EngagementComparison['overallCompari
     }] : [])
   ];
 
-  const COLORS = {
-    you: '#3B82F6',
-    competitor: '#10B981',
-    industry: '#F59E0B'
-  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">

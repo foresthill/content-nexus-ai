@@ -33,7 +33,14 @@ export async function POST(request: NextRequest) {
     }
     
     // 認証情報の取得
-    const authData = verifyAuthToken(request, platform) as any;
+    interface AuthData {
+      userId?: string;
+      openId?: string;
+      accessToken: string;
+      accessTokenSecret?: string;
+      refreshToken?: string;
+    }
+    const authData = verifyAuthToken(request, platform) as AuthData;
     
     // ジョブデータの構築
     const jobData = {
@@ -60,10 +67,11 @@ export async function POST(request: NextRequest) {
       platform,
       scheduledAt: jobData.scheduledAt
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Post creation error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create post';
     return NextResponse.json(
-      { error: error.message || 'Failed to create post' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -111,7 +119,7 @@ export async function GET(request: NextRequest) {
     }
     
     return NextResponse.json(jobs.map(formatJob));
-  } catch (error: any) {
+  } catch (error) {
     console.error('Get jobs error:', error);
     return NextResponse.json(
       { error: 'Failed to get jobs' },
@@ -121,7 +129,23 @@ export async function GET(request: NextRequest) {
 }
 
 // ジョブデータのフォーマット
-function formatJob(job: any) {
+interface Job {
+  id: string;
+  data: {
+    platform: string;
+    content: string;
+    scheduledAt?: Date;
+  };
+  opts: {
+    delay?: number;
+  };
+  progress(): number;
+  timestamp: number;
+  processedOn?: number;
+  failedReason?: string;
+}
+
+function formatJob(job: Job) {
   return {
     id: job.id,
     platform: job.data.platform,

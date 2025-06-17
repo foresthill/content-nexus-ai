@@ -288,7 +288,7 @@ const generateMLPredictions = (
     
     predictions.push({
       competitorId,
-      predictionType: type as any,
+      predictionType: type as 'engagement_forecast' | 'trend_adoption' | 'content_performance' | 'market_share',
       timeframe: '1m',
       prediction,
       generatedAt: new Date(),
@@ -379,7 +379,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add ML predictions if requested
-    let predictions: CompetitorMLPrediction[] = [];
+    const predictions: CompetitorMLPrediction[] = [];
     if (includeMLPredictions && competitors.length > 0) {
       const predictionTypes = ['engagement_forecast', 'trend_adoption', 'content_performance'];
       competitors.forEach((compId: string) => {

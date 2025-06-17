@@ -23,9 +23,7 @@ import {
   Legend, 
   ResponsiveContainer,
   ComposedChart,
-  AreaChart,
   Area,
-  LineChart,
   Line
 } from 'recharts';
 import { DashboardData, KPIMetrics } from '@/types/analytics';
@@ -209,15 +207,25 @@ export default function AnalyticsDashboard() {
   }
 
   // Prepare chart data
+  type ChartDataItem = { 
+    date: string; 
+    total_engagement?: number; 
+    engagement_rate?: number; 
+    reach?: number;
+    [key: string]: string | number | undefined;
+  };
+
   const engagementChartData = kpiData.trends
-    .filter((t: { metric: string }) => ['total_engagement', 'engagement_rate', 'reach'].includes(t.metric))
-    .reduce((acc: Array<{ date: string; totalEngagement: number; engagementRate: number; reach: number }>, curr: { timestamp: Date; value: number; metric: string }) => {
+    .filter((t) => ['total_engagement', 'engagement_rate', 'reach'].includes(t.metric))
+    .reduce((acc: ChartDataItem[], curr) => {
       const date = new Date(curr.timestamp).toLocaleDateString();
-      const existing = acc.find((d: { date: string }) => d.date === date);
+      const existing = acc.find((d) => d.date === date);
       if (existing) {
         existing[curr.metric] = curr.value;
       } else {
-        acc.push({ date, [curr.metric]: curr.value });
+        const newItem: ChartDataItem = { date };
+        newItem[curr.metric] = curr.value;
+        acc.push(newItem);
       }
       return acc;
     }, []);
@@ -228,7 +236,7 @@ export default function AnalyticsDashboard() {
   const contentPreferencesData = Object.entries(dashboardData.audience.behaviorPatterns.contentPreferences)
     .map(([type, percentage]) => ({ name: type, value: percentage }));
 
-  const platformData = kpiData.platformBreakdown?.map((p: { platform: string; metrics: { engagement: number; reach: number; revenue: number } }) => ({
+  const platformData = kpiData.platformBreakdown?.map((p) => ({
     platform: p.platform,
     engagement: p.metrics.engagement,
     reach: p.metrics.reach,
@@ -374,7 +382,7 @@ export default function AnalyticsDashboard() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }: { name: string; percent: number }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -487,7 +495,7 @@ export default function AnalyticsDashboard() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommendations</h3>
             <div className="space-y-4">
-              {kpiData.recommendations?.slice(0, 3).map((rec: { category: string; priority: string; title: string; description: string; actions: string[]; expectedImpact: string }, index: number) => (
+              {kpiData.recommendations?.slice(0, 3).map((rec, index) => (
                 <div key={index} className="p-4 border border-gray-200 rounded-lg">
                   <div className="flex items-start">
                     <div className={`p-2 rounded-full mr-3 ${

@@ -164,7 +164,7 @@ const calculateKPIInsights = (currentMetrics: KPIMetrics, trends: TimeSeriesData
 };
 
 // Generate real-time alerts
-const generateRealTimeAlerts = (metrics: KPIMetrics, trends: TimeSeriesData[]) => {
+const generateRealTimeAlerts = (metrics: KPIMetrics) => {
   const alerts = [];
   
   // Viral content alert
@@ -324,10 +324,47 @@ export async function GET(request: NextRequest) {
         lastUpdated: string;
         dataFreshness: string;
       };
-      alerts?: any[];
-      recommendations?: any[];
-      comparison?: any;
-      platformBreakdown?: any[];
+      alerts?: Array<{
+        type: string;
+        priority: string;
+        message: string;
+        details: string;
+        timestamp: Date;
+        actionable: string;
+      }>;
+      recommendations?: Array<{
+        category: string;
+        priority: string;
+        title: string;
+        description: string;
+        actions: string[];
+        expectedImpact: string;
+      }>;
+      comparison?: {
+        previousPeriod: {
+          totalEngagement: number;
+          averageEngagementRate: number;
+          totalReach: number;
+          followersGrowth: number;
+          revenueGenerated: number;
+        };
+        changes: {
+          engagement: { absolute: number; percentage: number };
+          engagementRate: { absolute: number; percentage: number };
+          reach: { absolute: number; percentage: number };
+          revenue: { absolute: number; percentage: number };
+        };
+        periodLabel: string;
+      };
+      platformBreakdown?: Array<{
+        platform: string;
+        metrics: {
+          engagement: number;
+          reach: number;
+          revenue: number;
+        };
+        performance: string;
+      }>;
     } = {
       current: currentMetrics,
       trends,
@@ -353,7 +390,6 @@ export async function GET(request: NextRequest) {
     // Add comparison data if requested
     if (includeComparison) {
       // Generate comparison with previous period
-      // const previousPeriodTrends = generateKPITrends(days * 2).slice(0, days); // Currently unused
       const previousMetrics = {
         totalEngagement: Math.floor(currentMetrics.totalEngagement * (0.85 + Math.random() * 0.3)),
         averageEngagementRate: parseFloat((currentMetrics.averageEngagementRate * (0.9 + Math.random() * 0.2)).toFixed(2)),

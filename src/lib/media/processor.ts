@@ -262,7 +262,7 @@ export class MediaProcessor {
         valid: errors.length === 0,
         errors
       };
-    } catch (error) {
+    } catch {
       return {
         valid: false,
         errors: ['画像の検証に失敗しました']

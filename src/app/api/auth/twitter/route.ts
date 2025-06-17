@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { TwitterAuth } from '@/lib/auth/twitter';
 
 const twitterAuth = new TwitterAuth();
@@ -6,7 +6,7 @@ const twitterAuth = new TwitterAuth();
 // セッションストレージ（実際の実装ではRedisなどを使用）
 const tempStorage = new Map<string, string>();
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // リクエストトークンを取得
     const { oauth_token, oauth_token_secret } = await twitterAuth.getRequestToken();

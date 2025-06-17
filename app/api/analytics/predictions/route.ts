@@ -340,8 +340,66 @@ export async function GET(request: NextRequest) {
         confidence: number;
         modelVersion: string;
       };
-      insights?: any[];
-      recommendations?: any[];
+      insights?: Array<{
+        insight: string;
+        impact: string;
+        confidence: number;
+      }>;
+      recommendations?: Array<{
+        recommendation: string;
+        priority: string;
+        expectedBenefit: string;
+      }>;
+      detailedAnalysis?: {
+        trendingTopics: Array<{
+          topic: string;
+          score: number;
+          velocity: number;
+          searchVolume: number;
+        }>;
+        trendingHashtags: Array<{
+          hashtag: string;
+          score: number;
+          posts: number;
+          engagement: number;
+        }>;
+        contentTypeAnalysis: Array<{
+          contentType: string;
+          recommendedTimes: Array<{
+            time: string;
+            performance: number;
+            confidence: number;
+          }>;
+          recommendedDays: Array<{
+            day: string;
+            performance: number;
+            avgEngagement: number;
+          }>;
+          expectedEngagementRate: number;
+          viralPotential: number;
+        }>;
+        audienceMoodAnalysis: {
+          overall: 'positive' | 'neutral' | 'negative';
+          confidence: number;
+          factors: {
+            recent_events?: string;
+            seasonal_trends?: string;
+            platform_changes?: string;
+          };
+          recommendations: string[];
+        };
+        optimizationTips: Array<{
+          category: string;
+          tip: string;
+          impact: string;
+          confidence: number;
+        }>;
+        riskFactors: Array<{
+          factor: string;
+          probability: number;
+          mitigation: string;
+        }>;
+      };
     } = {
       predictions,
       meta: {
@@ -434,11 +492,13 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { 
-      contentId, 
-      // actualMetrics,  // Currently unused
-      // feedbackType = 'performance',  // Currently unused
-      // improvementSuggestions  // Currently unused 
+      contentId
     } = body;
+    
+    // Note: These fields are reserved for future implementation
+    // actualMetrics: Actual performance metrics for comparison
+    // feedbackType: Type of feedback being provided
+    // improvementSuggestions: User suggestions for improvement
 
     // In production, this would:
     // 1. Store actual performance data

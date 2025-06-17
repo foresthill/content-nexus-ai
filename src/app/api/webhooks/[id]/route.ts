@@ -145,10 +145,10 @@ export async function POST(
       success,
       message: success ? 'Test webhook sent successfully' : 'Test webhook failed'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Test webhook error:', error);
     
-    if (error.message === 'Webhook not found') {
+    if (error instanceof Error && error.message === 'Webhook not found') {
       return NextResponse.json(
         { error: 'Webhook not found' },
         { status: 404 }

@@ -1,13 +1,11 @@
 import { create } from 'zustand';
 import { 
   SocialPost, 
-  PostStatus, 
   CreatePostInput, 
   UpdatePostInput, 
   PlatformPostResult,
   SocialPlatform,
-  MediaFile,
-  PlatformContent
+  MediaFile
 } from '../types/social';
 
 // モックデータの生成

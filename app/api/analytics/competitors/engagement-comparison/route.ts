@@ -339,7 +339,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Conditionally include gap analysis and recommendations
-    const response: any = {
+    const response: Partial<EngagementComparison> & {
+      metadata: {
+        generatedAt: Date;
+        requestedCompetitors: string[];
+        timeframe: string;
+        platforms: string[] | string;
+      };
+    } = {
       ...comparisonData,
       metadata: {
         generatedAt: new Date(),
