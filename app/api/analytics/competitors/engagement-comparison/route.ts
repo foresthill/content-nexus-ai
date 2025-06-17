@@ -99,19 +99,21 @@ const generateEngagementComparison = (
         impressions: 450000,
         engagementRate: 4.5
       },
-      competitorMetrics: filteredCompetitors.map(comp => ({
-        competitorId: comp.competitorId,
-        competitorName: comp.competitorName,
-        metrics: {
-          likes: comp.totalEngagement * 0.7,
-          comments: comp.totalEngagement * 0.08,
-          shares: comp.totalEngagement * 0.05,
-          saves: comp.totalEngagement * 0.12,
-          reach: comp.totalReach * 0.4,
-          impressions: comp.totalReach * 0.6,
-          engagementRate: comp.averageEngagementRate
-        }
-      })),
+      competitorMetrics: filteredCompetitors
+        .filter(comp => comp.competitorId && comp.competitorName)
+        .map(comp => ({
+          competitorId: comp.competitorId!,
+          competitorName: comp.competitorName!,
+          metrics: {
+            likes: comp.totalEngagement * 0.7,
+            comments: comp.totalEngagement * 0.08,
+            shares: comp.totalEngagement * 0.05,
+            saves: comp.totalEngagement * 0.12,
+            reach: comp.totalReach * 0.4,
+            impressions: comp.totalReach * 0.6,
+            engagementRate: comp.averageEngagementRate
+          }
+        })),
       benchmark: {
         likes: 12000,
         comments: 980,
@@ -133,19 +135,21 @@ const generateEngagementComparison = (
         impressions: 780000,
         engagementRate: 5.8
       },
-      competitorMetrics: filteredCompetitors.map(comp => ({
-        competitorId: comp.competitorId,
-        competitorName: comp.competitorName,
-        metrics: {
-          likes: comp.totalEngagement * 0.8,
-          comments: comp.totalEngagement * 0.12,
-          shares: comp.totalEngagement * 0.08,
-          saves: comp.totalEngagement * 0.1,
-          reach: comp.totalReach * 0.6,
-          impressions: comp.totalReach * 0.9,
-          engagementRate: comp.averageEngagementRate * 1.2
-        }
-      })),
+      competitorMetrics: filteredCompetitors
+        .filter(comp => comp.competitorId && comp.competitorName)
+        .map(comp => ({
+          competitorId: comp.competitorId!,
+          competitorName: comp.competitorName!,
+          metrics: {
+            likes: comp.totalEngagement * 0.8,
+            comments: comp.totalEngagement * 0.12,
+            shares: comp.totalEngagement * 0.08,
+            saves: comp.totalEngagement * 0.1,
+            reach: comp.totalReach * 0.6,
+            impressions: comp.totalReach * 0.9,
+            engagementRate: comp.averageEngagementRate * 1.2
+          }
+        })),
       benchmark: {
         likes: 25000,
         comments: 2200,
@@ -211,17 +215,19 @@ const generateEngagementComparison = (
       })) as TimeSeriesData[],
       growthRate: 12.5
     },
-    ...filteredCompetitors.map(comp => ({
-      competitorId: comp.competitorId,
-      competitorName: comp.competitorName,
-      trend: Array.from({ length: daysBack }, (_, i) => ({
-        timestamp: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)),
-        value: comp.averageEngagementRate + (Math.random() - 0.5) * 1.2,
-        label: `Day ${i + 1}`,
-        metric: 'engagement'
-      })) as TimeSeriesData[],
-      growthRate: comp.followerGrowthRate
-    }))
+    ...filteredCompetitors
+      .filter(comp => comp.competitorId && comp.competitorName)
+      .map(comp => ({
+        competitorId: comp.competitorId!,
+        competitorName: comp.competitorName!,
+        trend: Array.from({ length: daysBack }, (_, i) => ({
+          timestamp: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)),
+          value: comp.averageEngagementRate + (Math.random() - 0.5) * 1.2,
+          label: `Day ${i + 1}`,
+          metric: 'engagement'
+        })) as TimeSeriesData[],
+        growthRate: comp.followerGrowthRate
+      }))
   ];
 
   // Generate gap analysis
