@@ -66,7 +66,11 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       }
     },
     conversionRate: 0.032,
-    revenue: 3250
+    revenue: 3250,
+    platform: 'web',
+    contentType: 'text',
+    createdAt: new Date(dates[0]),
+    updatedAt: new Date()
   };
   
   // SEO記事の分析データ
@@ -114,7 +118,11 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       }
     },
     conversionRate: 0.045,
-    revenue: 4200
+    revenue: 4200,
+    platform: 'web',
+    contentType: 'text',
+    createdAt: new Date(dates[0]),
+    updatedAt: new Date()
   };
 
   // 動画分析データ
@@ -162,7 +170,11 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       }
     },
     conversionRate: 0.015,
-    revenue: 1800
+    revenue: 1800,
+    platform: 'youtube',
+    contentType: 'video',
+    createdAt: new Date(dates[0]),
+    updatedAt: new Date()
   };
   
   // ショート動画の分析データ
@@ -208,7 +220,13 @@ const generateMockAnalytics = (): AnalyticsData[] => {
         'desktop': 8,
         'tablet': 2
       }
-    }
+    },
+    conversionRate: 0.008,
+    revenue: 800,
+    platform: 'tiktok',
+    contentType: 'video',
+    createdAt: new Date(dates[0]),
+    updatedAt: new Date()
   };
 
   return [contentAnalytics1, contentAnalytics2, videoAnalytics1, videoAnalytics2];
