@@ -100,8 +100,7 @@ const MetricCard: React.FC<{
 const EngagementTrends: React.FC<{ data: EngagementComparison['engagementTrends'] }> = ({ data }) => {
   const chartData = data[0]?.trend.map((point, index) => {
     const result: any = {
-      date: point.timestamp.toLocaleDateString(),
-      label: point.label
+      date: point.timestamp.toLocaleDateString()
     };
     
     data.forEach(competitor => {
