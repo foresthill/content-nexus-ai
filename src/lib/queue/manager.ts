@@ -57,14 +57,16 @@ export class QueueManager {
         removeOnFail: 10,
         attempts: 5,
         backoff: {
-          type: 'custom',
-          delay: this.calculateRetryDelay
+          type: 'exponential',
+          delay: 5000
         }
       }
     });
   }
 
-  // カスタムリトライ遅延計算（Smart Retry Engine）
+  // Smart Retry Engine用のカスタム遅延計算
+  // Note: Bull v3では 'custom' backoff typeがサポートされていないため、
+  // この関数は将来的な実装のための参考として残しています
   private calculateRetryDelay(attemptsMade: number, error: any): number {
     // エラーの種類に基づいて遅延を調整
     if (error?.code === 'RATE_LIMIT') {

@@ -165,7 +165,7 @@ const generateDashboardData = (): CompetitorDashboardData => ({
       impact: 'high',
       effort: 'medium',
       timeline: 'short_term',
-      success_metrics: ['engagement_rate', 'reach', 'video_completion_rate']
+      success_metrics: ['engagementRate', 'reach', 'video_completion_rate']
     }
   ]
 });

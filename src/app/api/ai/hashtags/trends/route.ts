@@ -87,9 +87,9 @@ export async function POST(request: NextRequest) {
 
 function generateTrendInsights(
   groupedTrends: {
-    rising: Array<{ hashtag: string; growthRate: number; volume: number }>;
-    stable: Array<{ hashtag: string; growthRate: number; volume: number }>;
-    declining: Array<{ hashtag: string; growthRate: number; volume: number }>;
+    rising: Array<{ hashtag: string; growthRate: number; volume?: number; engagementRate?: number }>;
+    stable: Array<{ hashtag: string; growthRate: number; volume?: number; engagementRate?: number }>;
+    declining: Array<{ hashtag: string; growthRate: number; volume?: number; engagementRate?: number }>;
   },
   platform: SocialPlatform
 ): string[] {
@@ -108,7 +108,7 @@ function generateTrendInsights(
   
   if (highEngagement.length > 0) {
     const avgEngagement = (
-      highEngagement.reduce((sum, t) => sum + t.engagementRate, 0) / highEngagement.length
+      highEngagement.reduce((sum, t) => sum + (t.engagementRate || 0), 0) / highEngagement.length
     ).toFixed(1);
     insights.push(`高エンゲージメント率: 平均${avgEngagement}%の反応率を記録`);
   }

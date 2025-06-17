@@ -238,7 +238,7 @@ export function ABTestSuggestions({ abTests }: ABTestSuggestionsProps) {
           <div>
             <h5 className="font-medium mb-2">During Testing:</h5>
             <ul className="space-y-1">
-              <li>• Don't stop tests early</li>
+              <li>• Don&apos;t stop tests early</li>
               <li>• Monitor for external factors</li>
               <li>• Ensure equal traffic distribution</li>
               <li>• Document any changes made</li>

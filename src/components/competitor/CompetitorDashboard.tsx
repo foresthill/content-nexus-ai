@@ -4,42 +4,26 @@ import React, { useState, useEffect } from 'react';
 import {
   ChartBarIcon,
   EyeIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   UserGroupIcon,
   StarIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
   LightBulbIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  ArrowRightIcon
+  ArrowUpIcon
 } from '@heroicons/react/24/outline';
 import {
-  BarChart,
   Bar,
-  LineChart,
   Line,
-  PieChart,
-  Pie,
-  Cell,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ScatterChart,
-  Scatter,
-  ComposedChart,
-  Area,
-  AreaChart
+  ComposedChart
 } from 'recharts';
-import { CompetitorDashboardData, CompetitiveIntelligence, EngagementComparison } from '@/types/competitor';
+import type { CompetitorDashboardData, CompetitiveIntelligence, EngagementComparison } from '@/types/competitor';
 
 interface CompetitorDashboardProps {
   className?: string;
@@ -81,7 +65,7 @@ const RecentInsights: React.FC<{insights: CompetitiveIntelligence['keyInsights']
     switch (category) {
       case 'opportunity': return LightBulbIcon;
       case 'threat': return ExclamationTriangleIcon;
-      case 'trend': return TrendingUpIcon;
+      case 'trend': return ArrowTrendingUpIcon;
       default: return InformationCircleIcon;
     }
   };
@@ -151,11 +135,6 @@ const EngagementComparison: React.FC<{data: EngagementComparison['overallCompari
     }] : [])
   ];
 
-  const COLORS = {
-    you: '#3B82F6',
-    competitor: '#10B981',
-    industry: '#F59E0B'
-  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -189,7 +168,21 @@ const EngagementComparison: React.FC<{data: EngagementComparison['overallCompari
   );
 };
 
-const TrendingTopics: React.FC<{topics: any[]}> = ({ topics }) => {
+interface TrendingTopic {
+  topic: string;
+  sentiment: 'positive' | 'neutral' | 'negative';
+  volume: number;
+  growth: number;
+  competitorParticipation?: {
+    competitorId: string;
+    competitorName: string;
+    contentCount: number;
+    avgEngagement: number;
+    shareOfVoice: number;
+  }[];
+}
+
+const TrendingTopics: React.FC<{topics: TrendingTopic[]}> = ({ topics }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Trending Topics</h3>
@@ -209,7 +202,7 @@ const TrendingTopics: React.FC<{topics: any[]}> = ({ topics }) => {
             
             <div className="space-y-2">
               <div className="text-xs font-medium text-gray-700">Top Participants:</div>
-              {topic.competitorParticipation.slice(0, 2).map((participant: any, pIndex: number) => (
+              {topic.competitorParticipation?.slice(0, 2).map((participant: {competitorName: string; shareOfVoice: number}, pIndex: number) => (
                 <div key={pIndex} className="flex items-center justify-between text-xs">
                   <span>{participant.competitorName}</span>
                   <div className="flex items-center">

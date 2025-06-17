@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   SparklesIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   ClockIcon,
   EyeIcon,
   HeartIcon,
@@ -103,7 +103,7 @@ const PredictionCard: React.FC<PredictionCardProps> = ({
               trend === 'up' ? 'text-green-600' : 
               trend === 'down' ? 'text-red-600' : 'text-gray-500'
             }`}>
-              <TrendingUpIcon className={`h-4 w-4 ${trend === 'down' ? 'transform rotate-180' : ''}`} />
+              <ArrowTrendingUpIcon className={`h-4 w-4 ${trend === 'down' ? 'transform rotate-180' : ''}`} />
             </div>
           )}
         </div>

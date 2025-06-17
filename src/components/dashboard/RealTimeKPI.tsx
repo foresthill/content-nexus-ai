@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  TrendingUpIcon,
-  TrendingDownIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   MinusIcon,
   ArrowUpIcon,
   ArrowDownIcon,
@@ -293,7 +293,7 @@ const RealTimeKPIDashboard: React.FC<RealTimeKPIDashboardProps> = ({
           title="Engagement Rate"
           value={kpiData.averageEngagementRate}
           trend={kpiData.engagementTrend}
-          icon={TrendingUpIcon}
+          icon={ArrowTrendingUpIcon}
           color="green"
           isRealTime={true}
           lastUpdated={lastUpdate}
@@ -400,9 +400,9 @@ const RealTimeKPIDashboard: React.FC<RealTimeKPIDashboardProps> = ({
               <p className="text-sm text-gray-600">Overall Trend</p>
               <div className="flex items-center justify-center space-x-1">
                 {kpiData.engagementTrend === 'up' ? (
-                  <TrendingUpIcon className="h-4 w-4 text-green-600" />
+                  <ArrowTrendingUpIcon className="h-4 w-4 text-green-600" />
                 ) : kpiData.engagementTrend === 'down' ? (
-                  <TrendingDownIcon className="h-4 w-4 text-red-600" />
+                  <ArrowTrendingDownIcon className="h-4 w-4 text-red-600" />
                 ) : (
                   <MinusIcon className="h-4 w-4 text-gray-500" />
                 )}

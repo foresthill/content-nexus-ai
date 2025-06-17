@@ -70,9 +70,13 @@ export async function POST(request: NextRequest) {
         
         scheduledJobs.push({
           platform,
-          jobId: job.id,
+          jobId: String(job.id),
           scheduledAt: scheduledDate,
-          optimalTime: optimalTime,
+          optimalTime: {
+            hour: optimalTime.hour,
+            dayOfWeek: optimalTime.dayOfWeek,
+            reason: optimalTime.reason || ''
+          },
           confidence: predictor.getConfidenceScore()
         });
       }

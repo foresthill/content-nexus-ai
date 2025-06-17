@@ -34,7 +34,7 @@ export default function SocialPostEditor({
     new Set(initialData?.platforms.map(p => p.platform) || [])
   );
   const [platformContents, setPlatformContents] = useState<Record<SocialPlatform, PlatformContent>>(
-    initialData?.platforms.reduce((acc, p) => ({ ...acc, [p.platform]: p }), {}) || {}
+    initialData?.platforms.reduce((acc, p) => ({ ...acc, [p.platform]: p }), {} as Record<SocialPlatform, PlatformContent>) || {} as Record<SocialPlatform, PlatformContent>
   );
   const [scheduledAt, setScheduledAt] = useState<string>(
     initialData?.scheduledAt ? new Date(initialData.scheduledAt).toISOString().slice(0, 16) : ''
@@ -50,9 +50,9 @@ export default function SocialPostEditor({
     const newSelected = new Set(selectedPlatforms);
     if (newSelected.has(platform)) {
       newSelected.delete(platform);
-      const newContents = { ...platformContents };
-      delete newContents[platform];
-      setPlatformContents(newContents);
+      // Create new object without the platform key
+      const { [platform]: _, ...newContents } = platformContents;
+      setPlatformContents(newContents as Record<SocialPlatform, PlatformContent>);
     } else {
       newSelected.add(platform);
       setPlatformContents({

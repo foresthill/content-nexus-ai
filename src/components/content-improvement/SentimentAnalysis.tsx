@@ -272,7 +272,7 @@ export function SentimentAnalysis({ sentiment }: SentimentAnalysisProps) {
               </li>
               <li className="flex items-start space-x-2">
                 <span className="text-green-500 mt-1">•</span>
-                <span>Address your audience's pain points and aspirations</span>
+                <span>Address your audience&apos;s pain points and aspirations</span>
               </li>
               <li className="flex items-start space-x-2">
                 <span className="text-green-500 mt-1">•</span>

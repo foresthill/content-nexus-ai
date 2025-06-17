@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { SocialPlatform } from '@/types/social';
-import { XMarkIcon, SparklesIcon, TrendingUpIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, SparklesIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
 
 interface HashtagSuggestionsProps {
   content: string;
@@ -217,7 +217,7 @@ export default function HashtagSuggestions({
                 >
                   #{suggestion.hashtag}
                   {suggestion.trendScore && suggestion.trendScore > 80 && (
-                    <TrendingUpIcon className="h-3 w-3" />
+                    <ArrowTrendingUpIcon className="h-3 w-3" />
                   )}
                 </button>
               ))}

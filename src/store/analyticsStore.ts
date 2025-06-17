@@ -42,6 +42,7 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       shares: 92,
       comments: 76,
       bounceRate: 0.32,
+      engagementRate: 4.2,
     },
     demographics: {
       ageGroups: {
@@ -65,7 +66,11 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       }
     },
     conversionRate: 0.032,
-    revenue: 3250
+    revenue: 3250,
+    platform: 'web',
+    contentType: 'text',
+    createdAt: new Date(dates[0]),
+    updatedAt: new Date()
   };
   
   // SEO記事の分析データ
@@ -89,6 +94,7 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       shares: 68,
       comments: 42,
       bounceRate: 0.28,
+      engagementRate: 3.8,
     },
     demographics: {
       ageGroups: {
@@ -112,7 +118,11 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       }
     },
     conversionRate: 0.045,
-    revenue: 4200
+    revenue: 4200,
+    platform: 'web',
+    contentType: 'text',
+    createdAt: new Date(dates[0]),
+    updatedAt: new Date()
   };
 
   // 動画分析データ
@@ -136,6 +146,7 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       shares: 350,
       comments: 180,
       averageViewDuration: 480, // 8分（12分の動画の平均視聴時間）
+      engagementRate: 5.1,
     },
     demographics: {
       ageGroups: {
@@ -159,7 +170,11 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       }
     },
     conversionRate: 0.015,
-    revenue: 1800
+    revenue: 1800,
+    platform: 'youtube',
+    contentType: 'video',
+    createdAt: new Date(dates[0]),
+    updatedAt: new Date()
   };
   
   // ショート動画の分析データ
@@ -183,6 +198,7 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       shares: 980,
       comments: 320,
       averageViewDuration: 40, // 40秒（45秒の動画の平均視聴時間）
+      engagementRate: 4.5,
     },
     demographics: {
       ageGroups: {
@@ -204,7 +220,13 @@ const generateMockAnalytics = (): AnalyticsData[] => {
         'desktop': 8,
         'tablet': 2
       }
-    }
+    },
+    conversionRate: 0.008,
+    revenue: 800,
+    platform: 'tiktok',
+    contentType: 'video',
+    createdAt: new Date(dates[0]),
+    updatedAt: new Date()
   };
 
   return [contentAnalytics1, contentAnalytics2, videoAnalytics1, videoAnalytics2];

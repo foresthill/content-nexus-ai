@@ -33,15 +33,31 @@ export async function POST(request: NextRequest) {
     }
     
     // 認証情報の取得
-    const authData = verifyAuthToken(request, platform) as any;
+    interface AuthData {
+      userId?: string;
+      openId?: string;
+      accessToken: string;
+      accessTokenSecret?: string;
+      refreshToken?: string;
+    }
+    const authData = verifyAuthToken(request, platform) as AuthData;
+    
+    // userIdの検証
+    const userId = authData.userId || authData.openId;
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID not found in authentication data' },
+        { status: 400 }
+      );
+    }
     
     // ジョブデータの構築
     const jobData = {
       id: crypto.randomUUID(),
-      platform,
+      platform: platform as 'twitter' | 'instagram' | 'tiktok',
       content,
       scheduledAt: scheduledAt ? new Date(scheduledAt) : undefined,
-      userId: authData.userId || authData.openId,
+      userId,
       credentials: {
         accessToken: authData.accessToken,
         accessTokenSecret: authData.accessTokenSecret,
@@ -60,10 +76,11 @@ export async function POST(request: NextRequest) {
       platform,
       scheduledAt: jobData.scheduledAt
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Post creation error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create post';
     return NextResponse.json(
-      { error: error.message || 'Failed to create post' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -111,7 +128,7 @@ export async function GET(request: NextRequest) {
     }
     
     return NextResponse.json(jobs.map(formatJob));
-  } catch (error: any) {
+  } catch (error) {
     console.error('Get jobs error:', error);
     return NextResponse.json(
       { error: 'Failed to get jobs' },
@@ -121,11 +138,30 @@ export async function GET(request: NextRequest) {
 }
 
 // ジョブデータのフォーマット
-function formatJob(job: any) {
+interface JobData {
+  platform: string;
+  content: any; // Bull allows any type for job data
+  scheduledAt?: Date;
+  [key: string]: any; // Allow additional properties
+}
+
+interface Job {
+  id: string | number;
+  data: JobData;
+  opts: {
+    delay?: number;
+  };
+  progress(): number;
+  timestamp: number;
+  processedOn?: number;
+  failedReason?: string;
+}
+
+function formatJob(job: Job) {
   return {
-    id: job.id,
+    id: String(job.id),
     platform: job.data.platform,
-    content: job.data.content,
+    content: typeof job.data.content === 'string' ? job.data.content : JSON.stringify(job.data.content),
     scheduledAt: job.data.scheduledAt,
     status: job.opts.delay ? 'scheduled' : 'pending',
     progress: job.progress(),

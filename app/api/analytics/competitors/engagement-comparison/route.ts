@@ -71,7 +71,7 @@ const generateEngagementComparison = (
 
   // Filter competitors based on request
   const filteredCompetitors = competitors.filter(c => 
-    competitorIds.length === 0 || competitorIds.includes(c.competitorId)
+    competitorIds.length === 0 || (c.competitorId && competitorIds.includes(c.competitorId))
   );
 
   // Generate industry average
@@ -97,21 +97,23 @@ const generateEngagementComparison = (
         saves: 800,
         reach: 320000,
         impressions: 450000,
-        engagement_rate: 4.5
+        engagementRate: 4.5
       },
-      competitorMetrics: filteredCompetitors.map(comp => ({
-        competitorId: comp.competitorId,
-        competitorName: comp.competitorName,
-        metrics: {
-          likes: comp.totalEngagement * 0.7,
-          comments: comp.totalEngagement * 0.08,
-          shares: comp.totalEngagement * 0.05,
-          saves: comp.totalEngagement * 0.12,
-          reach: comp.totalReach * 0.4,
-          impressions: comp.totalReach * 0.6,
-          engagement_rate: comp.averageEngagementRate
-        }
-      })),
+      competitorMetrics: filteredCompetitors
+        .filter(comp => comp.competitorId && comp.competitorName)
+        .map(comp => ({
+          competitorId: comp.competitorId!,
+          competitorName: comp.competitorName!,
+          metrics: {
+            likes: comp.totalEngagement * 0.7,
+            comments: comp.totalEngagement * 0.08,
+            shares: comp.totalEngagement * 0.05,
+            saves: comp.totalEngagement * 0.12,
+            reach: comp.totalReach * 0.4,
+            impressions: comp.totalReach * 0.6,
+            engagementRate: comp.averageEngagementRate
+          }
+        })),
       benchmark: {
         likes: 12000,
         comments: 980,
@@ -119,7 +121,7 @@ const generateEngagementComparison = (
         saves: 650,
         reach: 280000,
         impressions: 400000,
-        engagement_rate: 4.1
+        engagementRate: 4.1
       }
     },
     {
@@ -131,21 +133,23 @@ const generateEngagementComparison = (
         saves: 1500,
         reach: 520000,
         impressions: 780000,
-        engagement_rate: 5.8
+        engagementRate: 5.8
       },
-      competitorMetrics: filteredCompetitors.map(comp => ({
-        competitorId: comp.competitorId,
-        competitorName: comp.competitorName,
-        metrics: {
-          likes: comp.totalEngagement * 0.8,
-          comments: comp.totalEngagement * 0.12,
-          shares: comp.totalEngagement * 0.08,
-          saves: comp.totalEngagement * 0.1,
-          reach: comp.totalReach * 0.6,
-          impressions: comp.totalReach * 0.9,
-          engagement_rate: comp.averageEngagementRate * 1.2
-        }
-      })),
+      competitorMetrics: filteredCompetitors
+        .filter(comp => comp.competitorId && comp.competitorName)
+        .map(comp => ({
+          competitorId: comp.competitorId!,
+          competitorName: comp.competitorName!,
+          metrics: {
+            likes: comp.totalEngagement * 0.8,
+            comments: comp.totalEngagement * 0.12,
+            shares: comp.totalEngagement * 0.08,
+            saves: comp.totalEngagement * 0.1,
+            reach: comp.totalReach * 0.6,
+            impressions: comp.totalReach * 0.9,
+            engagementRate: comp.averageEngagementRate * 1.2
+          }
+        })),
       benchmark: {
         likes: 25000,
         comments: 2200,
@@ -153,7 +157,7 @@ const generateEngagementComparison = (
         saves: 1200,
         reach: 480000,
         impressions: 720000,
-        engagement_rate: 5.2
+        engagementRate: 5.2
       }
     }
   ];
@@ -206,20 +210,24 @@ const generateEngagementComparison = (
       trend: Array.from({ length: daysBack }, (_, i) => ({
         timestamp: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)),
         value: 4.2 + (Math.random() - 0.5) * 0.8,
-        label: `Day ${i + 1}`
+        label: `Day ${i + 1}`,
+        metric: 'engagement'
       })) as TimeSeriesData[],
       growthRate: 12.5
     },
-    ...filteredCompetitors.map(comp => ({
-      competitorId: comp.competitorId,
-      competitorName: comp.competitorName,
-      trend: Array.from({ length: daysBack }, (_, i) => ({
-        timestamp: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)),
-        value: comp.averageEngagementRate + (Math.random() - 0.5) * 1.2,
-        label: `Day ${i + 1}`
-      })) as TimeSeriesData[],
-      growthRate: comp.followerGrowthRate
-    }))
+    ...filteredCompetitors
+      .filter(comp => comp.competitorId && comp.competitorName)
+      .map(comp => ({
+        competitorId: comp.competitorId!,
+        competitorName: comp.competitorName!,
+        trend: Array.from({ length: daysBack }, (_, i) => ({
+          timestamp: new Date(startDate.getTime() + (i * 24 * 60 * 60 * 1000)),
+          value: comp.averageEngagementRate + (Math.random() - 0.5) * 1.2,
+          label: `Day ${i + 1}`,
+          metric: 'engagement'
+        })) as TimeSeriesData[],
+        growthRate: comp.followerGrowthRate
+      }))
   ];
 
   // Generate gap analysis
@@ -339,8 +347,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Conditionally include gap analysis and recommendations
-    const response: any = {
-      ...comparisonData,
+    const baseResponse = {
+      id: comparisonData.id,
+      analysisDate: comparisonData.analysisDate,
+      timeframe: comparisonData.timeframe,
+      overallComparison: comparisonData.overallComparison,
+      platformComparisons: comparisonData.platformComparisons,
+      contentTypeComparison: comparisonData.contentTypeComparison,
+      engagementTrends: comparisonData.engagementTrends,
       metadata: {
         generatedAt: new Date(),
         requestedCompetitors: competitorIds,
@@ -349,13 +363,18 @@ export async function GET(request: NextRequest) {
       }
     };
 
-    if (!includeGapAnalysis) {
-      delete response.gapAnalysis;
-    }
-
-    if (!includeRecommendations && response.gapAnalysis) {
-      delete response.gapAnalysis.recommendations;
-    }
+    // Build response object based on conditions
+    const response = includeGapAnalysis 
+      ? {
+          ...baseResponse,
+          gapAnalysis: includeRecommendations 
+            ? comparisonData.gapAnalysis 
+            : {
+                opportunities: comparisonData.gapAnalysis.opportunities,
+                threats: comparisonData.gapAnalysis.threats
+              }
+        }
+      : baseResponse;
 
     return NextResponse.json(response);
 

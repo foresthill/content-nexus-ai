@@ -127,7 +127,7 @@ export const processTikTokPost = async (job: Bull.Job<PostJobData>): Promise<Job
     }
     
     // 動画アップロードの初期化
-    const { upload_id, upload_url } = await tiktokAuth.initializeVideoUpload(
+    const { upload_id } = await tiktokAuth.initializeVideoUpload(
       credentials.accessToken,
       credentials.openId || '',
       metadata.videoSize || 0
@@ -186,7 +186,7 @@ export const processTikTokPost = async (job: Bull.Job<PostJobData>): Promise<Job
             message: 'Token refresh required',
             newTokens 
           };
-        } catch (refreshError) {
+        } catch {
           throw { code: 'TOKEN_REFRESH_FAILED', message: 'Failed to refresh token' };
         }
       }

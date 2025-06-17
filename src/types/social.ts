@@ -87,4 +87,6 @@ export interface UpdatePostInput {
   title?: string;
   platforms?: PlatformContent[];
   scheduledAt?: Date;
+  status?: PostStatus;
+  publishedAt?: Date;
 }

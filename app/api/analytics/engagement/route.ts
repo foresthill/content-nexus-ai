@@ -9,7 +9,7 @@ const generateEngagementData = (filter?: AnalyticsFilter): TimeSeriesData[] => {
   
   const data: TimeSeriesData[] = [];
   const platforms = filter?.platforms || ['instagram', 'twitter', 'tiktok'];
-  const metrics = ['engagement_rate', 'likes', 'comments', 'shares', 'saves'];
+  const metrics = ['engagementRate', 'likes', 'comments', 'shares', 'saves'];
 
   for (let i = days; i >= 0; i--) {
     const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
@@ -18,7 +18,7 @@ const generateEngagementData = (filter?: AnalyticsFilter): TimeSeriesData[] => {
       metrics.forEach(metric => {
         let value = 0;
         switch (metric) {
-          case 'engagement_rate':
+          case 'engagementRate':
             value = Math.random() * 15 + 2; // 2-17% engagement rate
             break;
           case 'likes':
@@ -36,7 +36,7 @@ const generateEngagementData = (filter?: AnalyticsFilter): TimeSeriesData[] => {
         }
 
         // Add platform-specific adjustments
-        if (platform === 'tiktok' && metric === 'engagement_rate') {
+        if (platform === 'tiktok' && metric === 'engagementRate') {
           value *= 1.5; // TikTok generally has higher engagement
         } else if (platform === 'twitter' && metric === 'likes') {
           value *= 0.7; // Twitter typically has lower likes
@@ -77,7 +77,7 @@ const calculateEngagementMetrics = (data: TimeSeriesData[]): EngagementMetrics =
 
 const analyzeEngagementTrends = (data: TimeSeriesData[]) => {
   const engagementRates = data
-    .filter(d => d.metric === 'engagement_rate')
+    .filter(d => d.metric === 'engagementRate')
     .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   
   if (engagementRates.length < 7) return { trend: 'stable', change: 0 };

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Webhook一覧の取得
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const webhooks = webhookManager.getAllWebhooks();
     

@@ -391,7 +391,13 @@ const generateTrendingTopics = (
 
 // Generate topic recommendations based on analysis
 const generateTopicRecommendations = (analysis: TrendingTopicsAnalysis) => {
-  const recommendations = [];
+  const recommendations: Array<{
+    topic: string;
+    action: string;
+    impact: 'high' | 'medium' | 'low';
+    urgency: 'immediate' | 'short_term' | 'long_term';
+    reason: string;
+  }> = [];
   
   // Analyze trending topics for opportunities
   analysis.industryTrends.forEach(trend => {
@@ -402,17 +408,11 @@ const generateTopicRecommendations = (analysis: TrendingTopicsAnalysis) => {
     
     if (!yourParticipation || yourParticipation.shareOfVoice < topCompetitor.shareOfVoice * 0.5) {
       recommendations.push({
-        type: 'topic_opportunity',
         topic: trend.topic,
-        reasoning: `Low participation (${yourParticipation?.shareOfVoice || 0}% share) vs top competitor (${topCompetitor.shareOfVoice}%)`,
-        priority: trend.growth > 100 ? 'high' : trend.growth > 50 ? 'medium' : 'low',
-        expectedImpact: 'medium',
-        actionItems: [
-          `Create ${Math.ceil(topCompetitor.contentCount * 0.7)} pieces of content about ${trend.topic}`,
-          `Research trending subtopics within ${trend.topic}`,
-          `Engage with community discussions around ${trend.topic}`,
-          `Monitor competitor content strategies for ${trend.topic}`
-        ]
+        action: `Increase content production for ${trend.topic}`,
+        impact: trend.growth > 100 ? 'high' : trend.growth > 50 ? 'medium' : 'low',
+        urgency: trend.growth > 100 ? 'immediate' : 'short_term',
+        reason: `Low participation (${yourParticipation?.shareOfVoice || 0}% share) vs top competitor (${topCompetitor.shareOfVoice}%)`
       });
     }
   });
@@ -427,17 +427,11 @@ const generateTopicRecommendations = (analysis: TrendingTopicsAnalysis) => {
       
       if (!yourUsage || yourUsage.frequency < topUser.frequency * 0.3) {
         recommendations.push({
-          type: 'hashtag_opportunity',
-          hashtag: hashtag.hashtag,
-          reasoning: `High opportunity score (${hashtag.opportunityScore}) with low competition difficulty`,
-          priority: hashtag.growth > 150 ? 'high' : 'medium',
-          expectedImpact: 'high',
-          actionItems: [
-            `Incorporate ${hashtag.hashtag} in next ${Math.ceil(topUser.frequency * 0.5)} posts`,
-            `Create content specifically targeting ${hashtag.hashtag}`,
-            `Monitor performance and adjust frequency based on results`,
-            `Research related hashtags in the same category`
-          ]
+          topic: hashtag.hashtag,
+          action: `Start using ${hashtag.hashtag} strategically`,
+          impact: 'high',
+          urgency: hashtag.growth > 150 ? 'immediate' : 'short_term',
+          reason: `High opportunity score (${hashtag.opportunityScore}) with low competition difficulty`
         });
       }
     }
@@ -451,17 +445,11 @@ const generateTopicRecommendations = (analysis: TrendingTopicsAnalysis) => {
     
     if (yourAdoption && yourAdoption.adoptionRate < avgAdoption * 0.8) {
       recommendations.push({
-        type: 'format_opportunity',
-        format: format.format,
-        reasoning: `Below average adoption rate (${(yourAdoption.adoptionRate * 100).toFixed(1)}% vs ${(avgAdoption * 100).toFixed(1)}% average)`,
-        priority: format.growthRate > 100 ? 'high' : 'medium',
-        expectedImpact: 'medium',
-        actionItems: [
-          `Increase ${format.format} content by 30% over next month`,
-          `Test different approaches to ${format.format}`,
-          `Analyze top-performing ${format.format} content from competitors`,
-          `Create content calendar specifically for ${format.format}`
-        ]
+        topic: format.format,
+        action: `Increase ${format.format} content production`,
+        impact: 'medium',
+        urgency: format.growthRate > 100 ? 'immediate' : 'short_term',
+        reason: `Below average adoption rate (${(yourAdoption.adoptionRate * 100).toFixed(1)}% vs ${(avgAdoption * 100).toFixed(1)}% average)`
       });
     }
   });
@@ -513,7 +501,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate recommendations if requested
-    let recommendations = [];
+    let recommendations: Array<{
+      topic: string;
+      action: string;
+      impact: 'high' | 'medium' | 'low';
+      urgency: 'immediate' | 'short_term' | 'long_term';
+      reason: string;
+    }> = [];
     if (includeRecommendations && !topicsOnly && !hashtagsOnly) {
       recommendations = generateTopicRecommendations(analysis);
     }
@@ -602,20 +596,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Conditionally exclude sections
-    if (!includeHashtagAnalysis) {
-      delete analysis.hashtagTrends;
-    }
+    const filteredAnalysis = {
+      ...analysis,
+      ...(includeHashtagAnalysis ? {} : { hashtagTrends: undefined }),
+      ...(includeFormatTrends ? {} : { formatTrends: undefined }),
+      ...(includeOpportunities ? {} : { emergingOpportunities: undefined })
+    };
 
-    if (!includeFormatTrends) {
-      delete analysis.formatTrends;
-    }
-
-    if (!includeOpportunities) {
-      delete analysis.emergingOpportunities;
-    }
+    // Remove undefined properties
+    Object.keys(filteredAnalysis).forEach(key => {
+      if (filteredAnalysis[key as keyof typeof filteredAnalysis] === undefined) {
+        delete filteredAnalysis[key as keyof typeof filteredAnalysis];
+      }
+    });
 
     // Generate enhanced recommendations
-    const recommendations = generateTopicRecommendations(analysis);
+    const recommendations = generateTopicRecommendations(filteredAnalysis as TrendingTopicsAnalysis);
     
     // Add competitive insights
     const competitiveInsights = {
@@ -628,7 +624,7 @@ export async function POST(request: NextRequest) {
         opp => opp.competitorActivity < 0.3
       ) || [],
       
-      competitiveGaps: recommendations.filter(rec => rec.priority === 'high'),
+      competitiveGaps: recommendations.filter(rec => rec.impact === 'high'),
       
       marketDynamics: {
         totalVolume: analysis.industryTrends.reduce((sum, trend) => sum + trend.volume, 0),
@@ -661,8 +657,8 @@ export async function POST(request: NextRequest) {
       message: 'Custom trending topics analysis generated successfully',
       ...response,
       actionPlan: {
-        immediate: recommendations.filter(r => r.priority === 'high').slice(0, 3),
-        shortTerm: recommendations.filter(r => r.priority === 'medium').slice(0, 3),
+        immediate: recommendations.filter(r => r.impact === 'high').slice(0, 3),
+        shortTerm: recommendations.filter(r => r.impact === 'medium').slice(0, 3),
         longTerm: analysis.emergingOpportunities?.filter(o => o.timeToCapitalize === 'long_term') || []
       }
     });

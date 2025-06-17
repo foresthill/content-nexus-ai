@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ContentImprovement, ContentAnalysisRequest } from '@/types/content-improvement';
 import { ImprovementOverview } from './ImprovementOverview';
 import { QualityAnalysis } from './QualityAnalysis';
@@ -22,7 +22,6 @@ interface ContentImprovementDashboardProps {
 }
 
 export function ContentImprovementDashboard({
-  contentId,
   initialContent = '',
   initialTitle = '',
   platform,
@@ -139,7 +138,7 @@ export function ContentImprovementDashboard({
               <select
                 id="platform"
                 value={platform || ''}
-                onChange={(e) => {/* Platform is passed as prop */}}
+                onChange={() => {/* Platform is passed as prop */}}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select Platform</option>
@@ -159,7 +158,7 @@ export function ContentImprovementDashboard({
                 type="text"
                 id="audience"
                 value={targetAudience || ''}
-                onChange={(e) => {/* Target audience is passed as prop */}}
+                onChange={() => {/* Target audience is passed as prop */}}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., professionals, students"
               />

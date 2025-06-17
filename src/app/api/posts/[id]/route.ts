@@ -12,10 +12,10 @@ export async function GET(
     const jobStatus = await queueManager.getJobStatus(params.id);
     
     return NextResponse.json(jobStatus);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Get job status error:', error);
     
-    if (error.message === 'Job not found') {
+    if (error instanceof Error && error.message === 'Job not found') {
       return NextResponse.json(
         { error: 'Job not found' },
         { status: 404 }
@@ -51,10 +51,10 @@ export async function PATCH(
       success: true,
       message: 'Schedule updated'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Update job error:', error);
     
-    if (error.message === 'Job not found') {
+    if (error instanceof Error && error.message === 'Job not found') {
       return NextResponse.json(
         { error: 'Job not found' },
         { status: 404 }
@@ -80,7 +80,7 @@ export async function DELETE(
       success: true,
       message: 'Job cancelled'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Cancel job error:', error);
     
     return NextResponse.json(
@@ -113,21 +113,23 @@ export async function POST(
       newJobId: newJob.id,
       message: 'Job retry scheduled'
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Retry job error:', error);
     
-    if (error.message === 'Job not found') {
-      return NextResponse.json(
-        { error: 'Job not found' },
-        { status: 404 }
-      );
-    }
-    
-    if (error.message === 'Job is not in failed state') {
-      return NextResponse.json(
-        { error: 'Job is not in failed state' },
-        { status: 400 }
-      );
+    if (error instanceof Error) {
+      if (error.message === 'Job not found') {
+        return NextResponse.json(
+          { error: 'Job not found' },
+          { status: 404 }
+        );
+      }
+      
+      if (error.message === 'Job is not in failed state') {
+        return NextResponse.json(
+          { error: 'Job is not in failed state' },
+          { status: 400 }
+        );
+      }
     }
     
     return NextResponse.json(

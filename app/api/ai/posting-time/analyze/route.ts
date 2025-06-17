@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EngagementAnalyzer } from '@/lib/ai/posting-time/analyzer';
 import { PostingTimeInsights } from '@/lib/ai/posting-time/insights';
+import { SocialPlatform } from '@/types/social';
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
     // Get user's historical posting performance
     const historicalPerformance = await insights.getUserHistoricalPerformance({
       userId,
-      platform: platform || undefined,
+      platform: platform as SocialPlatform | undefined,
       limit: 100
     });
 

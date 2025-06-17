@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { SocialPlatform } from '@/types/social';
 import { 
   ChartBarIcon, 
-  TrendingUpIcon, 
-  TrendingDownIcon,
+  ArrowTrendingUpIcon, 
+  ArrowTrendingDownIcon,
   HashtagIcon 
 } from '@heroicons/react/24/outline';
 
@@ -70,14 +70,14 @@ export default function HashtagAnalytics({ platform }: HashtagAnalyticsProps) {
     if (growthRate > 15) {
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-          <TrendingUpIcon className="h-3 w-3 mr-1" />
+          <ArrowTrendingUpIcon className="h-3 w-3 mr-1" />
           急上昇
         </span>
       );
     } else if (growthRate < 5) {
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-          <TrendingDownIcon className="h-3 w-3 mr-1" />
+          <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />
           下降
         </span>
       );
@@ -141,7 +141,7 @@ export default function HashtagAnalytics({ platform }: HashtagAnalyticsProps) {
             {/* Rising Trends */}
             <div className="bg-green-50 rounded-lg p-4">
               <h4 className="text-sm font-semibold text-green-900 mb-3 flex items-center">
-                <TrendingUpIcon className="h-4 w-4 mr-1" />
+                <ArrowTrendingUpIcon className="h-4 w-4 mr-1" />
                 急上昇トレンド
               </h4>
               <div className="space-y-2">
@@ -181,7 +181,7 @@ export default function HashtagAnalytics({ platform }: HashtagAnalyticsProps) {
             {/* Declining Trends */}
             <div className="bg-red-50 rounded-lg p-4">
               <h4 className="text-sm font-semibold text-red-900 mb-3 flex items-center">
-                <TrendingDownIcon className="h-4 w-4 mr-1" />
+                <ArrowTrendingDownIcon className="h-4 w-4 mr-1" />
                 下降トレンド
               </h4>
               <div className="space-y-2">
