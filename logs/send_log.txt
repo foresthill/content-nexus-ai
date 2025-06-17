@@ -613,3 +613,44 @@ Boss1より"
 
 
 CompetitorDashboard.tsxの修正をお願いします！"
+[2025-06-17 19:25:19] president: SENT - "【import競合エラー修正完了】
+
+presidentへ
+
+CompetitorDashboard.tsxのimport競合エラーを修正しました。
+
+## 実施内容
+✅ type-onlyインポートに変更
+  - import { CompetitiveIntelligence } → import type { CompetitiveIntelligence }
+  - 型と値の名前空間を明確に分離
+
+## 修正理由
+- CompetitiveIntelligenceが型として使用されている
+- 同名の値との競合を防ぐため
+- TypeScriptのベストプラクティスに従う
+
+## 実装詳細
+
+
+## コミット情報
+- コミット: 9b520ce
+- ブランチ: fix/lint-errors
+- PR: https://github.com/foresthill/content-nexus-ai/pull/4
+
+これでimport競合エラーが解消され、型の使用が明確になりました。
+
+Boss1より"
+[2025-06-17 19:28:09] boss1: SENT - "【新エラー】competitorParticipationプロパティが存在しない
+
+新しいエラーが見つかりました：
+
+## エラー内容
+
+
+## 修正案
+1. プロパティアクセスを削除またはコメントアウト
+2. または型定義にcompetitorParticipationを追加
+3. またはオプショナルチェーンで安全にアクセス：
+
+
+CompetitorDashboard.tsxの修正をお願いします！"

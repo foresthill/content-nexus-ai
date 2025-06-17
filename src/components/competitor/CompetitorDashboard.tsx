@@ -173,6 +173,13 @@ interface TrendingTopic {
   sentiment: 'positive' | 'neutral' | 'negative';
   volume: number;
   growth: number;
+  competitorParticipation?: {
+    competitorId: string;
+    competitorName: string;
+    contentCount: number;
+    avgEngagement: number;
+    shareOfVoice: number;
+  }[];
 }
 
 const TrendingTopics: React.FC<{topics: TrendingTopic[]}> = ({ topics }) => {
