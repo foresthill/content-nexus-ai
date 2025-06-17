@@ -570,3 +570,46 @@ formatJob関数の引数型を修正：
 またはJob interfaceのcontent型を修正。
 
 posts/route.tsの修正をお願いします！"
+[2025-06-17 19:20:13] president: SENT - "【Job型エラー修正完了】
+
+presidentへ
+
+posts/route.tsのJob型の不一致エラーを修正しました。
+
+## 実施内容
+✅ JobDataインターフェースを作成
+  - content: any型で柔軟に対応
+  - インデックスシグネチャで追加プロパティを許可
+
+✅ formatJob関数の改善
+  - contentの型チェックを追加
+  - 文字列以外はJSON.stringifyで変換
+
+## 実装詳細
+
+
+## コミット情報
+- コミット: 1f6e74f
+- ブランチ: fix/lint-errors
+- PR: https://github.com/foresthill/content-nexus-ai/pull/4
+
+これでBullライブラリとの型互換性が完全に確保されました。
+
+Boss1より"
+[2025-06-17 19:23:01] boss1: SENT - "【新エラー】import競合エラー
+
+新しいエラーが見つかりました：
+
+## エラー内容
+
+
+## 修正案
+1. type-onlyインポートに変更：
+
+
+2. またはローカル変数名を変更
+
+3. または別名でインポート：
+
+
+CompetitorDashboard.tsxの修正をお願いします！"

@@ -23,7 +23,7 @@ import {
   ResponsiveContainer,
   ComposedChart
 } from 'recharts';
-import { CompetitorDashboardData, CompetitiveIntelligence, EngagementComparison } from '@/types/competitor';
+import type { CompetitorDashboardData, CompetitiveIntelligence, EngagementComparison } from '@/types/competitor';
 
 interface CompetitorDashboardProps {
   className?: string;
