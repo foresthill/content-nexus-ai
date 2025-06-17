@@ -28,7 +28,7 @@ export class TwitterAuth {
   ): string {
     const paramString = Object.keys(params)
       .sort()
-      .map(key => `${key}=${encodeURIComponent(params[key])}`)
+      .map(key => `${key}=${encodeURIComponent(params[key as keyof typeof params])}`)
       .join('&');
 
     const baseString = `${method.toUpperCase()}&${encodeURIComponent(
@@ -48,7 +48,7 @@ export class TwitterAuth {
     const authParams = Object.keys(params)
       .filter(key => key.startsWith('oauth_'))
       .sort()
-      .map(key => `${key}="${encodeURIComponent(params[key])}"`)
+      .map(key => `${key}="${encodeURIComponent(params[key as keyof typeof params])}"`)
       .join(', ');
 
     return `OAuth ${authParams}`;
@@ -124,7 +124,7 @@ export class TwitterAuth {
 
     const paramString = Object.keys(params)
       .sort()
-      .map(key => `${key}=${encodeURIComponent(params[key])}`)
+      .map(key => `${key}=${encodeURIComponent(params[key as keyof typeof params])}`)
       .join('&');
 
     const baseString = `POST&${encodeURIComponent(url)}&${encodeURIComponent(
@@ -187,7 +187,7 @@ export class TwitterAuth {
 
     const paramString = Object.keys(params)
       .sort()
-      .map(key => `${key}=${encodeURIComponent(params[key])}`)
+      .map(key => `${key}=${encodeURIComponent(params[key as keyof typeof params])}`)
       .join('&');
 
     const baseString = `POST&${encodeURIComponent(url)}&${encodeURIComponent(
