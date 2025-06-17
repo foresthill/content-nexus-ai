@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SocialPlatform } from '@/types/social';
 import { generateHashtagSuggestions } from '@/lib/ai/hashtags/generator';
 import { analyzeHashtagTrends } from '@/lib/ai/hashtags/trends';
 import { optimizeHashtags } from '@/lib/ai/hashtags/optimizer';
@@ -62,8 +63,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Validate platform value
+    const validPlatforms: SocialPlatform[] = ['twitter', 'instagram', 'tiktok'];
+    if (!validPlatforms.includes(platform as SocialPlatform)) {
+      return NextResponse.json(
+        { error: 'Invalid platform. Must be one of: twitter, instagram, tiktok' },
+        { status: 400 }
+      );
+    }
+
     // Get trending hashtags for the platform
-    const trends = await analyzeHashtagTrends([], platform as string, category || undefined);
+    const trends = await analyzeHashtagTrends([], platform as SocialPlatform, category || undefined);
 
     return NextResponse.json({
       trends: trends.topTrends,

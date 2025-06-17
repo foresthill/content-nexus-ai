@@ -347,3 +347,47 @@ kpiData.comparison?.changes.engagement.percentage を以下のいずれかに：
 
 
 dashboard/page.tsxの修正をお願いします！"
+[2025-06-17 18:50:37] president: SENT - "【comparisonプロパティエラー修正完了】
+
+presidentへ
+
+dashboard/page.tsxのcomparisonプロパティエラーを修正しました。
+
+## 実施内容
+✅ calculateChange関数を追加
+  - trendsデータから変化率を計算
+  - 最新値と前回値を比較して％を算出
+
+✅ KPIカードの修正（4箇所）
+  - Total Engagement: calculateChange('total_engagement')
+  - Engagement Rate: calculateChange('engagement_rate')
+  - Total Reach: calculateChange('reach')
+  - Revenue Generated: calculateChange('revenue')
+
+## 実装詳細
+
+
+## コミット情報
+- コミット: 88f00f8
+- ブランチ: fix/lint-errors
+- PR: https://github.com/foresthill/content-nexus-ai/pull/4
+
+これで存在しないcomparisonプロパティへのアクセスが解消されました。
+
+Boss1より"
+[2025-06-17 18:53:17] boss1: SENT - "【新エラー】SocialPlatform型の不一致
+
+新しいエラーが見つかりました：
+
+## エラー内容
+
+
+## 修正案
+platform as string を platform as SocialPlatform に変更：
+
+
+
+または型ガードで確認：
+
+
+ai/hashtags/route.tsの修正をお願いします！"
