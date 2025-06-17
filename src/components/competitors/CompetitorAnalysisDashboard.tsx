@@ -5,8 +5,8 @@ import {
   ChartBarIcon,
   TrophyIcon,
   EyeIcon,
-  ArrowArrowTrendingUpIcon,
-  ArrowArrowTrendingDownIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   ChevronDownIcon,
   ChevronUpIcon
 } from '@heroicons/react/24/outline';
