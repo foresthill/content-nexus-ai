@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
 
 // ジョブデータのフォーマット
 interface Job {
-  id: string;
+  id: string | number;
   data: {
     platform: string;
     content: string;
@@ -156,7 +156,7 @@ interface Job {
 
 function formatJob(job: Job) {
   return {
-    id: job.id,
+    id: String(job.id),
     platform: job.data.platform,
     content: job.data.content,
     scheduledAt: job.data.scheduledAt,
