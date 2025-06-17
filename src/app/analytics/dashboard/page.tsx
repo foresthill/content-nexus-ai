@@ -206,6 +206,18 @@ export default function AnalyticsDashboard() {
     );
   }
 
+  // Calculate change percentages from trends
+  const calculateChange = (metric: string): number | undefined => {
+    const metricTrends = kpiData.trends.filter(t => t.metric === metric);
+    if (metricTrends.length < 2) return undefined;
+    
+    const latest = metricTrends[metricTrends.length - 1].value;
+    const previous = metricTrends[metricTrends.length - 2].value;
+    
+    if (previous === 0) return undefined;
+    return ((latest - previous) / previous) * 100;
+  };
+
   // Prepare chart data
   type ChartDataItem = { 
     date: string; 
@@ -291,28 +303,28 @@ export default function AnalyticsDashboard() {
           <KPICard
             title="Total Engagement"
             value={kpiData.current.totalEngagement.toLocaleString()}
-            change={kpiData.comparison?.changes.engagement.percentage}
+            change={calculateChange('total_engagement')}
             icon={HeartIcon}
             color="blue"
           />
           <KPICard
             title="Engagement Rate"
             value={`${kpiData.current.averageEngagementRate}%`}
-            change={kpiData.comparison?.changes.engagementRate.percentage}
+            change={calculateChange('engagement_rate')}
             icon={ArrowTrendingUpIcon}
             color="green"
           />
           <KPICard
             title="Total Reach"
             value={kpiData.current.totalReach.toLocaleString()}
-            change={kpiData.comparison?.changes.reach.percentage}
+            change={calculateChange('reach')}
             icon={EyeIcon}
             color="purple"
           />
           <KPICard
             title="Revenue Generated"
             value={`$${kpiData.current.revenueGenerated.toLocaleString()}`}
-            change={kpiData.comparison?.changes.revenue.percentage}
+            change={calculateChange('revenue')}
             icon={SparklesIcon}
             color="orange"
           />
