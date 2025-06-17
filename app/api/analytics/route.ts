@@ -183,37 +183,51 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate summary insights
+    let summary = null;
     if (data.kpi && data.engagement && data.performance) {
-      data.summary = {
+      const kpiData = data.kpi as any;
+      summary = {
         totalMetrics: {
-          engagement: data.kpi.current?.totalEngagement || 0,
-          reach: data.kpi.current?.totalReach || 0,
-          revenue: data.kpi.current?.revenueGenerated || 0,
-          contentPublished: data.kpi.current?.contentPublished || 0
+          engagement: kpiData.current?.totalEngagement || 0,
+          reach: kpiData.current?.totalReach || 0,
+          revenue: kpiData.current?.revenueGenerated || 0,
+          contentPublished: kpiData.current?.contentPublished || 0
         },
         trends: {
-          engagement: data.kpi.current?.engagementTrend || 'stable',
-          growth: data.kpi.current?.growthRate || 0
+          engagement: kpiData.current?.engagementTrend || 'stable',
+          growth: kpiData.current?.growthRate || 0
         },
         topInsights: [
-          `Your content reached ${(data.kpi.current?.totalReach || 0).toLocaleString()} people`,
-          `Generated $${(data.kpi.current?.revenueGenerated || 0).toLocaleString()} in revenue`,
-          `${data.kpi.current?.engagementTrend === 'up' ? 'Engagement is trending upward' : 
-            data.kpi.current?.engagementTrend === 'down' ? 'Engagement needs attention' : 
+          `Your content reached ${(kpiData.current?.totalReach || 0).toLocaleString()} people`,
+          `Generated $${(kpiData.current?.revenueGenerated || 0).toLocaleString()} in revenue`,
+          `${kpiData.current?.engagementTrend === 'up' ? 'Engagement is trending upward' : 
+            kpiData.current?.engagementTrend === 'down' ? 'Engagement needs attention' : 
             'Engagement is stable'}`
         ].filter(insight => insight.includes('0') === false)
       };
     }
 
     // Add performance recommendations if available
-    if (data.kpi?.recommendations && data.performance?.insights) {
-      data.actionableInsights = [
-        ...data.kpi.recommendations.slice(0, 2),
-        ...data.performance.insights.slice(0, 2)
-      ].slice(0, 3);
+    let actionableInsights = null;
+    if (data.kpi && data.performance) {
+      const kpiData = data.kpi as any;
+      const perfData = data.performance as any;
+      if (kpiData.recommendations && perfData.insights) {
+        actionableInsights = [
+          ...kpiData.recommendations.slice(0, 2),
+          ...perfData.insights.slice(0, 2)
+        ].slice(0, 3);
+      }
     }
 
-    return NextResponse.json(data);
+    // Construct final response
+    const finalResponse = {
+      ...data,
+      ...(summary && { summary }),
+      ...(actionableInsights && { actionableInsights })
+    };
+
+    return NextResponse.json(finalResponse);
   } catch (error) {
     console.error('Unified analytics error:', error);
     return NextResponse.json(
