@@ -231,10 +231,10 @@ const generateMLPredictions = (
           value: 4.8 + (Math.random() - 0.5) * 1.2,
           confidence: 0.78 + Math.random() * 0.15,
           factors: [
-            { factor: 'Content Quality Improvement', importance: 0.35, impact: 'positive' },
-            { factor: 'Posting Frequency Optimization', importance: 0.28, impact: 'positive' },
-            { factor: 'Seasonal Trends', importance: 0.22, impact: 'positive' },
-            { factor: 'Market Saturation', importance: 0.15, impact: 'negative' }
+            { factor: 'Content Quality Improvement', importance: 0.35, impact: 'positive' as const },
+            { factor: 'Posting Frequency Optimization', importance: 0.28, impact: 'positive' as const },
+            { factor: 'Seasonal Trends', importance: 0.22, impact: 'positive' as const },
+            { factor: 'Market Saturation', importance: 0.15, impact: 'negative' as const }
           ]
         };
         break;
@@ -244,10 +244,10 @@ const generateMLPredictions = (
           value: Math.random() * 0.8 + 0.2,
           confidence: 0.65 + Math.random() * 0.25,
           factors: [
-            { factor: 'Innovation History', importance: 0.4, impact: 'positive' },
-            { factor: 'Resource Availability', importance: 0.3, impact: 'positive' },
-            { factor: 'Risk Tolerance', importance: 0.2, impact: 'positive' },
-            { factor: 'Market Pressure', importance: 0.1, impact: 'positive' }
+            { factor: 'Innovation History', importance: 0.4, impact: 'positive' as const },
+            { factor: 'Resource Availability', importance: 0.3, impact: 'positive' as const },
+            { factor: 'Risk Tolerance', importance: 0.2, impact: 'positive' as const },
+            { factor: 'Market Pressure', importance: 0.1, impact: 'positive' as const }
           ]
         };
         break;
@@ -257,10 +257,10 @@ const generateMLPredictions = (
           value: 5.2 + (Math.random() - 0.5) * 1.5,
           confidence: 0.72 + Math.random() * 0.2,
           factors: [
-            { factor: 'Content Format Innovation', importance: 0.32, impact: 'positive' },
-            { factor: 'Audience Alignment', importance: 0.28, impact: 'positive' },
-            { factor: 'Platform Algorithm Changes', importance: 0.25, impact: 'negative' },
-            { factor: 'Competitive Response', importance: 0.15, impact: 'negative' }
+            { factor: 'Content Format Innovation', importance: 0.32, impact: 'positive' as const },
+            { factor: 'Audience Alignment', importance: 0.28, impact: 'positive' as const },
+            { factor: 'Platform Algorithm Changes', importance: 0.25, impact: 'negative' as const },
+            { factor: 'Competitive Response', importance: 0.15, impact: 'negative' as const }
           ]
         };
         break;
@@ -270,10 +270,10 @@ const generateMLPredictions = (
           value: 0.18 + (Math.random() - 0.5) * 0.05,
           confidence: 0.68 + Math.random() * 0.22,
           factors: [
-            { factor: 'Content Strategy Effectiveness', importance: 0.35, impact: 'positive' },
-            { factor: 'Brand Recognition Growth', importance: 0.25, impact: 'positive' },
-            { factor: 'Competitive Actions', importance: 0.25, impact: 'negative' },
-            { factor: 'Market Expansion', importance: 0.15, impact: 'positive' }
+            { factor: 'Content Strategy Effectiveness', importance: 0.35, impact: 'positive' as const },
+            { factor: 'Brand Recognition Growth', importance: 0.25, impact: 'positive' as const },
+            { factor: 'Competitive Actions', importance: 0.25, impact: 'negative' as const },
+            { factor: 'Market Expansion', importance: 0.15, impact: 'positive' as const }
           ]
         };
         break;
