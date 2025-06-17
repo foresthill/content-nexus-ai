@@ -42,10 +42,17 @@ const Sidebar = ({ currentPath }: { currentPath: string }) => {
     </svg>
   );
 
+  const ShareIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path fillRule="evenodd" d="M15.75 4.5a3 3 0 11.825 2.066l-8.421 4.679a3.002 3.002 0 010 1.51l8.421 4.679a3 3 0 11-.729 1.31l-8.421-4.678a3 3 0 110-4.132l8.421-4.679a3 3 0 01-.096-.755z" clipRule="evenodd" />
+    </svg>
+  );
+
   const navigation: NavItem[] = [
     { name: 'ダッシュボード', href: '/dashboard', icon: ChartBarIcon, current: currentPath === '/dashboard' },
     { name: 'コンテンツ生成', href: '/content', icon: DocumentIcon, current: currentPath.startsWith('/content') },
     { name: '動画管理', href: '/videos', icon: VideoIcon, current: currentPath.startsWith('/videos') },
+    { name: 'SNS投稿', href: '/social', icon: ShareIcon, current: currentPath.startsWith('/social') },
     { name: 'キーワード検索', href: '/keywords', icon: ChatBubbleIcon, current: currentPath === '/keywords' },
   ];
 
