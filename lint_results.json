@@ -1,0 +1,22 @@
+
+> content-nexus@0.1.0 lint
+> next lint --format json src/components/layout/Header.tsx src/components/layout/Sidebar.tsx
+
+node:fs:448
+    return binding.readFileUtf8(path, stringToFlags(options.flag));
+                   ^
+
+Error: ENOTDIR: not a directory, open '/Users/foresthill/Development/AI-Driven/content-nexus/src/components/layout/Header.tsx/tsconfig.json'
+    at readFileSync (node:fs:448:20)
+    at parseJsonFile (/Users/foresthill/Development/AI-Driven/content-nexus/node_modules/next/dist/build/load-jsconfig.js:78:43)
+    at lazilyGetTSConfig (/Users/foresthill/Development/AI-Driven/content-nexus/node_modules/next/dist/build/next-config-ts/transpile-config.js:35:52)
+    at transpileConfig (/Users/foresthill/Development/AI-Driven/content-nexus/node_modules/next/dist/build/next-config-ts/transpile-config.js:50:43)
+    at loadConfig (/Users/foresthill/Development/AI-Driven/content-nexus/node_modules/next/dist/server/config.js:975:79)
+    at async Module.nextLint (/Users/foresthill/Development/AI-Driven/content-nexus/node_modules/next/dist/cli/next-lint.js:54:24) {
+  errno: -20,
+  code: 'ENOTDIR',
+  syscall: 'open',
+  path: '/Users/foresthill/Development/AI-Driven/content-nexus/src/components/layout/Header.tsx/tsconfig.json'
+}
+
+Node.js v20.18.0
