@@ -42,6 +42,7 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       shares: 92,
       comments: 76,
       bounceRate: 0.32,
+      engagementRate: 4.2,
     },
     demographics: {
       ageGroups: {
@@ -89,6 +90,7 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       shares: 68,
       comments: 42,
       bounceRate: 0.28,
+      engagementRate: 3.8,
     },
     demographics: {
       ageGroups: {
@@ -136,6 +138,7 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       shares: 350,
       comments: 180,
       averageViewDuration: 480, // 8分（12分の動画の平均視聴時間）
+      engagementRate: 5.1,
     },
     demographics: {
       ageGroups: {
@@ -183,6 +186,7 @@ const generateMockAnalytics = (): AnalyticsData[] => {
       shares: 980,
       comments: 320,
       averageViewDuration: 40, // 40秒（45秒の動画の平均視聴時間）
+      engagementRate: 4.5,
     },
     demographics: {
       ageGroups: {

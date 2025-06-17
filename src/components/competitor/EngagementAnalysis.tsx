@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  TrendingUpIcon,
-  TrendingDownIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
   ArrowUpIcon,
   ArrowDownIcon,
   ExclamationTriangleIcon,
@@ -267,9 +267,9 @@ const ContentTypeAnalysis: React.FC<{ data: EngagementComparison['contentTypeCom
                     isOutperforming ? 'text-green-600' : 'text-red-600'
                   }`}>
                     {isOutperforming ? (
-                      <TrendingUpIcon className="h-4 w-4 mr-1" />
+                      <ArrowTrendingUpIcon className="h-4 w-4 mr-1" />
                     ) : (
-                      <TrendingDownIcon className="h-4 w-4 mr-1" />
+                      <ArrowTrendingDownIcon className="h-4 w-4 mr-1" />
                     )}
                     {Math.abs(performanceGap).toFixed(1)}%
                   </div>
@@ -511,26 +511,26 @@ export default function EngagementAnalysis({
           title="Your Engagement Rate"
           value={overallComparison.yourPerformance.averageEngagementRate}
           format="percentage"
-          icon={TrendingUpIcon}
+          icon={ArrowTrendingUpIcon}
           color="blue"
         />
         <MetricCard
           title="Total Engagement"
           value={overallComparison.yourPerformance.totalEngagement}
-          icon={TrendingUpIcon}
+          icon={ArrowTrendingUpIcon}
           color="green"
         />
         <MetricCard
           title="Total Reach"
           value={overallComparison.yourPerformance.totalReach}
-          icon={TrendingUpIcon}
+          icon={ArrowTrendingUpIcon}
           color="yellow"
         />
         <MetricCard
           title="Follower Growth"
           value={overallComparison.yourPerformance.followerGrowthRate}
           format="percentage"
-          icon={TrendingUpIcon}
+          icon={ArrowTrendingUpIcon}
           color="red"
         />
       </div>

@@ -403,9 +403,9 @@ export async function GET(request: NextRequest) {
     } = {
       predictions,
       meta: {
-        contentId,
-        contentType,
-        platform,
+        contentId: contentId || '',
+        contentType: contentType || '',
+        platform: platform || '',
         timeframe,
         generatedAt: new Date().toISOString(),
         modelVersion: '1.2.0',
@@ -471,11 +471,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Remove sections based on query parameters
-    if (!includeTrends) {
-      delete response.predictions.trendsAnalysis;
-    }
-    if (!includeCompetitor) {
-      delete response.predictions.competitorAnalysis;
+    if (!includeTrends || !includeCompetitor) {
+      const { trendsAnalysis, competitorAnalysis, ...restPredictions } = response.predictions;
+      response.predictions = {
+        ...restPredictions,
+        ...(includeTrends ? { trendsAnalysis } : {}),
+        ...(includeCompetitor ? { competitorAnalysis } : {})
+      } as PredictiveAnalytics;
     }
 
     return NextResponse.json(response);

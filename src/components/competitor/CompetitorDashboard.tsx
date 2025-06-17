@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
   ChartBarIcon,
   EyeIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   UserGroupIcon,
   StarIcon,
   ExclamationTriangleIcon,
@@ -65,7 +65,7 @@ const RecentInsights: React.FC<{insights: CompetitiveIntelligence['keyInsights']
     switch (category) {
       case 'opportunity': return LightBulbIcon;
       case 'threat': return ExclamationTriangleIcon;
-      case 'trend': return TrendingUpIcon;
+      case 'trend': return ArrowTrendingUpIcon;
       default: return InformationCircleIcon;
     }
   };

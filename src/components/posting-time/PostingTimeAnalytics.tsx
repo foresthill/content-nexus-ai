@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { SocialPlatform } from '@/types/social';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { ChartBarIcon, TrendingUpIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, ArrowTrendingUpIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 interface PostingTimeAnalyticsProps {
   userId?: string;
@@ -152,7 +152,7 @@ export default function PostingTimeAnalytics({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
-            <TrendingUpIcon className="h-8 w-8 text-green-600" />
+            <ArrowTrendingUpIcon className="h-8 w-8 text-green-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Avg Engagement</p>
               <p className="text-2xl font-bold text-gray-900">

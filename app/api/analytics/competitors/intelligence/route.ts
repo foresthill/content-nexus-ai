@@ -313,9 +313,8 @@ export async function GET(request: NextRequest) {
     const intelligenceData = generateCompetitiveIntelligence(analysisType);
 
     // Optionally exclude recommendations
-    if (!includeRecommendations) {
-      delete intelligenceData.recommendations;
-    }
+    const { recommendations: _, ...intelligenceDataWithoutRecs } = intelligenceData;
+    const finalIntelligenceData = includeRecommendations ? intelligenceData : intelligenceDataWithoutRecs;
 
     // Add ML predictions if requested
     let predictions: CompetitorMLPrediction[] = [];
@@ -324,7 +323,7 @@ export async function GET(request: NextRequest) {
     }
 
     const response = {
-      ...intelligenceData,
+      ...finalIntelligenceData,
       ...(predictions.length > 0 && { predictions }),
       metadata: {
         generatedAt: new Date(),

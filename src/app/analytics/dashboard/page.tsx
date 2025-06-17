@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   EyeIcon,
   HeartIcon,
   SparklesIcon,
@@ -299,7 +299,7 @@ export default function AnalyticsDashboard() {
             title="Engagement Rate"
             value={`${kpiData.current.averageEngagementRate}%`}
             change={kpiData.comparison?.changes.engagementRate.percentage}
-            icon={TrendingUpIcon}
+            icon={ArrowTrendingUpIcon}
             color="green"
           />
           <KPICard
@@ -475,7 +475,7 @@ export default function AnalyticsDashboard() {
                     {(dashboardData.predictions.predictedMetrics.estimatedEngagement.confidence * 100).toFixed(0)}% confidence
                   </p>
                 </div>
-                <TrendingUpIcon className="h-8 w-8 text-green-500" />
+                <ArrowTrendingUpIcon className="h-8 w-8 text-green-500" />
               </div>
 
               <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg">

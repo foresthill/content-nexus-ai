@@ -391,7 +391,13 @@ const generateTrendingTopics = (
 
 // Generate topic recommendations based on analysis
 const generateTopicRecommendations = (analysis: TrendingTopicsAnalysis) => {
-  const recommendations = [];
+  const recommendations: Array<{
+    topic: string;
+    action: string;
+    impact: 'high' | 'medium' | 'low';
+    urgency: 'immediate' | 'short_term' | 'long_term';
+    reason: string;
+  }> = [];
   
   // Analyze trending topics for opportunities
   analysis.industryTrends.forEach(trend => {
@@ -602,20 +608,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Conditionally exclude sections
-    if (!includeHashtagAnalysis) {
-      delete analysis.hashtagTrends;
-    }
+    const filteredAnalysis = {
+      ...analysis,
+      ...(includeHashtagAnalysis ? {} : { hashtagTrends: undefined }),
+      ...(includeFormatTrends ? {} : { formatTrends: undefined }),
+      ...(includeOpportunities ? {} : { emergingOpportunities: undefined })
+    };
 
-    if (!includeFormatTrends) {
-      delete analysis.formatTrends;
-    }
-
-    if (!includeOpportunities) {
-      delete analysis.emergingOpportunities;
-    }
+    // Remove undefined properties
+    Object.keys(filteredAnalysis).forEach(key => {
+      if (filteredAnalysis[key as keyof typeof filteredAnalysis] === undefined) {
+        delete filteredAnalysis[key as keyof typeof filteredAnalysis];
+      }
+    });
 
     // Generate enhanced recommendations
-    const recommendations = generateTopicRecommendations(analysis);
+    const recommendations = generateTopicRecommendations(filteredAnalysis as TrendingTopicsAnalysis);
     
     // Add competitive insights
     const competitiveInsights = {

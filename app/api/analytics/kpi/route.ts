@@ -379,7 +379,7 @@ export async function GET(request: NextRequest) {
 
     // Add alerts if requested
     if (includeAlerts) {
-      response.alerts = generateRealTimeAlerts(currentMetrics, trends);
+      response.alerts = generateRealTimeAlerts(currentMetrics);
     }
 
     // Add recommendations if requested

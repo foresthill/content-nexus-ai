@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ClockIcon, SparklesIcon, TrendingUpIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, SparklesIcon, ArrowTrendingUpIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import { SocialPlatform } from '@/types/social';
 
 interface PostingTimeInsightsProps {
@@ -155,7 +155,7 @@ export default function PostingTimeInsights({ className = '' }: PostingTimeInsig
                   <span className="text-lg font-bold text-gray-900">
                     {formatHour(time.hour)}
                   </span>
-                  <TrendingUpIcon className="h-4 w-4 text-green-500 ml-2" />
+                  <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 ml-2" />
                 </div>
                 <div className="text-sm text-gray-500">
                   {(time.engagement * 100).toFixed(0)}% avg engagement
