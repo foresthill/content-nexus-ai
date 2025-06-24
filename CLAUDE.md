@@ -285,6 +285,70 @@ X（Twitter）、Instagram、TikTokへのマルチプラットフォーム投稿
 - **クロスプラットフォーム・シナジー・オプティマイザー**: プラットフォーム間の相乗効果最大化
 - **AIバイラル・プレディクター**: 業界初のバイラル化予測システム
 
+## Dify統合機能 (Dify Integration)
+
+### 概要
+DifyはAIアプリケーション開発プラットフォームで、Content Nexus AIと統合することで、より高度なAI機能を利用できます。
+
+### 主要機能
+1. **カスタムAIワークフローの実行**
+   - Difyで作成したワークフローをContent Nexus AIから直接実行
+   - 複雑なAI処理チェーンの構築
+
+2. **マルチモデル対応**
+   - GPT-4、Claude、その他のLLMモデルを切り替えて使用
+   - 用途に応じた最適なモデル選択
+
+3. **コンテンツ改善エンジン**
+   - Dify AIを使用した高度なコンテンツ改善
+   - トーン、プラットフォーム、ターゲット別の最適化
+
+### 実装ファイル構造
+```
+/src/
+  /types/dify.ts          # Dify関連の型定義
+  /lib/dify/              # Dify統合ライブラリ
+    - client.ts           # Dify APIクライアント
+    - service.ts          # Difyサービスレイヤー
+  /store/difyStore.ts     # Dify設定管理ストア
+  /components/dify/       # Dify UIコンポーネント
+    - DifyConfigPanel.tsx # 設定パネル
+    - DifyContentImprover.tsx # コンテンツ改善UI
+  /app/settings/dify/     # Dify設定ページ
+```
+
+### 使用方法
+1. サイドバーの「AI設定」からDify設定画面へアクセス
+2. DifyのAPI Keyを入力して接続
+3. コンテンツ改善ダッシュボードで「Dify AI」タブを選択
+4. Difyの高度なAI機能を活用してコンテンツを改善
+
+### 設定方法
+```typescript
+// Dify設定の例
+const difyConfig = {
+  apiKey: 'app-xxxxxxxxxxxxxxxxxxxxxx',
+  baseUrl: 'https://api.dify.ai/v1',
+  appId: 'optional-app-id'
+};
+```
+
+### API統合例
+```typescript
+// コンテンツ改善
+const difyService = new DifyService(config);
+const result = await difyService.improveContent(content, {
+  tone: 'professional',
+  platform: 'linkedin',
+  targetAudience: 'business professionals'
+});
+
+// ワークフロー実行
+const workflowResult = await difyService.executeWorkflow('workflow-id', {
+  input: 'your input data'
+});
+```
+
 ## 今後の開発者へ
 
 この革新的なSNSマーケティングプラットフォームは、次世代のデジタルマーケティングを実現する基盤として設計されています。各機能は拡張可能で、新しいSNSプラットフォームの追加や、より高度なAI機能の統合が容易に行えます。
@@ -293,6 +357,7 @@ X（Twitter）、Instagram、TikTokへのマルチプラットフォーム投稿
 1. 新SNSプラットフォーム追加: `/src/types/social.ts` にプラットフォーム定義を追加
 2. AI機能強化: `/src/lib/ai/` に新しい分析エンジンを実装
 3. UI/UX改善: `/src/components/social/` に新コンポーネントを追加
+4. Dify統合拡張: `/src/lib/dify/` に新しいワークフロー統合を追加
 
 革新的な機能開発を継続し、さらなる価値創造を目指してください！
 
