@@ -58,9 +58,11 @@ const Sidebar = ({ currentPath }: { currentPath: string }) => {
     { name: 'ダッシュボード', href: '/dashboard', icon: ChartBarIcon, current: currentPath === '/dashboard' },
     { name: 'コンテンツ生成', href: '/content', icon: DocumentIcon, current: currentPath.startsWith('/content') },
     { name: '動画管理', href: '/videos', icon: VideoIcon, current: currentPath.startsWith('/videos') },
-    { name: 'SNS投稿', href: '/social', icon: ShareIcon, current: currentPath.startsWith('/social') },
+    { name: 'SNS投稿', href: '/social', icon: ShareIcon, current: currentPath === '/social' || currentPath === '/social/new' },
+    { name: 'SNS分析', href: '/social/analytics', icon: ChartBarIcon, current: currentPath === '/social/analytics' },
     { name: 'キーワード検索', href: '/keywords', icon: ChatBubbleIcon, current: currentPath === '/keywords' },
-    { name: 'AI設定', href: '/settings/dify', icon: CogIcon, current: currentPath.startsWith('/settings') },
+    { name: 'AI設定', href: '/settings/dify', icon: CogIcon, current: currentPath === '/settings/dify' },
+    { name: 'n8n連携', href: '/settings/n8n', icon: ShareIcon, current: currentPath === '/settings/n8n' },
   ];
 
   return (

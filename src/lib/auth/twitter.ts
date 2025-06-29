@@ -223,4 +223,168 @@ export class TwitterAuth {
       throw new Error('Failed to post tweet');
     }
   }
+
+  // ユーザー情報の取得
+  async getUserInfo(userId: string, accessToken: string, accessTokenSecret: string) {
+    const url = `https://api.twitter.com/2/users/${userId}?user.fields=public_metrics,description,created_at,verified`;
+    
+    const nonce = this.generateNonce();
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+
+    const params = {
+      oauth_consumer_key: this.apiKey,
+      oauth_nonce: nonce,
+      oauth_signature_method: 'HMAC-SHA1',
+      oauth_timestamp: timestamp,
+      oauth_token: accessToken,
+      oauth_version: '1.0'
+    };
+
+    const signingKey = `${encodeURIComponent(this.apiSecret)}&${encodeURIComponent(accessTokenSecret)}`;
+    const paramString = Object.keys(params)
+      .sort()
+      .map(key => `${key}=${encodeURIComponent(params[key as keyof typeof params])}`)
+      .join('&');
+
+    const baseString = `GET&${encodeURIComponent(url)}&${encodeURIComponent(paramString)}`;
+    const signature = crypto
+      .createHmac('sha1', signingKey)
+      .update(baseString)
+      .digest('base64');
+
+    const authHeader = this.generateAuthHeader({
+      ...params,
+      oauth_signature: signature
+    });
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': authHeader,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Twitter API error: ${response.status}`);
+    }
+    
+    return response.json();
+  }
+
+  // タイムラインの取得
+  async getUserTweets(
+    userId: string, 
+    accessToken: string, 
+    accessTokenSecret: string,
+    options: {
+      max_results?: number;
+      pagination_token?: string;
+      start_time?: string;
+      end_time?: string;
+    } = {}
+  ) {
+    const queryParams = new URLSearchParams({
+      'tweet.fields': 'public_metrics,created_at,context_annotations',
+      'max_results': (options.max_results || 10).toString(),
+    });
+    
+    if (options.pagination_token) queryParams.append('pagination_token', options.pagination_token);
+    if (options.start_time) queryParams.append('start_time', options.start_time);
+    if (options.end_time) queryParams.append('end_time', options.end_time);
+    
+    const url = `https://api.twitter.com/2/users/${userId}/tweets?${queryParams}`;
+    
+    const nonce = this.generateNonce();
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+
+    const params = {
+      oauth_consumer_key: this.apiKey,
+      oauth_nonce: nonce,
+      oauth_signature_method: 'HMAC-SHA1',
+      oauth_timestamp: timestamp,
+      oauth_token: accessToken,
+      oauth_version: '1.0'
+    };
+
+    const signingKey = `${encodeURIComponent(this.apiSecret)}&${encodeURIComponent(accessTokenSecret)}`;
+    const paramString = Object.keys(params)
+      .sort()
+      .map(key => `${key}=${encodeURIComponent(params[key as keyof typeof params])}`)
+      .join('&');
+
+    const baseString = `GET&${encodeURIComponent(url.split('?')[0])}&${encodeURIComponent(paramString + '&' + queryParams.toString())}`;
+    const signature = crypto
+      .createHmac('sha1', signingKey)
+      .update(baseString)
+      .digest('base64');
+
+    const authHeader = this.generateAuthHeader({
+      ...params,
+      oauth_signature: signature
+    });
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': authHeader,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Twitter API error: ${response.status}`);
+    }
+    
+    return response.json();
+  }
+
+  // ツイートの詳細情報取得
+  async getTweetMetrics(
+    tweetId: string,
+    accessToken: string,
+    accessTokenSecret: string
+  ) {
+    const url = `https://api.twitter.com/2/tweets/${tweetId}?tweet.fields=public_metrics,created_at,context_annotations`;
+    
+    const nonce = this.generateNonce();
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+
+    const params = {
+      oauth_consumer_key: this.apiKey,
+      oauth_nonce: nonce,
+      oauth_signature_method: 'HMAC-SHA1',
+      oauth_timestamp: timestamp,
+      oauth_token: accessToken,
+      oauth_version: '1.0'
+    };
+
+    const signingKey = `${encodeURIComponent(this.apiSecret)}&${encodeURIComponent(accessTokenSecret)}`;
+    const paramString = Object.keys(params)
+      .sort()
+      .map(key => `${key}=${encodeURIComponent(params[key as keyof typeof params])}`)
+      .join('&');
+
+    const baseString = `GET&${encodeURIComponent(url.split('?')[0])}&${encodeURIComponent(paramString + '&tweet.fields=public_metrics,created_at,context_annotations')}`;
+    const signature = crypto
+      .createHmac('sha1', signingKey)
+      .update(baseString)
+      .digest('base64');
+
+    const authHeader = this.generateAuthHeader({
+      ...params,
+      oauth_signature: signature
+    });
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': authHeader,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Twitter API error: ${response.status}`);
+    }
+    
+    return response.json();
+  }
 }

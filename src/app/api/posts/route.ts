@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { QueueManager } from '@/lib/queue/manager';
 import jwt from 'jsonwebtoken';
+import { n8nService } from '@/lib/n8n/service';
 
 const queueManager = new QueueManager();
 
@@ -69,6 +70,19 @@ export async function POST(request: NextRequest) {
     
     // キューに追加
     const job = await queueManager.addPost(jobData);
+    
+    // n8nイベントトリガー
+    if (jobData.scheduledAt) {
+      await n8nService.onPostScheduled({
+        id: jobData.id,
+        platform: jobData.platform,
+        content: jobData.content,
+        scheduledFor: jobData.scheduledAt,
+        status: 'scheduled',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    }
     
     return NextResponse.json({
       jobId: job.id,

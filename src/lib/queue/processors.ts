@@ -3,6 +3,7 @@ import { PostJobData, JobResult } from './manager';
 import { TwitterAuth } from '../auth/twitter';
 import { InstagramAuth } from '../auth/instagram';
 import { TikTokAuth } from '../auth/tiktok';
+import { n8nService } from '../n8n/service';
 
 // プロセッサーのインスタンス
 const twitterAuth = new TwitterAuth();
@@ -26,6 +27,18 @@ export const processTwitterPost = async (job: Bull.Job<PostJobData>): Promise<Jo
     );
     
     await job.progress(100);
+    
+    // n8nイベントトリガー - 投稿成功
+    await n8nService.onPostPublished({
+      id: job.data.id,
+      platform: 'twitter',
+      content: content.text || '',
+      mediaUrls: content.mediaUrls,
+      publishedAt: new Date(),
+      status: 'published',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
     
     return {
       success: true,
@@ -98,6 +111,18 @@ export const processInstagramPost = async (job: Bull.Job<PostJobData>): Promise<
     
     await job.progress(100);
     
+    // n8nイベントトリガー - 投稿成功
+    await n8nService.onPostPublished({
+      id: job.data.id,
+      platform: 'instagram',
+      content: content.caption || '',
+      mediaUrls: content.mediaUrls,
+      publishedAt: new Date(),
+      status: 'published',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    
     return {
       success: true,
       platform: 'instagram',
@@ -165,6 +190,18 @@ export const processTikTokPost = async (job: Bull.Job<PostJobData>): Promise<Job
     } while (status.status === 'processing' && retries < 10);
     
     await job.progress(100);
+    
+    // n8nイベントトリガー - 投稿成功
+    await n8nService.onPostPublished({
+      id: job.data.id,
+      platform: 'tiktok',
+      content: content.caption || '',
+      mediaUrls: content.mediaUrls,
+      publishedAt: new Date(),
+      status: 'published',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
     
     return {
       success: true,

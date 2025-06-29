@@ -255,4 +255,173 @@ export class TikTokAuth {
       throw new Error('Failed to check publish status');
     }
   }
+
+  // ユーザー情報の取得
+  async getUserInfo(accessToken: string, openId: string) {
+    try {
+      const response = await axios.get(
+        'https://open-api.tiktok.com/user/info/',
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          },
+          params: {
+            open_id: openId,
+            fields: 'open_id,union_id,avatar_url,display_name,follower_count,following_count,likes_count,video_count'
+          }
+        }
+      );
+
+      if (response.data.data.error_code) {
+        throw new Error(response.data.data.description);
+      }
+
+      return response.data.data.user;
+    } catch (error) {
+      console.error('TikTok get user info error:', error);
+      throw new Error('Failed to get user info');
+    }
+  }
+
+  // 動画リストの取得
+  async getUserVideos(
+    accessToken: string,
+    openId: string,
+    options: {
+      cursor?: number;
+      max_count?: number;
+    } = {}
+  ) {
+    try {
+      const params: any = {
+        open_id: openId,
+        cursor: options.cursor || 0,
+        max_count: options.max_count || 20,
+        fields: 'cover_image_url,create_time,share_url,video_id,title,like_count,comment_count,share_count,view_count'
+      };
+
+      const response = await axios.get(
+        'https://open-api.tiktok.com/video/list/',
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          },
+          params
+        }
+      );
+
+      if (response.data.data.error_code) {
+        throw new Error(response.data.data.description);
+      }
+
+      return response.data.data;
+    } catch (error) {
+      console.error('TikTok get user videos error:', error);
+      throw new Error('Failed to get user videos');
+    }
+  }
+
+  // 動画の詳細情報取得
+  async getVideoInfo(
+    accessToken: string,
+    openId: string,
+    videoIds: string[]
+  ) {
+    try {
+      const response = await axios.post(
+        'https://open-api.tiktok.com/video/data/',
+        {
+          open_id: openId,
+          filters: {
+            video_ids: videoIds
+          },
+          fields: 'id,title,create_time,cover_image_url,share_url,view_count,like_count,comment_count,share_count,download_count,duration'
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.data.error_code) {
+        throw new Error(response.data.data.description);
+      }
+
+      return response.data.data.videos;
+    } catch (error) {
+      console.error('TikTok get video info error:', error);
+      throw new Error('Failed to get video info');
+    }
+  }
+
+  // 動画のコメント取得
+  async getVideoComments(
+    accessToken: string,
+    openId: string,
+    videoId: string,
+    options: {
+      cursor?: number;
+      count?: number;
+    } = {}
+  ) {
+    try {
+      const response = await axios.get(
+        'https://open-api.tiktok.com/comment/list/',
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          },
+          params: {
+            open_id: openId,
+            video_id: videoId,
+            cursor: options.cursor || 0,
+            count: options.count || 20
+          }
+        }
+      );
+
+      if (response.data.data.error_code) {
+        throw new Error(response.data.data.description);
+      }
+
+      return response.data.data;
+    } catch (error) {
+      console.error('TikTok get video comments error:', error);
+      throw new Error('Failed to get video comments');
+    }
+  }
+
+  // 動画分析データ取得
+  async getVideoAnalytics(
+    accessToken: string,
+    openId: string,
+    videoId: string
+  ) {
+    try {
+      const response = await axios.get(
+        'https://open-api.tiktok.com/video/analytics/',
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          },
+          params: {
+            open_id: openId,
+            video_id: videoId,
+            metrics: 'view_count,like_count,comment_count,share_count,save_count,completion_rate,average_watch_time'
+          }
+        }
+      );
+
+      if (response.data.data.error_code) {
+        throw new Error(response.data.data.description);
+      }
+
+      return response.data.data;
+    } catch (error) {
+      console.error('TikTok get video analytics error:', error);
+      throw new Error('Failed to get video analytics');
+    }
+  }
 }
