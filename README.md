@@ -16,6 +16,7 @@ AI-driven content management and social media automation platform with enterpris
 ### Prerequisites
 
 - Node.js 18+ 
+- PostgreSQL database (recommended: Neon - https://neon.tech)
 - Redis server (for queue management)
 - API keys for social media platforms
 - (Optional) n8n instance for workflow automation
@@ -36,12 +37,24 @@ npm install
 
 3. Set up environment variables (see Configuration section)
 
-4. Run the development server:
+4. Set up the database:
+```bash
+# Generate Prisma client
+npm run db:generate
+
+# Push schema to database (development)
+npm run db:push
+
+# Or run migrations (production)
+npm run db:migrate
+```
+
+5. Run the development server:
 ```bash
 npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Configuration
 
@@ -75,6 +88,10 @@ JWT_SECRET=your_jwt_secret_key_here
 
 # API Base URL
 NEXT_PUBLIC_API_URL=http://localhost:3000
+
+# PostgreSQL Database (Neon)
+DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
+DIRECT_URL="postgresql://user:password@host/database?sslmode=require"
 ```
 
 ### In-App Configuration
@@ -124,6 +141,12 @@ npm run dev          # Start development server
 npm run build        # Build for production
 npm run start        # Start production server
 
+# Database
+npm run db:generate  # Generate Prisma client
+npm run db:push      # Push schema changes to database
+npm run db:migrate   # Run database migrations
+npm run db:studio    # Open Prisma Studio (database GUI)
+
 # Code Quality
 npm run lint         # Run ESLint
 npm run test         # Run Jest tests
@@ -152,8 +175,10 @@ npm run test:coverage # Generate coverage report
 
 ### Technology Stack
 - **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Database**: PostgreSQL (Neon) + Prisma ORM
 - **State Management**: Zustand
 - **Queue System**: Bull + Redis
+- **Authentication**: JWT + bcrypt
 - **Testing**: Jest, Testing Library
 - **Charts**: Recharts
 - **AI Integration**: Dify (optional)
