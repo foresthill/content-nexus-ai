@@ -21,6 +21,7 @@ export const DifyConfigPanel: React.FC = () => {
     baseUrl: config?.baseUrl || 'https://api.dify.ai/v1',
     appId: config?.appId || '',
   });
+  const [isLocalDify, setIsLocalDify] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,17 +31,16 @@ export const DifyConfigPanel: React.FC = () => {
 
   const handleSave = async () => {
     setConfig(formData);
-    await handleTestConnection();
+    // setConfigの後に少し待つ
+    setTimeout(async () => {
+      await handleTestConnection();
+    }, 100);
   };
 
   const handleTestConnection = async () => {
     setIsTesting(true);
     const success = await testConnection();
     setIsTesting(false);
-    
-    if (success) {
-      // Optionally show success message
-    }
   };
 
   const handleClearConfig = () => {
@@ -103,8 +103,13 @@ export const DifyConfigPanel: React.FC = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
           />
           <p className="mt-1 text-sm text-gray-500">
-            DifyのAPIエンドポイントURL（デフォルト: https://api.dify.ai/v1）
+            DifyのAPIエンドポイントURL
           </p>
+          <div className="mt-2 space-y-1 text-xs text-gray-600">
+            <p>• Dify Cloud: <code className="bg-gray-100 px-1">https://api.dify.ai/v1</code></p>
+            <p>• ローカル環境: <code className="bg-gray-100 px-1">http://localhost:3000/v1</code> (ポート番号を確認)</p>
+            <p>• 現在の設定: <code className="bg-gray-100 px-1">{formData.baseUrl}</code></p>
+          </div>
         </div>
 
         {/* App ID Input (Optional) */}

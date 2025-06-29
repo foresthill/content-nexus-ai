@@ -761,3 +761,48 @@ npm run db:studio    # Prisma Studio起動
 5. バックアップ・リストア機能
 
 この実装により、Content Nexus AIは本格的なエンタープライズアプリケーションとしての基盤を確立しました。
+
+## 2025年6月29日 - Dify接続問題の解決
+
+### 問題
+Dify接続時に400エラーが発生。原因はCORSエラーとエンドポイントの問題。
+
+### 解決策
+1. **サーバーサイドAPI実装**
+   - `/api/dify/test` エンドポイントを作成
+   - ブラウザ → Next.jsサーバー → Dify APIの流れでCORSを回避
+
+2. **エンドポイントの修正**
+   - `/parameters` から `/meta` に変更
+   - 接続テスト用の適切なエンドポイントを使用
+
+3. **ローカルDify設定**
+   - Base URL: `http://localhost/v1` （ポート番号なし）
+   - API Key: Difyアプリケーションから取得
+   - アプリケーションを公開状態にする必要あり
+
+### 次のステップ（明日の開発）
+Difyとの値の送受信実装：
+1. **コンテンツ改善API**
+   - `/api/dify/improve` エンドポイント作成
+   - DifyServiceを使用したコンテンツ改善機能
+
+2. **実装例**
+   ```typescript
+   // コンテンツをDifyに送信して改善
+   const improvedContent = await difyService.improveContent({
+     content: "元のコンテンツ",
+     tone: "professional",
+     platform: "twitter"
+   });
+   ```
+
+3. **ワークフロー実行**
+   - カスタムワークフローの呼び出し
+   - 複数ステップの処理チェーン
+
+### 重要な設定メモ
+- ローカルDify環境では `http://localhost/v1` を使用
+- Dify Cloudの場合は `https://api.dify.ai/v1`
+- アプリケーションは必ず公開状態にする
+- API Keyは `app-` プレフィックスで始まる

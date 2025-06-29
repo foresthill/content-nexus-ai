@@ -202,7 +202,7 @@ model SocialPost {
   // Relations
   user            User              @relation(fields: [userId], references: [id])
   team            Team?             @relation(fields: [teamId], references: [id])
-  content         Content?          @relation(fields: [contentId], references: [id], onDelete: SetNull)
+  sourceContent   Content?          @relation(fields: [contentId], references: [id], onDelete: SetNull)
   socialAccount   SocialAccount     @relation(fields: [socialAccountId], references: [id])
   media           SocialPostMedia[]
   metrics         PostMetrics[]

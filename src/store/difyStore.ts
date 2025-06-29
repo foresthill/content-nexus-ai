@@ -95,12 +95,19 @@ export const useDifyStore = create<DifyStore>()(
         }
 
         try {
-          // Test connection by making a simple API call
-          const response = await fetch(`${config.baseUrl}/parameters`, {
+          // サーバーサイドAPIを通じて接続テスト
+          const response = await fetch('/api/dify/test', {
+            method: 'POST',
             headers: {
-              'Authorization': `Bearer ${config.apiKey}`,
+              'Content-Type': 'application/json',
             },
+            body: JSON.stringify({
+              apiKey: config.apiKey,
+              baseUrl: config.baseUrl,
+            }),
           });
+
+          const data = await response.json();
 
           if (response.ok) {
             set({
@@ -111,7 +118,7 @@ export const useDifyStore = create<DifyStore>()(
           } else {
             set({
               isConnected: false,
-              connectionError: `Connection failed: ${response.statusText}`,
+              connectionError: data.error || `Connection failed: ${response.statusText}`,
             });
             return false;
           }
