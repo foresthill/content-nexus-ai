@@ -4,6 +4,9 @@ import { TwitterAuth } from '../auth/twitter';
 import { InstagramAuth } from '../auth/instagram';
 import { TikTokAuth } from '../auth/tiktok';
 import { n8nService } from '../n8n/service';
+import { circuitBreakerManager } from './circuit-breaker';
+import { smartRetryManager } from './retry-strategy';
+import { deadLetterQueue } from './dead-letter-queue';
 
 // プロセッサーのインスタンス
 const twitterAuth = new TwitterAuth();
@@ -233,28 +236,63 @@ export const processTikTokPost = async (job: Bull.Job<PostJobData>): Promise<Job
   }
 };
 
-// メインプロセッサー
+// メインプロセッサー（改善版）
 export const processPost = async (job: Bull.Job<PostJobData>): Promise<JobResult> => {
   const { platform } = job.data;
   
   console.log(`Processing ${platform} post job ${job.id}`);
   
+  // Circuit Breakerを取得
+  const breaker = circuitBreakerManager.getBreaker(platform);
+  
   try {
-    switch (platform) {
-      case 'twitter':
-        return await processTwitterPost(job);
-      
-      case 'instagram':
-        return await processInstagramPost(job);
-      
-      case 'tiktok':
-        return await processTikTokPost(job);
-      
-      default:
-        throw new Error(`Unsupported platform: ${platform}`);
-    }
-  } catch (error) {
+    // Circuit Breakerで実行
+    const result = await breaker.execute(async () => {
+      switch (platform) {
+        case 'twitter':
+          return await processTwitterPost(job);
+        
+        case 'instagram':
+          return await processInstagramPost(job);
+        
+        case 'tiktok':
+          return await processTikTokPost(job);
+        
+        default:
+          throw new Error(`Unsupported platform: ${platform}`);
+      }
+    });
+    
+    // 成功を記録
+    smartRetryManager.recordSuccess(platform, 'post');
+    
+    return result;
+  } catch (error: any) {
     console.error(`Failed to process ${platform} post:`, error);
+    
+    // 失敗を記録
+    smartRetryManager.recordFailure(platform, error, {
+      jobId: job.id,
+      attemptNumber: job.attemptsMade || 1
+    });
+    
+    // 最終試行で失敗した場合はDead Letter Queueへ
+    const strategy = smartRetryManager.getStrategy(platform);
+    if (job.attemptsMade >= strategy.maxRetries) {
+      deadLetterQueue.add(job, error, job.attemptsMade);
+      
+      // n8nに失敗を通知
+      await n8nService.onPostFailed({
+        id: job.data.id,
+        platform: job.data.platform,
+        content: job.data.content.text || job.data.content.caption || '',
+        status: 'failed',
+        scheduledFor: job.data.scheduledAt,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }, error.message);
+    }
+    
     throw error;
   }
 };
