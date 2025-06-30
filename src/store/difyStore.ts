@@ -136,7 +136,17 @@ export const useDifyStore = create<DifyStore>()(
       partialize: (state) => ({
         config: state.config,
         selectedAppId: state.selectedAppId,
+        isConfigured: state.isConfigured,
       }),
+      onRehydrateStorage: () => (state) => {
+        // ハイドレーション後、configがある場合はisConfiguredをtrueに設定
+        if (state && state.config && state.config.apiKey) {
+          state.isConfigured = true;
+        }
+      },
     }
   )
 );
+
+// APIから使用するためのエクスポート
+export const difyStore = useDifyStore;

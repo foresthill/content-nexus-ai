@@ -9,7 +9,7 @@ import {
 } from '@/types/dify';
 
 export class DifyService {
-  private client: DifyClient;
+  client: DifyClient; // publicに変更してAPIから直接アクセス可能に
 
   constructor(config: DifyConfig) {
     this.client = new DifyClient(config);

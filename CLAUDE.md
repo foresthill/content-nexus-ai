@@ -781,28 +781,91 @@ Dify接続時に400エラーが発生。原因はCORSエラーとエンドポイ
    - API Key: Difyアプリケーションから取得
    - アプリケーションを公開状態にする必要あり
 
-### 次のステップ（明日の開発）
-Difyとの値の送受信実装：
-1. **コンテンツ改善API**
-   - `/api/dify/improve` エンドポイント作成
-   - DifyServiceを使用したコンテンツ改善機能
-
-2. **実装例**
-   ```typescript
-   // コンテンツをDifyに送信して改善
-   const improvedContent = await difyService.improveContent({
-     content: "元のコンテンツ",
-     tone: "professional",
-     platform: "twitter"
-   });
-   ```
-
-3. **ワークフロー実行**
-   - カスタムワークフローの呼び出し
-   - 複数ステップの処理チェーン
-
 ### 重要な設定メモ
 - ローカルDify環境では `http://localhost/v1` を使用
 - Dify Cloudの場合は `https://api.dify.ai/v1`
 - アプリケーションは必ず公開状態にする
 - API Keyは `app-` プレフィックスで始まる
+
+## 2025年6月30日 - Difyコンテンツ生成機能の実装完了
+
+### 実装内容
+Difyワークフローを使用したコンテンツ生成機能を完全実装しました。
+
+### 主要機能
+1. **ワークフロー実行API**
+   - `/api/dify/workflow/run` - 汎用ワークフロー実行
+   - `/api/dify/content/generate` - コンテンツ生成特化
+   - `/api/dify/chat/generate` - チャットアプリ対応
+
+2. **マルチAPIモード対応**
+   - ワークフローAPI（Workflow）
+   - チャットAPI（Chat）
+   - 完了API（Completion）
+   - エラー時の自動フォールバック機能
+
+3. **ナレッジ（RAG）管理**
+   - `/api/dify/knowledge` - ナレッジCRUD
+   - `/api/dify/files/upload` - ファイルアップロード
+
+4. **コンテンツ生成UI**
+   - `/dify/generate` - 専用生成ページ
+   - サイドバーから直接アクセス可能
+   - リアルタイム結果表示
+
+### 技術的な実装詳細
+
+#### API Key管理
+- Zustandストアでクライアントサイド管理
+- Cookieでサーバーサイド永続化
+- `/api/dify/config` で設定の保存/取得
+
+#### エラーハンドリング
+```typescript
+// ワークフロー → チャット → 完了の順で自動フォールバック
+try {
+  // ワークフローAPI
+} catch (error) {
+  if (error.code === 'not_workflow_app') {
+    // チャットAPIを試行
+  }
+}
+```
+
+#### デバッグ機能
+- API接続テストボタン
+- アプリタイプ自動検出
+- 設定状態の可視化
+
+### トラブルシューティング
+
+#### "API Keyが設定されていません"エラー
+1. `isConfigured`フラグの同期問題
+2. 解決: ハイドレーション時の自動更新実装
+3. 手動リセット/再読み込みボタンを追加
+
+#### "not_workflow_app"エラー
+- Difyアプリがワークフロータイプでない場合に発生
+- 自動的にChat/Completion APIにフォールバック
+
+#### 保存機能
+- Zustand contentStoreを使用したクライアントサイド保存
+- 永続化は未実装（今後の課題）
+
+### 使用方法
+1. サイドバーの「Difyコンテンツ生成」をクリック
+2. トピックとパラメータを入力
+3. 「コンテンツを生成」ボタンをクリック
+4. 生成結果を確認して「コンテンツを保存」
+
+### WSLパフォーマンス最適化
+`WSL_OPTIMIZATION.md`を作成し、以下の問題を解決：
+- ホットリロードが効かない → プロジェクトをWSL内に移動
+- npm run devが遅い → Windows Defenderの除外設定
+- 詳細な最適化ガイドを文書化
+
+### 今後の改善点
+1. コンテンツの永続化（データベース保存）
+2. ワークフロー実行履歴の管理
+3. リアルタイム進捗表示
+4. バッチ生成機能の強化

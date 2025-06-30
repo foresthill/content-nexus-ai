@@ -1,0 +1,21 @@
+# WSL2パフォーマンス最適化設定
+# このファイルをWindows側の %USERPROFILE%\.wslconfig にコピーしてください
+
+[wsl2]
+# メモリ割り当て（システムメモリの50%程度を推奨）
+memory=8GB
+
+# プロセッサ数（システムの半分程度を推奨）
+processors=4
+
+# スワップサイズ
+swap=2GB
+
+# ローカルホストフォワーディング
+localhostForwarding=true
+
+# ページレポート無効化（メモリ使用量削減）
+pageReporting=false
+
+# アイドル時のメモリ解放
+sparseVhd=true

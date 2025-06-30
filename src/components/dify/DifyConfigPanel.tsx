@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDifyStore } from '@/store/difyStore';
 import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
@@ -24,17 +24,44 @@ export const DifyConfigPanel: React.FC = () => {
   const [isLocalDify, setIsLocalDify] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
 
+  // 初回レンダリング時に、configがあるのにisConfiguredがfalseの場合は修正
+  useEffect(() => {
+    if (config && config.apiKey && !isConfigured) {
+      setConfig(config);
+    }
+  }, [config, isConfigured, setConfig]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
-    setConfig(formData);
-    // setConfigの後に少し待つ
-    setTimeout(async () => {
-      await handleTestConnection();
-    }, 100);
+    try {
+      // APIエンドポイントに設定を保存
+      const response = await fetch('/api/dify/config', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('設定の保存に失敗しました');
+      }
+
+      // ローカルストアも更新
+      setConfig(formData);
+      
+      // 接続テストを実行
+      setTimeout(async () => {
+        await handleTestConnection();
+      }, 100);
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('設定の保存に失敗しました');
+    }
   };
 
   const handleTestConnection = async () => {
