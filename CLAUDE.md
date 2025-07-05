@@ -869,3 +869,54 @@ try {
 2. ワークフロー実行履歴の管理
 3. リアルタイム進捗表示
 4. バッチ生成機能の強化
+
+## 2025年7月5日 - ブランディング変更とNext.js 15対応
+
+### ブランディング変更
+- **ContentNexus → ToolPlus**: プロジェクト全体のブランディングを変更
+- ヒーローセクションのメッセージを「記事を書かなくても」から「AIツールを使って効率的にコンテンツビジネスを拡大」へ変更
+- 成功事例を個人向けから企業向けケーススタディに変更
+- より専門的でビジネス向けのトーンに統一
+
+### Next.js 15 ビルドエラー修正
+
+#### 1. 動的ルートパラメータの型エラー
+- **問題**: Next.js 15では動的ルートのparamsがPromiseになった
+- **修正前**: `{ params }: { params: { id: string } }`
+- **修正後**: `{ params }: { params: Promise<{ id: string }> }`
+- **対応**: `const { id } = await params;`でパラメータを取得
+- **影響ファイル**:
+  - `/api/contents/[id]/route.ts`
+  - `/api/posts/[id]/route.ts`
+  - `/api/webhooks/[id]/route.ts`
+
+#### 2. Dify API レスポンス型の不整合
+- **DifyChatResponse**: `id`プロパティが存在しない → `message_id`を使用
+- **DifyWorkflowResponse**: `workflow_run_id`がルートレベルに存在（dataの中ではない）
+- **DifyFileUploadResponse**: `url`プロパティが存在しない
+
+#### 3. SocialPost型の不整合
+- **問題**: n8nサービスが`platform`（単数）を期待するが、SocialPost型は`platforms`（配列）を持つ
+- **解決**: 
+  - `onPostPublished`/`onPostFailed`を配列を処理するように修正
+  - `onPostScheduled`は異なる構造を受け取るため`any`型で対応
+  - processorsでSocialPost構造を正しく構築
+
+#### 4. その他の型エラー
+- **TikTokAuth**: 重複する`getUserInfo`メソッド → 2つ目を`getUserStats`に変更
+- **TwitterAuth**: `generateNonce`メソッドが未定義 → privateメソッドとして追加
+- **TikTokUserInfo**: 統計フィールドが不足 → `follower_count`等を追加
+- **Prismaクエリ**: `content`リレーションが存在しない → `sourceContent`を使用
+- **TypeScript厳密性**: `filter.since`のundefinedチェック → 一時変数で解決
+- **Bull.js**: `isReady()`の戻り値型 → try-catchでbooleanに変換
+
+### ビルド結果
+- **エラー**: 0個（すべて解決）
+- **警告**: ESLint警告のみ（`@typescript-eslint/no-explicit-any`など）
+- **ビルド時間**: 約30秒
+- **静的ページ生成**: 71ページ成功
+
+### 今後の対応
+1. ESLint警告の段階的な解消
+2. `any`型の具体的な型定義への置き換え
+3. 未使用変数・インポートのクリーンアップ
