@@ -103,7 +103,8 @@ export class DeadLetterQueue {
         entries = entries.filter(e => e.metadata.manualRetryAllowed === filter.retryable);
       }
       if (filter.since) {
-        entries = entries.filter(e => e.metadata.addedAt >= filter.since);
+        const since = filter.since;
+        entries = entries.filter(e => e.metadata.addedAt >= since);
       }
     }
 

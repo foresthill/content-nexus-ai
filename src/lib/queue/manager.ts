@@ -300,10 +300,22 @@ export class QueueManager {
     circuitBreakers: Record<string, string>;
     deadLetterQueue: number;
   }> {
-    const [postHealth, retryHealth] = await Promise.all([
-      this.postQueue.isReady(),
-      this.retryQueue.isReady()
-    ]);
+    let postHealth = false;
+    let retryHealth = false;
+    
+    try {
+      await this.postQueue.isReady();
+      postHealth = true;
+    } catch (error) {
+      postHealth = false;
+    }
+    
+    try {
+      await this.retryQueue.isReady();
+      retryHealth = true;
+    } catch (error) {
+      retryHealth = false;
+    }
 
     const cbStats = circuitBreakerManager.getAllStats();
     const circuitBreakers: Record<string, string> = {};

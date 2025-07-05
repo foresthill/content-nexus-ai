@@ -94,9 +94,9 @@ export async function POST(request: NextRequest) {
       },
       metadata: {
         conversationId: response.conversation_id,
-        messageId: response.id,
-        createdAt: response.created_at,
-        model: response.model || 'unknown',
+        messageId: response.message_id,
+        createdAt: response.created_at || Date.now(),
+        model: 'dify-chat',
         tokensUsed: response.metadata?.usage?.total_tokens || 0,
       },
     });
@@ -149,7 +149,7 @@ export async function PUT(request: NextRequest) {
       success: true,
       answer: response.answer,
       conversationId: response.conversation_id,
-      messageId: response.id,
+      messageId: response.message_id,
     });
 
   } catch (error) {

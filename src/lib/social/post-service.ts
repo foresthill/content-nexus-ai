@@ -78,7 +78,7 @@ export class SocialPostService {
         },
         include: {
           socialAccount: true,
-          content: true,
+          sourceContent: true,
           media: {
             include: {
               media: true,
@@ -115,7 +115,7 @@ export class SocialPostService {
         data: input,
         include: {
           socialAccount: true,
-          content: true,
+          sourceContent: true,
           media: {
             include: {
               media: true,
@@ -172,7 +172,7 @@ export class SocialPostService {
             },
           },
           team: true,
-          content: true,
+          sourceContent: true,
           socialAccount: true,
           media: {
             include: {
@@ -394,7 +394,7 @@ export class SocialPostService {
             take: 1,
           },
           socialAccount: true,
-          content: true,
+          sourceContent: true,
         },
       });
 

@@ -70,7 +70,6 @@ export async function POST(request: NextRequest) {
           type: file.type,
           uploadedAt: new Date().toISOString(),
           difyFileId: uploadResult.id,
-          difyUrl: uploadResult.url,
         },
         message: 'ファイルが正常にアップロードされました',
       });

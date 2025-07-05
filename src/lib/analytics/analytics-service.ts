@@ -306,7 +306,11 @@ export class AnalyticsService {
         },
       });
 
-      return data;
+      return data.map(item => ({
+        metric: item.metric,
+        value: item.value,
+        platform: item.platform ?? undefined,
+      }));
     }, 'Failed to get top metrics');
   }
 

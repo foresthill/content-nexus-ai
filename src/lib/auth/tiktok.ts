@@ -14,6 +14,10 @@ interface TikTokUserInfo {
   union_id: string;
   avatar_url: string;
   display_name: string;
+  follower_count?: number;
+  following_count?: number;
+  likes_count?: number;
+  video_count?: number;
 }
 
 export class TikTokAuth {
@@ -256,8 +260,8 @@ export class TikTokAuth {
     }
   }
 
-  // ユーザー情報の取得
-  async getUserInfo(accessToken: string, openId: string) {
+  // ユーザー統計情報の取得
+  async getUserStats(accessToken: string, openId: string) {
     try {
       const response = await axios.get(
         'https://open-api.tiktok.com/user/info/',

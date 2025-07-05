@@ -7,6 +7,7 @@ import { n8nService } from '../n8n/service';
 import { circuitBreakerManager } from './circuit-breaker';
 import { smartRetryManager } from './retry-strategy';
 import { deadLetterQueue } from './dead-letter-queue';
+import { SocialPost } from '@/types/social';
 
 // プロセッサーのインスタンス
 const twitterAuth = new TwitterAuth();
@@ -34,14 +35,19 @@ export const processTwitterPost = async (job: Bull.Job<PostJobData>): Promise<Jo
     // n8nイベントトリガー - 投稿成功
     await n8nService.onPostPublished({
       id: job.data.id,
-      platform: 'twitter',
-      content: content.text || '',
-      mediaUrls: content.mediaUrls,
-      publishedAt: new Date(),
+      title: 'Twitter Post',
+      platforms: [{
+        platform: 'twitter',
+        text: content.text || '',
+        media: [],
+        hashtags: content.hashtags || [],
+        mentions: []
+      }],
       status: 'published',
+      publishedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date()
-    });
+    } as SocialPost);
     
     return {
       success: true,
@@ -117,14 +123,19 @@ export const processInstagramPost = async (job: Bull.Job<PostJobData>): Promise<
     // n8nイベントトリガー - 投稿成功
     await n8nService.onPostPublished({
       id: job.data.id,
-      platform: 'instagram',
-      content: content.caption || '',
-      mediaUrls: content.mediaUrls,
-      publishedAt: new Date(),
+      title: 'Instagram Post',
+      platforms: [{
+        platform: 'instagram',
+        text: content.caption || '',
+        media: [],
+        hashtags: content.hashtags || [],
+        mentions: []
+      }],
       status: 'published',
+      publishedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date()
-    });
+    } as SocialPost);
     
     return {
       success: true,
@@ -197,14 +208,19 @@ export const processTikTokPost = async (job: Bull.Job<PostJobData>): Promise<Job
     // n8nイベントトリガー - 投稿成功
     await n8nService.onPostPublished({
       id: job.data.id,
-      platform: 'tiktok',
-      content: content.caption || '',
-      mediaUrls: content.mediaUrls,
-      publishedAt: new Date(),
+      title: 'TikTok Post',
+      platforms: [{
+        platform: 'tiktok',
+        text: content.caption || '',
+        media: [],
+        hashtags: content.hashtags || [],
+        mentions: []
+      }],
       status: 'published',
+      publishedAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date()
-    });
+    } as SocialPost);
     
     return {
       success: true,
@@ -284,13 +300,19 @@ export const processPost = async (job: Bull.Job<PostJobData>): Promise<JobResult
       // n8nに失敗を通知
       await n8nService.onPostFailed({
         id: job.data.id,
-        platform: job.data.platform,
-        content: job.data.content.text || job.data.content.caption || '',
+        title: 'Failed Post',
+        platforms: [{
+          platform: job.data.platform,
+          text: job.data.content.text || job.data.content.caption || '',
+          media: [],
+          hashtags: job.data.content.hashtags || [],
+          mentions: []
+        }],
         status: 'failed',
-        scheduledFor: job.data.scheduledAt,
+        scheduledAt: job.data.scheduledAt,
         createdAt: new Date(),
         updatedAt: new Date()
-      }, error.message);
+      } as SocialPost, error.message);
     }
     
     throw error;

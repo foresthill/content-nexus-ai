@@ -43,6 +43,11 @@ export class TwitterAuth {
       .digest('base64');
   }
 
+  // Nonceの生成
+  private generateNonce(): string {
+    return crypto.randomBytes(32).toString('base64').replace(/[^\w]/g, '');
+  }
+
   // OAuth認証ヘッダーの生成
   private generateAuthHeader(params: Record<string, string>): string {
     const authParams = Object.keys(params)
@@ -58,7 +63,7 @@ export class TwitterAuth {
   async getRequestToken(): Promise<{ oauth_token: string; oauth_token_secret: string }> {
     const url = 'https://api.twitter.com/oauth/request_token';
     const timestamp = Math.floor(Date.now() / 1000).toString();
-    const nonce = crypto.randomBytes(32).toString('base64').replace(/[^\w]/g, '');
+    const nonce = this.generateNonce();
 
     const params = {
       oauth_callback: this.callbackUrl,
@@ -106,7 +111,7 @@ export class TwitterAuth {
   ): Promise<TwitterOAuthTokens> {
     const url = 'https://api.twitter.com/oauth/access_token';
     const timestamp = Math.floor(Date.now() / 1000).toString();
-    const nonce = crypto.randomBytes(32).toString('base64').replace(/[^\w]/g, '');
+    const nonce = this.generateNonce();
 
     const params = {
       oauth_consumer_key: this.apiKey,
@@ -170,7 +175,7 @@ export class TwitterAuth {
   ): Promise<any> {
     const url = 'https://api.twitter.com/2/tweets';
     const timestamp = Math.floor(Date.now() / 1000).toString();
-    const nonce = crypto.randomBytes(32).toString('base64').replace(/[^\w]/g, '');
+    const nonce = this.generateNonce();
 
     const params = {
       oauth_consumer_key: this.apiKey,

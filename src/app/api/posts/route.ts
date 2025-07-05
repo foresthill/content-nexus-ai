@@ -73,15 +73,15 @@ export async function POST(request: NextRequest) {
     
     // n8nイベントトリガー
     if (jobData.scheduledAt) {
+      // onPostScheduledは現在の実装ではSocialPost型を期待しているが、
+      // 実際にはplatformプロパティを使用しているので、
+      // 一時的にキャストして使用
       await n8nService.onPostScheduled({
         id: jobData.id,
         platform: jobData.platform,
         content: jobData.content,
         scheduledFor: jobData.scheduledAt,
-        status: 'scheduled',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
+      } as any);
     }
     
     return NextResponse.json({

@@ -45,13 +45,13 @@ export async function POST(request: NextRequest) {
     // 結果を返す
     return NextResponse.json({
       success: true,
-      workflowRunId: result.data?.workflow_run_id,
+      workflowRunId: result.workflow_run_id,
       outputs: result.data?.outputs || {},
       status: result.data?.status || 'completed',
-      createdAt: result.data?.created_at || new Date().toISOString(),
+      createdAt: result.data?.created_at || Date.now(),
       elapsed_time: result.data?.elapsed_time || 0,
-      total_tokens: result.data?.total_tokens || 0,
-      cost: result.data?.cost || '0',
+      total_tokens: 0, // Workflow doesn't provide token count
+      cost: '0', // Workflow doesn't provide cost
     });
     
   } catch (error) {

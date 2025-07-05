@@ -208,10 +208,10 @@ ${body.keywords?.length ? `キーワード: ${body.keywords.join(', ')}` : ''}
         additionalOutputs: outputs,
       },
       metadata: {
-        workflowRunId: result.data?.workflow_run_id,
+        workflowRunId: result.workflow_run_id,
         executionTime: result.data?.elapsed_time || 0,
-        tokensUsed: result.data?.total_tokens || 0,
-        cost: result.data?.cost || '0',
+        tokensUsed: 0, // Workflow response doesn't include token count
+        cost: '0', // Workflow response doesn't include cost
         timestamp: new Date().toISOString(),
       }
     };

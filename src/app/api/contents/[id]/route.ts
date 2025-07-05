@@ -17,11 +17,12 @@ const updateContentSchema = z.object({
 // コンテンツ取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   return withAuth(request, async (req: AuthenticatedRequest) => {
     try {
-      const content = await ContentService.getContent(params.id);
+      const { id } = await params;
+      const content = await ContentService.getContent(id);
       
       if (!content) {
         return NextResponse.json(
@@ -53,10 +54,11 @@ export async function GET(
 // コンテンツ更新
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   return withAuth(request, async (req: AuthenticatedRequest) => {
     try {
+      const { id } = await params;
       const body = await request.json();
       
       // バリデーション
@@ -69,7 +71,7 @@ export async function PUT(
       }
 
       // 権限チェック
-      const existingContent = await ContentService.getContent(params.id);
+      const existingContent = await ContentService.getContent(id);
       if (!existingContent) {
         return NextResponse.json(
           { error: 'Content not found' },
@@ -86,7 +88,7 @@ export async function PUT(
       }
 
       const content = await ContentService.updateContent(
-        params.id,
+        id,
         req.user!.userId,
         validationResult.data
       );
@@ -105,12 +107,13 @@ export async function PUT(
 // コンテンツ削除（アーカイブ）
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   return withAuth(request, async (req: AuthenticatedRequest) => {
     try {
+      const { id } = await params;
       // 権限チェック
-      const existingContent = await ContentService.getContent(params.id);
+      const existingContent = await ContentService.getContent(id);
       if (!existingContent) {
         return NextResponse.json(
           { error: 'Content not found' },
@@ -126,7 +129,7 @@ export async function DELETE(
         );
       }
 
-      await ContentService.deleteContent(params.id);
+      await ContentService.deleteContent(id);
       
       return NextResponse.json({ success: true });
     } catch (error) {

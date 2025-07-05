@@ -139,35 +139,42 @@ export class N8nService {
    * Social media post events
    */
   async onPostPublished(post: SocialPost) {
-    await this.triggerEvent(N8nEventType.POST_PUBLISHED, {
-      post: {
-        id: post.id,
-        platform: post.platform,
-        content: post.content,
-        publishedAt: post.publishedAt,
-        metrics: {
-          likes: 0,
-          comments: 0,
-          shares: 0,
-          views: 0,
+    // SocialPost has platforms array, so we'll trigger event for each platform
+    for (const platformContent of post.platforms) {
+      await this.triggerEvent(N8nEventType.POST_PUBLISHED, {
+        post: {
+          id: post.id,
+          platform: platformContent.platform,
+          content: platformContent.text,
+          publishedAt: post.publishedAt,
+          metrics: {
+            likes: 0,
+            comments: 0,
+            shares: 0,
+            views: 0,
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   async onPostFailed(post: SocialPost, error: string) {
-    await this.triggerEvent(N8nEventType.POST_FAILED, {
-      post: {
-        id: post.id,
-        platform: post.platform,
-        content: post.content,
-        scheduledAt: post.scheduledFor,
-      },
-      custom: { error }
-    });
+    // Trigger event for all platforms since we don't know which one failed
+    for (const platformContent of post.platforms) {
+      await this.triggerEvent(N8nEventType.POST_FAILED, {
+        post: {
+          id: post.id,
+          platform: platformContent.platform,
+          content: platformContent.text,
+          scheduledAt: post.scheduledAt,
+        },
+        custom: { error }
+      });
+    }
   }
 
-  async onPostScheduled(post: SocialPost) {
+  async onPostScheduled(post: any) {
+    // This receives a different structure from the API route, not a SocialPost
     await this.triggerEvent(N8nEventType.POST_SCHEDULED, {
       post: {
         id: post.id,
