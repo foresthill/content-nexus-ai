@@ -208,4 +208,180 @@ export class InstagramAuth {
       throw new Error('Failed to post story');
     }
   }
+
+  // ビジネスアカウント情報の取得
+  async getAccountInfo(accessToken: string) {
+    try {
+      const response = await axios.get(
+        `https://graph.instagram.com/v12.0/${process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID}`,
+        {
+          params: {
+            fields: 'id,username,media_count,followers_count,follows_count,biography,website,profile_picture_url',
+            access_token: accessToken
+          }
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Instagram get account info error:', error);
+      throw new Error('Failed to get account info');
+    }
+  }
+
+  // メディア（投稿）一覧の取得
+  async getMedia(
+    accessToken: string,
+    options: {
+      limit?: number;
+      after?: string;
+      since?: string;
+      until?: string;
+    } = {}
+  ) {
+    try {
+      const params: any = {
+        fields: 'id,media_type,media_url,thumbnail_url,permalink,caption,timestamp,like_count,comments_count,impressions,reach,saved',
+        access_token: accessToken,
+        limit: options.limit || 25
+      };
+
+      if (options.after) params.after = options.after;
+      if (options.since) params.since = options.since;
+      if (options.until) params.until = options.until;
+
+      const response = await axios.get(
+        `https://graph.instagram.com/v12.0/${process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID}/media`,
+        { params }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Instagram get media error:', error);
+      throw new Error('Failed to get media');
+    }
+  }
+
+  // 特定のメディアの詳細情報取得
+  async getMediaInsights(accessToken: string, mediaId: string) {
+    try {
+      const response = await axios.get(
+        `https://graph.instagram.com/v12.0/${mediaId}/insights`,
+        {
+          params: {
+            metric: 'engagement,impressions,reach,saved,comments,likes,shares',
+            access_token: accessToken
+          }
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Instagram get media insights error:', error);
+      throw new Error('Failed to get media insights');
+    }
+  }
+
+  // アカウントインサイトの取得
+  async getAccountInsights(
+    accessToken: string,
+    period: 'day' | 'week' | 'days_28' = 'day',
+    since?: string,
+    until?: string
+  ) {
+    try {
+      const params: any = {
+        metric: 'impressions,reach,profile_views,follower_count,email_contacts,get_directions_clicks,phone_call_clicks,text_message_clicks,website_clicks',
+        period,
+        access_token: accessToken
+      };
+
+      if (since) params.since = since;
+      if (until) params.until = until;
+
+      const response = await axios.get(
+        `https://graph.instagram.com/v12.0/${process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID}/insights`,
+        { params }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Instagram get account insights error:', error);
+      throw new Error('Failed to get account insights');
+    }
+  }
+
+  // ストーリーズのインサイト取得
+  async getStoriesInsights(accessToken: string, storyId: string) {
+    try {
+      const response = await axios.get(
+        `https://graph.instagram.com/v12.0/${storyId}/insights`,
+        {
+          params: {
+            metric: 'exits,impressions,reach,replies,taps_forward,taps_back',
+            access_token: accessToken
+          }
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Instagram get stories insights error:', error);
+      throw new Error('Failed to get stories insights');
+    }
+  }
+
+  // ハッシュタグ検索
+  async searchHashtag(accessToken: string, hashtag: string) {
+    try {
+      const response = await axios.get(
+        'https://graph.instagram.com/v12.0/ig_hashtag_search',
+        {
+          params: {
+            user_id: process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID,
+            q: hashtag,
+            access_token: accessToken
+          }
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Instagram search hashtag error:', error);
+      throw new Error('Failed to search hashtag');
+    }
+  }
+
+  // ハッシュタグの投稿取得
+  async getHashtagMedia(
+    accessToken: string, 
+    hashtagId: string,
+    options: {
+      user_id?: string;
+      fields?: string;
+      limit?: number;
+      after?: string;
+    } = {}
+  ) {
+    try {
+      const params: any = {
+        user_id: options.user_id || process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID,
+        fields: options.fields || 'id,media_type,media_url,permalink,caption,timestamp',
+        access_token: accessToken,
+        limit: options.limit || 25
+      };
+
+      if (options.after) params.after = options.after;
+
+      const response = await axios.get(
+        `https://graph.instagram.com/v12.0/${hashtagId}/recent_media`,
+        { params }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Instagram get hashtag media error:', error);
+      throw new Error('Failed to get hashtag media');
+    }
+  }
 }

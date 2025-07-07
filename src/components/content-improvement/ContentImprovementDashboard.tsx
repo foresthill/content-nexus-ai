@@ -10,6 +10,8 @@ import { SentimentAnalysis } from './SentimentAnalysis';
 import { VariationsList } from './VariationsList';
 import { ABTestSuggestions } from './ABTestSuggestions';
 import { ImprovementPreview } from './ImprovementPreview';
+import { DifyContentImprover } from '@/components/dify';
+import { useDifyStore } from '@/store/difyStore';
 
 interface ContentImprovementDashboardProps {
   contentId?: string;
@@ -34,8 +36,9 @@ export function ContentImprovementDashboard({
   const [improvement, setImprovement] = useState<ContentImprovement | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'quality' | 'engagement' | 'readability' | 'sentiment' | 'variations' | 'ab-tests'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'quality' | 'engagement' | 'readability' | 'sentiment' | 'variations' | 'ab-tests' | 'dify'>('overview');
   const [selectedVariation, setSelectedVariation] = useState<string | null>(null);
+  const { isConnected: isDifyConnected } = useDifyStore();
 
   const analyzeContent = async () => {
     if (!content.trim()) {
@@ -91,7 +94,8 @@ export function ContentImprovementDashboard({
     { id: 'readability', label: 'Readability', icon: '📖' },
     { id: 'sentiment', label: 'Sentiment', icon: '😊' },
     { id: 'variations', label: 'Variations', icon: '🔄' },
-    { id: 'ab-tests', label: 'A/B Tests', icon: '🧪' }
+    { id: 'ab-tests', label: 'A/B Tests', icon: '🧪' },
+    ...(isDifyConnected ? [{ id: 'dify', label: 'Dify AI', icon: '🤖' }] : [])
   ] as const;
 
   return (
@@ -190,7 +194,7 @@ export function ContentImprovementDashboard({
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   className={`flex items-center space-x-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600 bg-blue-50'
@@ -218,6 +222,19 @@ export function ContentImprovementDashboard({
                 />
               )}
               {activeTab === 'ab-tests' && <ABTestSuggestions abTests={improvement.abTests} />}
+              {activeTab === 'dify' && (
+                <DifyContentImprover
+                  content={content}
+                  onContentImproved={(improvedContent) => {
+                    setContent(improvedContent);
+                    if (onContentImproved) {
+                      onContentImproved(improvedContent);
+                    }
+                  }}
+                  platform={platform}
+                  targetAudience={targetAudience}
+                />
+              )}
             </div>
           </div>
 

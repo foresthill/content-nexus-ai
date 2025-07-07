@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ContentNexus - Marketing Platform",
-  description: "A comprehensive marketing platform for content and video management",
+  title: "ToolPlus - AI Content Management Platform",
+  description: "AIを活用したコンテンツ作成・管理プラットフォーム",
 };
 
 export default function RootLayout({

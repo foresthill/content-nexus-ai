@@ -6,10 +6,11 @@ const queueManager = new QueueManager();
 // ジョブの詳細取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const jobStatus = await queueManager.getJobStatus(params.id);
+    const { id } = await params;
+    const jobStatus = await queueManager.getJobStatus(id);
     
     return NextResponse.json(jobStatus);
   } catch (error) {
@@ -32,9 +33,10 @@ export async function GET(
 // ジョブの更新（スケジュール変更）
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { scheduledAt } = body;
     
@@ -45,7 +47,7 @@ export async function PATCH(
       );
     }
     
-    await queueManager.updateSchedule(params.id, new Date(scheduledAt));
+    await queueManager.updateSchedule(id, new Date(scheduledAt));
     
     return NextResponse.json({
       success: true,
@@ -71,10 +73,11 @@ export async function PATCH(
 // ジョブのキャンセル
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await queueManager.cancelJob(params.id);
+    const { id } = await params;
+    await queueManager.cancelJob(id);
     
     return NextResponse.json({
       success: true,
@@ -93,9 +96,10 @@ export async function DELETE(
 // 失敗したジョブのリトライ
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const searchParams = request.nextUrl.searchParams;
     const action = searchParams.get('action');
     
@@ -106,7 +110,7 @@ export async function POST(
       );
     }
     
-    const newJob = await queueManager.retryFailedJob(params.id);
+    const newJob = await queueManager.retryFailedJob(id);
     
     return NextResponse.json({
       success: true,

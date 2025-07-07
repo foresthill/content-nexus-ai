@@ -1,5 +1,8 @@
 import Bull from 'bull';
 import { Redis } from 'ioredis';
+import { smartRetryManager, calculateBackoff } from './retry-strategy';
+import { circuitBreakerManager } from './circuit-breaker';
+import { deadLetterQueue } from './dead-letter-queue';
 
 export interface PostJobData {
   id: string;
@@ -221,7 +224,7 @@ export class QueueManager {
     ]);
   }
 
-  // 失敗したジョブのリトライ
+  // 失敗したジョブのリトライ（改善版）
   async retryFailedJob(jobId: string): Promise<Bull.Job<PostJobData>> {
     const job = await this.postQueue.getJob(jobId);
     if (!job) {
@@ -233,9 +236,31 @@ export class QueueManager {
       throw new Error('Job is not in failed state');
     }
 
+    // Circuit Breakerチェック
+    const breaker = circuitBreakerManager.getBreaker(job.data.platform);
+    if (breaker.getState() === 'OPEN') {
+      throw new Error(`Circuit breaker is OPEN for ${job.data.platform}`);
+    }
+
+    // Smart Retry戦略を取得
+    const strategy = smartRetryManager.getStrategy(job.data.platform);
+    const attemptNumber = (job.attemptsMade || 0) + 1;
+
+    // リトライ可能かチェック
+    if (!strategy.shouldRetry(job.failedReason, attemptNumber)) {
+      // Dead Letter Queueに追加
+      deadLetterQueue.add(job, new Error(job.failedReason || 'Unknown error'), attemptNumber);
+      throw new Error('Job cannot be retried and has been moved to Dead Letter Queue');
+    }
+
+    // バックオフ遅延を計算
+    const delay = calculateBackoff(strategy, attemptNumber);
+
     // リトライキューに追加
     return await this.retryQueue.add(job.data, {
-      priority: 0 // リトライは最高優先度
+      priority: 0, // リトライは最高優先度
+      delay, // Smart Retryによる遅延
+      attempts: strategy.maxRetries
     });
   }
 
@@ -251,5 +276,62 @@ export class QueueManager {
       this.postQueue.close(),
       this.retryQueue.close()
     ]);
+  }
+
+  // Dead Letter Queue管理
+  getDeadLetterQueue() {
+    return deadLetterQueue;
+  }
+
+  // Circuit Breaker状態
+  getCircuitBreakerStatus() {
+    return circuitBreakerManager.getAllStats();
+  }
+
+  // Smart Retry分析
+  getRetryAnalysis() {
+    return smartRetryManager.analyzeFailurePatterns();
+  }
+
+  // ヘルスチェック
+  async healthCheck(): Promise<{
+    healthy: boolean;
+    queues: { post: boolean; retry: boolean };
+    circuitBreakers: Record<string, string>;
+    deadLetterQueue: number;
+  }> {
+    let postHealth = false;
+    let retryHealth = false;
+    
+    try {
+      await this.postQueue.isReady();
+      postHealth = true;
+    } catch (error) {
+      postHealth = false;
+    }
+    
+    try {
+      await this.retryQueue.isReady();
+      retryHealth = true;
+    } catch (error) {
+      retryHealth = false;
+    }
+
+    const cbStats = circuitBreakerManager.getAllStats();
+    const circuitBreakers: Record<string, string> = {};
+    
+    Object.entries(cbStats).forEach(([platform, stats]) => {
+      circuitBreakers[platform] = stats.state;
+    });
+
+    return {
+      healthy: postHealth && retryHealth && circuitBreakerManager.isHealthy(),
+      queues: {
+        post: postHealth,
+        retry: retryHealth
+      },
+      circuitBreakers,
+      deadLetterQueue: deadLetterQueue.getStats().total
+    };
   }
 }

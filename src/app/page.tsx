@@ -1,6 +1,3 @@
-'use client';
-
-import React from 'react';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -8,7 +5,7 @@ export default function HomePage() {
   const features = [
     {
       name: 'AIコンテンツ作成',
-      description: 'AIがあなたの代わりに高品質な記事を自動生成。ライティングの手間を大幅削減します。',
+      description: 'Dify連携による高度なAIコンテンツ生成。SEO対策済みの記事を短時間で作成できます。',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
@@ -25,8 +22,8 @@ export default function HomePage() {
       ),
     },
     {
-      name: 'ワンクリック投稿',
-      description: '複数のブログやSNSに一括投稿。効率的にコンテンツを拡散し、集客を最大化します。',
+      name: 'マルチSNS投稿',
+      description: 'X、Instagram、TikTokなど複数のSNSに一括投稿。n8n連携でワークフローを自動化。',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
@@ -34,8 +31,8 @@ export default function HomePage() {
       ),
     },
     {
-      name: '収益分析',
-      description: 'アフィリエイト収益を自動追跡。成果が出ている記事や商品を一目で把握できます。',
+      name: 'AI分析機能',
+      description: 'エンゲージメント分析、競合分析、バイラル予測など、AIによる高度な分析機能を提供。',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75Z" />
@@ -49,47 +46,47 @@ export default function HomePage() {
   const steps = [
     {
       number: '01',
-      title: 'アカウント登録',
-      description: '簡単な情報入力だけで、すぐに始められます。クレジットカード情報は不要です。',
+      title: 'API設定',
+      description: 'Difyやn8nのAPIキーを設定。各プラットフォームとの連携を簡単に設定できます。',
     },
     {
       number: '02',
-      title: 'ジャンル選択',
-      description: 'あなたが興味のあるジャンルや得意分野を選択するだけ。AIが最適なテーマを提案します。',
+      title: 'コンテンツ作成',
+      description: 'AIを使って高品質なコンテンツを生成。テーマを入力するだけでSEO最適化された記事が完成。',
     },
     {
       number: '03',
-      title: 'AIが記事作成',
-      description: 'ボタン一つでAIが高品質な記事を自動生成。SEO対策済みのコンテンツがすぐに完成します。',
+      title: 'SNS投稿',
+      description: '作成したコンテンツを複数のSNSに一括投稿。最適な投稿時間をAIが提案します。',
     },
     {
       number: '04',
-      title: '収益化',
-      description: '自動で適切なアフィリエイトリンクを挿入。あなたは承認するだけで収益化が始まります。',
+      title: '分析・最適化',
+      description: '投稿のパフォーマンスをリアルタイム分析。AIが次の改善点を自動提案します。',
     },
   ];
 
   // 成功事例
   const testimonials = [
     {
-      name: '佐藤 優子',
-      age: '42歳',
-      occupation: '主婦',
-      comment: '初めてのアフィリエイトで月5万円の収入が得られました。記事を書く手間がなく、空き時間で簡単に始められたのが良かったです。',
+      name: '株式会社テックソリューション',
+      age: 'マーケティング担当',
+      occupation: '',
+      comment: 'ToolPlusの導入でコンテンツ作成時間が80%削減。AI分析機能によりエンゲージメント率が3倍に向上しました。',
       image: '/window.svg', // 実際の画像に置き換えてください
     },
     {
-      name: '田中 健太',
+      name: 'フリーランスマーケター 田中氏',
       age: '35歳',
-      occupation: '会社員',
-      comment: '副業として始めて3ヶ月で月10万円の収益達成。AIの提案するキーワードが的確で、検索上位を獲得できています。',
+      occupation: '',
+      comment: 'Difyとn8nの連携機能が素晴らしい。複雑なワークフローを自動化でき、クライアント対応に集中できるようになりました。',
       image: '/file.svg', // 実際の画像に置き換えてください
     },
     {
-      name: '山本 誠',
-      age: '58歳',
-      occupation: '定年退職者',
-      comment: 'パソコンが得意ではない私でも簡単に始められました。趣味の釣りの知識を活かして月3万円の収入が得られています。',
+      name: 'ECショップ運営 山本氏',
+      age: '',
+      occupation: '',
+      comment: '競合分析機能で市場の動向を把握。SNS投稿の最適化により、売上が前年比150%に成長しました。',
       image: '/globe.svg', // 実際の画像に置き換えてください
     },
   ];
@@ -102,12 +99,12 @@ export default function HomePage() {
           <div className="relative z-10 py-12 sm:py-16 md:py-20 lg:py-28 lg:max-w-2xl lg:w-full">
             <div className="px-4 sm:px-6 lg:px-8">
               <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
-                <span className="block">記事を書かなくても</span>
-                <span className="block mt-1">アフィリエイトで</span>
-                <span className="block mt-1 text-yellow-300">月5万円の収入を実現</span>
+                <span className="block">AIツールを使って</span>
+                <span className="block mt-1">効率的に</span>
+                <span className="block mt-1 text-yellow-300">コンテンツビジネスを拡大</span>
               </h1>
               <p className="mt-6 max-w-lg text-xl text-indigo-100 sm:max-w-3xl">
-                AIが高品質なコンテンツを自動生成。ライティングに時間を取られず、初心者でも簡単に始められるアフィリエイトツールです。
+                ToolPlusはAIを活用したコンテンツ作成・管理プラットフォーム。効率的なコンテンツビジネスの構築を実現します。
               </p>
               <div className="mt-8 sm:flex">
                 <div className="rounded-md shadow">
@@ -148,10 +145,10 @@ export default function HomePage() {
           <div className="text-center">
             <h2 className="text-base font-semibold text-indigo-600 tracking-wide uppercase">特徴</h2>
             <p className="mt-1 text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight">
-              AIがあなたの代わりに全て行います
+              ToolPlusがビジネスの成長をサポート
             </p>
             <p className="max-w-xl mt-5 mx-auto text-xl text-gray-500">
-              記事作成から収益化まで、面倒な作業を全て自動化。あなたは承認するだけでOKです。
+              AIを活用したコンテンツ作成からSNS投稿、分析まで、ビジネスの成長に必要な全ての機能を提供します。
             </p>
           </div>
 
@@ -212,12 +209,12 @@ export default function HomePage() {
       <div className="bg-white py-16 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-base font-semibold text-indigo-600 tracking-wide uppercase">ユーザー事例</h2>
+            <h2 className="text-base font-semibold text-indigo-600 tracking-wide uppercase">導入事例</h2>
             <p className="mt-1 text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight">
-              多くの方が成果を出しています
+              多くの企業・個人が成果を出しています
             </p>
             <p className="max-w-xl mt-5 mx-auto text-xl text-gray-500">
-              初心者でも、パソコンが苦手でも、簡単に収益化に成功しています。
+              ToolPlusを導入した企業やフリーランサーが、ビジネスの成長を実現しています。
             </p>
           </div>
 
@@ -251,8 +248,8 @@ export default function HomePage() {
       <div className="bg-indigo-600">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
           <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            <span className="block">今すぐ始めませんか？</span>
-            <span className="block text-indigo-200">完全無料でお試しいただけます。</span>
+            <span className="block">ToolPlusを今すぐ始めませんか？</span>
+            <span className="block text-indigo-200">無料トライアルで全機能をお試しいただけます。</span>
           </h2>
           <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
             <div className="inline-flex rounded-md shadow">
@@ -260,7 +257,7 @@ export default function HomePage() {
                 href="/dashboard"
                 className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50"
               >
-                無料アカウント登録
+                今すぐ始める
               </Link>
             </div>
             <div className="ml-3 inline-flex rounded-md shadow">

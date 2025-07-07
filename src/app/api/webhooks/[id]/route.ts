@@ -6,10 +6,11 @@ const webhookManager = new WebhookManager();
 // Webhook設定の取得
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const webhook = webhookManager.getWebhook(params.id);
+    const { id } = await params;
+    const webhook = webhookManager.getWebhook(id);
     
     if (!webhook) {
       return NextResponse.json(
@@ -20,7 +21,7 @@ export async function GET(
 
     // セキュリティのためsecretは返さない
     return NextResponse.json({
-      id: params.id,
+      id: id,
       url: webhook.url,
       events: webhook.events,
       active: webhook.active,
@@ -38,11 +39,12 @@ export async function GET(
 // Webhook設定の更新
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
-    const webhook = webhookManager.getWebhook(params.id);
+    const webhook = webhookManager.getWebhook(id);
     
     if (!webhook) {
       return NextResponse.json(
@@ -77,10 +79,10 @@ export async function PATCH(
     }
 
     // 更新されたWebhookを再登録
-    webhookManager.registerWebhook(params.id, webhook);
+    webhookManager.registerWebhook(id, webhook);
 
     return NextResponse.json({
-      id: params.id,
+      id: id,
       url: webhook.url,
       events: webhook.events,
       active: webhook.active,
@@ -98,10 +100,11 @@ export async function PATCH(
 // Webhookの削除
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const deleted = webhookManager.unregisterWebhook(params.id);
+    const { id } = await params;
+    const deleted = webhookManager.unregisterWebhook(id);
     
     if (!deleted) {
       return NextResponse.json(
@@ -126,9 +129,10 @@ export async function DELETE(
 // Webhookのテスト
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const searchParams = request.nextUrl.searchParams;
     const action = searchParams.get('action');
     
@@ -139,7 +143,7 @@ export async function POST(
       );
     }
 
-    const success = await webhookManager.testWebhook(params.id);
+    const success = await webhookManager.testWebhook(id);
     
     return NextResponse.json({
       success,
