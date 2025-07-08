@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import useContentStore from '@/store/contentStore';
 import useVideoStore from '@/store/videoStore';
 import useAnalyticsStore from '@/store/analyticsStore';
+import { useAvatarStore } from '@/store/avatarStore';
 import Link from 'next/link';
 import { 
   DashboardSummary,
@@ -12,17 +13,21 @@ import {
   KeywordSuggestions
 } from '@/components/dashboard';
 import HashtagAnalytics from '@/components/social/HashtagAnalytics';
+import AvatarViewer from '@/components/avatar/AvatarViewer';
 
 export default function DashboardPage() {
   const { fetchContents } = useContentStore();
   const { fetchVideos } = useVideoStore();
   const { fetchAnalytics } = useAnalyticsStore();
+  const { fetchAvatars, fetchModels } = useAvatarStore();
   
   useEffect(() => {
     fetchContents();
     fetchVideos();
     fetchAnalytics();
-  }, [fetchContents, fetchVideos, fetchAnalytics]);
+    fetchAvatars();
+    fetchModels();
+  }, [fetchContents, fetchVideos, fetchAnalytics, fetchAvatars, fetchModels]);
   
   // 今日の日付
   const today = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -61,6 +66,9 @@ export default function DashboardPage() {
       
       {/* ハッシュタグトレンド分析 */}
       <HashtagAnalytics />
+      
+      {/* AIアバター管理 */}
+      <AvatarViewer className="col-span-1 lg:col-span-2" />
     </div>
   );
 }
