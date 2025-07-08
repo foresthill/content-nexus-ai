@@ -10,6 +10,7 @@ AI-driven content management and social media automation platform with enterpris
 - 🔄 **n8n Workflow Automation** - Connect with external services via webhooks
 - 🎯 **Smart Retry System** - Enterprise-grade error handling and recovery
 - 🎬 **Video Management** - Edit and publish short-form videos across platforms
+- 🪑 **3D Interior Decoration** - Interactive 3D space with chairs and plants visualization
 
 ## Getting Started
 
@@ -55,6 +56,18 @@ npm run dev
 ```
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+### 3D Decoration Features
+
+The platform includes an interactive 3D interior decoration space:
+
+- **Access**: Navigate to `/decoration` to view the 3D space
+- **Interactivity**: 
+  - Mouse drag to rotate the camera view
+  - Scroll wheel to zoom in/out
+  - Right-click + drag to pan the view
+- **Elements**: Features multiple chairs and plants arranged in a realistic 3D environment
+- **Lighting**: Realistic shadows and environmental lighting with apartment preset
 
 ## Configuration
 
@@ -181,6 +194,7 @@ npm run test:coverage # Generate coverage report
 - **Authentication**: JWT + bcrypt
 - **Testing**: Jest, Testing Library
 - **Charts**: Recharts
+- **3D Graphics**: Three.js, React Three Fiber, React Three Drei
 - **AI Integration**: Dify (optional)
 - **Workflow Automation**: n8n (optional)
 
