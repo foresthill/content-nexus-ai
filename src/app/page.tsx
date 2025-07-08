@@ -1,4 +1,7 @@
 import Link from 'next/link';
+import BackgroundDecorations from '@/components/decorative/BackgroundDecorations';
+import HeroIllustration from '@/components/decorative/HeroIllustration';
+import SectionDivider from '@/components/decorative/SectionDivider';
 
 export default function HomePage() {
   // 主要機能
@@ -92,7 +95,10 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="bg-white">
+    <div className="bg-white relative">
+      {/* 背景装飾 */}
+      <BackgroundDecorations />
+      
       {/* ヒーローセクション */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 to-indigo-600">
         <div className="max-w-7xl mx-auto">
@@ -110,7 +116,7 @@ export default function HomePage() {
                 <div className="rounded-md shadow">
                   <Link 
                     href="/dashboard" 
-                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
+                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10 glow-on-hover hover-lift"
                   >
                     無料で始める
                   </Link>
@@ -128,19 +134,17 @@ export default function HomePage() {
           </div>
         </div>
         <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-          <div className="h-56 w-full bg-indigo-800 bg-opacity-50 sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src="/window.svg" 
-              alt="デモ画面" 
-              className="w-full h-full object-contain p-8" 
-            />
+          <div className="h-56 w-full bg-indigo-800 bg-opacity-30 sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center backdrop-blur-sm">
+            <HeroIllustration />
           </div>
         </div>
       </div>
 
+      {/* セクション区切り */}
+      <SectionDivider variant="wave" />
+
       {/* 特徴セクション */}
-      <div id="features" className="py-16 sm:py-24 bg-white">
+      <div id="features" className="py-16 sm:py-24 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-base font-semibold text-indigo-600 tracking-wide uppercase">特徴</h2>
@@ -156,7 +160,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {features.map((feature) => (
                 <div key={feature.name} className="pt-6">
-                  <div className="flow-root bg-gray-50 rounded-lg px-6 pb-8 h-full">
+                  <div className="flow-root bg-gray-50 rounded-lg px-6 pb-8 h-full hover-lift glow-on-hover animate-fade-in-scale">
                     <div className="-mt-6">
                       <div>
                         <span className="inline-flex items-center justify-center p-3 bg-indigo-600 rounded-md shadow-lg">
@@ -174,8 +178,11 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* セクション区切り */}
+      <SectionDivider variant="geometric" direction="up" />
+
       {/* 使い方セクション */}
-      <div className="bg-gray-50 py-16 sm:py-24">
+      <div className="bg-gray-50 py-16 sm:py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-base font-semibold text-indigo-600 tracking-wide uppercase">簡単ステップ</h2>
@@ -205,8 +212,11 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* セクション区切り */}
+      <SectionDivider variant="organic" />
+
       {/* 成功事例セクション */}
-      <div className="bg-white py-16 sm:py-24">
+      <div className="bg-white py-16 sm:py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-base font-semibold text-indigo-600 tracking-wide uppercase">導入事例</h2>
@@ -221,7 +231,7 @@ export default function HomePage() {
           <div className="mt-12">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {testimonials.map((testimonial) => (
-                <div key={testimonial.name} className="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div key={testimonial.name} className="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover-lift glow-on-hover animate-slide-in-up">
                   <div className="p-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-12 w-12 rounded-full overflow-hidden">
@@ -244,8 +254,11 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* セクション区切り */}
+      <SectionDivider variant="wave" direction="up" />
+
       {/* CTA セクション */}
-      <div className="bg-indigo-600">
+      <div className="bg-indigo-600 relative">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
           <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             <span className="block">ToolPlusを今すぐ始めませんか？</span>
@@ -255,7 +268,7 @@ export default function HomePage() {
             <div className="inline-flex rounded-md shadow">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50"
+                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 glow-on-hover hover-lift"
               >
                 今すぐ始める
               </Link>
