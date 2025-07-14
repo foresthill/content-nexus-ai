@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import useContentStore from '@/store/contentStore';
 import { ContentStatus, PlatformType, PlatformData } from '@/types/content';
+import TwitterPostModal from '@/components/social/TwitterPostModal';
 
 // 記事タイプの定義
 type ArticleType = 'howto' | 'review' | 'guide' | 'list' | 'opinion' | 'news';
@@ -123,6 +124,7 @@ function ContentForm() {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [generatedContent, setGeneratedContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [showTwitterModal, setShowTwitterModal] = useState(false);
   
   // URLパラメータからキーワードを取得
   useEffect(() => {
@@ -756,30 +758,41 @@ ${includeLinks ? `
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-medium text-gray-900">コンテンツプレビュー</h2>
               {generatedContent && (
-                <button
-                  onClick={saveContent}
-                  disabled={isSaving}
-                  className={`inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
-                    isSaving ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
-                  }`}
-                >
-                  {isSaving ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      保存中...
-                    </>
-                  ) : (
-                    <>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3" />
-                      </svg>
-                      保存
-                    </>
-                  )}
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setShowTwitterModal(true)}
+                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-500 hover:bg-blue-600"
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    Twitterに投稿
+                  </button>
+                  <button
+                    onClick={saveContent}
+                    disabled={isSaving}
+                    className={`inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white ${
+                      isSaving ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
+                    }`}
+                  >
+                    {isSaving ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        保存中...
+                      </>
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3" />
+                        </svg>
+                        保存
+                      </>
+                    )}
+                  </button>
+                </div>
               )}
             </div>
             
@@ -816,6 +829,13 @@ ${includeLinks ? `
           </div>
         </div>
       </div>
+      
+      <TwitterPostModal
+        isOpen={showTwitterModal}
+        onClose={() => setShowTwitterModal(false)}
+        content={generatedContent}
+        title={title}
+      />
     </div>
   );
 }

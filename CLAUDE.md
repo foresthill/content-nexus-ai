@@ -920,3 +920,94 @@ try {
 1. ESLint警告の段階的な解消
 2. `any`型の具体的な型定義への置き換え
 3. 未使用変数・インポートのクリーンアップ
+
+## 2025年7月14日 - Twitter投稿機能の実装
+
+### 概要
+AIで生成したコンテンツをTwitter（X）に直接投稿できる機能を実装しました。OAuth認証は既存実装を活用し、シンプルで使いやすいインターフェースを提供します。
+
+### 実装内容
+
+#### 1. **Twitter投稿API**
+- **ファイル**: `/api/social/twitter/post/route.ts`
+- **機能**:
+  - Twitter API v2を使用した投稿
+  - 280文字制限の自動調整
+  - アクセストークンによる認証
+
+#### 2. **Twitter投稿モーダル**
+- **ファイル**: `/components/social/TwitterPostModal.tsx`
+- **機能**:
+  - 生成コンテンツから自動的にツイート文案を作成
+  - リアルタイム文字数カウント（280文字制限）
+  - 投稿の成功/エラーフィードバック
+  - レスポンシブデザイン
+
+#### 3. **コンテンツ生成画面の統合**
+- **ファイル**: `/app/content/new/page.tsx`
+- **変更内容**:
+  - コンテンツ生成後に「Twitterに投稿」ボタンを表示
+  - モーダルを開いてツイート内容を編集・投稿
+  - 既存の保存機能と並列配置
+
+#### 4. **Twitter設定画面**
+- **ファイル**: `/app/settings/twitter/page.tsx`
+- **機能**:
+  - Twitter OAuth認証の管理
+  - アカウント連携状態の表示
+  - 使い方ガイドと注意事項
+
+### 使用方法
+
+1. **初回設定**:
+   ```
+   設定 > Twitter設定 > Twitterと連携
+   ```
+   ※OAuth認証フローの完全実装には追加作業が必要
+
+2. **コンテンツ投稿**:
+   - コンテンツを生成
+   - 「Twitterに投稿」ボタンをクリック
+   - ツイート内容を確認・編集
+   - 「ツイートする」で投稿
+
+### 技術的な詳細
+
+#### API仕様
+```typescript
+// POST /api/social/twitter/post
+{
+  text: string;           // ツイート本文（280文字以内）
+  accessToken: string;    // OAuth アクセストークン
+  accessTokenSecret: string; // OAuth アクセストークンシークレット
+}
+```
+
+#### 環境変数（必要）
+```env
+TWITTER_API_KEY=your_api_key
+TWITTER_API_SECRET=your_api_secret
+```
+
+### 今後の実装が必要な項目
+
+1. **OAuth認証フロー**:
+   - `/api/auth/twitter` - リクエストトークン取得
+   - `/api/auth/twitter/callback` - アクセストークン取得
+   - セキュアなトークン保存
+
+2. **機能拡張**:
+   - 画像付きツイート
+   - スレッド投稿
+   - 予約投稿
+   - ツイート分析
+
+3. **セキュリティ強化**:
+   - トークンの暗号化
+   - レート制限の実装
+   - CSRF保護
+
+### 注意事項
+- Twitter API v2の利用にはDeveloper Accountが必要
+- 無料プランでは1日あたりの投稿数に制限あり
+- 現在の実装はlocalStorageを使用（本番環境では要改善）
