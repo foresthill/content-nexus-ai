@@ -1,14 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import crypto from 'crypto';
+import { SocialPostService } from '@/lib/social/post-service';
+import { SocialPlatform, PostStatus } from '@prisma/client';
 
 interface TwitterPostRequest {
   text: string;
+  userId?: string; // 一時的にオプショナル
+}
+
+// ハッシュタグを抽出する関数
+function extractHashtags(text: string): string[] {
+  const hashtags = text.match(/#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g);
+  return hashtags ? hashtags.map(tag => tag.slice(1)) : []; // #を除去
 }
 
 export async function POST(request: NextRequest) {
+  let draftPost: any = null;
+  
   try {
-    const { text }: TwitterPostRequest = await request.json();
+    const { text, userId }: TwitterPostRequest = await request.json();
 
     // 入力検証
     if (!text || typeof text !== 'string') {
@@ -24,6 +35,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // 一時的なユーザーID（認証システム実装後に更新）
+    const tempUserId = userId || 'temp-user-001';
 
     // 環境変数の確認
     const apiKey = process.env.TWITTER_API_KEY;
@@ -91,9 +105,25 @@ export async function POST(request: NextRequest) {
       .map(([key, value]) => `${key}="${encodeURIComponent(value as string)}"`)
       .join(', ')}`;
 
+    try {
+      // まずドラフト投稿をデータベースに作成
+      draftPost = await SocialPostService.createPost({
+        userId: tempUserId,
+        socialAccountId: 'temp-twitter-account', // 一時的なアカウントID
+        platform: SocialPlatform.TWITTER,
+        content: text,
+        hashtags: extractHashtags(text),
+      });
+
+      console.log('📝 投稿がドラフトとして保存されました:', draftPost.id);
+    } catch (dbError) {
+      console.warn('⚠️ ドラフト保存に失敗、API投稿を続行:', dbError);
+    }
+
     // ログ出力（デバッグ用）
     console.log('🐦 Twitter API投稿開始:', {
       textLength: text.length,
+      postId: draftPost?.id,
       timestamp: new Date().toISOString()
     });
 
@@ -111,22 +141,58 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    const platformPostId = response.data.data.id;
     console.log('✅ Twitter API投稿成功:', {
-      id: response.data.data.id,
+      id: platformPostId,
+      postId: draftPost?.id,
       timestamp: new Date().toISOString()
     });
 
+    // 投稿成功時、データベースを更新
+    if (draftPost) {
+      try {
+        await SocialPostService.updatePostResult(draftPost.id, {
+          platformPostId: platformPostId,
+          status: PostStatus.PUBLISHED,
+          publishedAt: new Date(),
+        });
+        console.log('✅ 投稿状態がPUBLISHEDに更新されました');
+      } catch (updateError) {
+        console.error('❌ 投稿状態更新に失敗:', updateError);
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      id: response.data.data.id,
+      id: platformPostId,
+      postId: draftPost?.id,
       text: response.data.data.text,
       message: '🎉 ツイートが正常に投稿されました！',
-      url: `https://twitter.com/i/web/status/${response.data.data.id}`,
+      url: `https://twitter.com/i/web/status/${platformPostId}`,
       timestamp: new Date().toISOString()
     });
 
   } catch (error: any) {
     console.error('❌ Twitter投稿エラー:', error);
+
+    // 投稿失敗時、データベースを更新
+    if (draftPost) {
+      try {
+        const errorMessage = error.response?.data?.detail || 
+                           (error.response?.data?.errors && error.response.data.errors[0]?.message) ||
+                           error.message || 
+                           'Unknown error';
+        
+        await SocialPostService.updatePostResult(draftPost.id, {
+          status: PostStatus.FAILED,
+          failedAt: new Date(),
+          failureReason: errorMessage,
+        });
+        console.log('📝 投稿失敗状態がデータベースに記録されました');
+      } catch (updateError) {
+        console.error('❌ 失敗状態更新に失敗:', updateError);
+      }
+    }
 
     // Twitter APIエラーの詳細処理
     if (error.response?.data) {

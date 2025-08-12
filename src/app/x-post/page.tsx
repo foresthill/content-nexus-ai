@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { CheckCircleIcon, ExclamationCircleIcon, PhotoIcon, XMarkIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 interface PostResult {
@@ -8,6 +8,28 @@ interface PostResult {
   message: string;
   url?: string;
   id?: string;
+  postId?: string;
+}
+
+interface PostStats {
+  total: number;
+  published: number;
+  failed: number;
+  scheduled: number;
+  successRate: number;
+}
+
+interface SavedPost {
+  id: string;
+  content: string;
+  platform: string;
+  status: string;
+  platformPostId?: string;
+  createdAt: string;
+  publishedAt?: string;
+  failedAt?: string;
+  failureReason?: string;
+  url?: string;
 }
 
 interface MediaFile {
@@ -21,12 +43,45 @@ export default function XPostPage() {
   const [media, setMedia] = useState<MediaFile[]>([]);
   const [isPosting, setIsPosting] = useState(false);
   const [postResult, setPostResult] = useState<PostResult | null>(null);
-  const [recentPosts, setRecentPosts] = useState<PostResult[]>([]);
+  const [recentPosts, setRecentPosts] = useState<SavedPost[]>([]);
+  const [postStats, setPostStats] = useState<PostStats>({
+    total: 0,
+    published: 0,
+    failed: 0,
+    scheduled: 0,
+    successRate: 0,
+  });
   const [scheduledAt, setScheduledAt] = useState('');
   const [showScheduler, setShowScheduler] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // 投稿履歴を読み込む関数
+  const loadPostHistory = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/social/posts?platform=TWITTER&limit=10');
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setRecentPosts(data.data.posts);
+          setPostStats(data.data.stats);
+        }
+      }
+    } catch (error) {
+      console.error('投稿履歴の読み込みに失敗:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // コンポーネントマウント時に投稿履歴を読み込み
+  useEffect(() => {
+    loadPostHistory();
+  }, []);
 
   const maxLength = 280;
   const remainingChars = maxLength - text.length;
@@ -113,11 +168,15 @@ export default function XPostPage() {
         const result: PostResult = {
           success: true,
           message: data.message,
-          url: `https://twitter.com/i/web/status/${data.id}`,
-          id: data.id
+          url: data.url || `https://twitter.com/i/web/status/${data.id}`,
+          id: data.id,
+          postId: data.postId
         };
         setPostResult(result);
-        setRecentPosts(prev => [result, ...prev.slice(0, 9)]); // 最新10件まで保持
+        
+        // 投稿履歴を再読み込み
+        await loadPostHistory();
+        
         setText(''); // 成功時のみテキストをクリア
         setMedia([]);
         setScheduledAt('');
@@ -132,6 +191,9 @@ export default function XPostPage() {
           success: false,
           message: data.error || '投稿に失敗しました'
         });
+        
+        // エラー時も履歴を再読み込み（失敗記録が保存されている可能性があるため）
+        await loadPostHistory();
       }
     } catch (error) {
       console.error('投稿エラー:', error);
@@ -139,6 +201,9 @@ export default function XPostPage() {
         success: false,
         message: 'ネットワークエラーが発生しました。接続を確認してください。'
       });
+      
+      // ネットワークエラー時も履歴を再読み込み
+      await loadPostHistory();
     } finally {
       setIsPosting(false);
     }
@@ -157,10 +222,8 @@ export default function XPostPage() {
     return 'stroke-blue-500';
   };
 
-  // 成功率の計算
-  const successRate = recentPosts.length > 0 
-    ? Math.round((recentPosts.filter(p => p.success).length / recentPosts.length) * 100)
-    : 0;
+  // 統計は状態から取得（データベースベース）
+  const { total: todayTotal, published, failed, successRate } = postStats;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -435,24 +498,39 @@ export default function XPostPage() {
             {/* 投稿統計 */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
               <h3 className="text-lg font-bold text-gray-900 mb-5">📊 投稿統計</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 font-medium">今日の投稿</span>
-                  <span className="text-2xl font-bold text-blue-600">{recentPosts.length}</span>
+              {isLoading ? (
+                <div className="space-y-4">
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-8 bg-gray-200 rounded w-1/4 mt-2"></div>
+                  </div>
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-8 bg-gray-200 rounded w-1/4 mt-2"></div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 font-medium">成功した投稿</span>
-                  <span className="text-2xl font-bold text-green-600">
-                    {recentPosts.filter(p => p.success).length}
-                  </span>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 font-medium">今日の投稿</span>
+                    <span className="text-2xl font-bold text-blue-600">{todayTotal}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 font-medium">成功した投稿</span>
+                    <span className="text-2xl font-bold text-green-600">{published}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 font-medium">失敗した投稿</span>
+                    <span className="text-2xl font-bold text-red-600">{failed}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600 font-medium">成功率</span>
+                    <span className={`text-2xl font-bold ${successRate >= 80 ? 'text-green-600' : successRate >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
+                      {successRate}%
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600 font-medium">成功率</span>
-                  <span className={`text-2xl font-bold ${successRate >= 80 ? 'text-green-600' : successRate >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
-                    {successRate}%
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* 投稿のコツ */}
@@ -483,32 +561,61 @@ export default function XPostPage() {
             </div>
 
             {/* 投稿履歴 */}
-            {recentPosts.length > 0 && (
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">📝 最近の投稿</h3>
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">📝 最近の投稿</h3>
+              {isLoading ? (
                 <div className="space-y-3">
-                  {recentPosts.slice(0, 5).map((post, index) => (
+                  {[...Array(3)].map((_, index) => (
+                    <div key={index} className="animate-pulse">
+                      <div className="flex items-center space-x-3 p-4 rounded-xl bg-gray-50">
+                        <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                          <div className="h-3 bg-gray-200 rounded w-1/2 mt-2"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : recentPosts.length > 0 ? (
+                <div className="space-y-3">
+                  {recentPosts.slice(0, 5).map((post) => (
                     <div
-                      key={index}
+                      key={post.id}
                       className={`flex items-center space-x-3 p-4 rounded-xl ${
-                        post.success ? 'bg-green-50' : 'bg-red-50'
+                        post.status === 'PUBLISHED' ? 'bg-green-50' : 
+                        post.status === 'FAILED' ? 'bg-red-50' : 'bg-yellow-50'
                       }`}
                     >
-                      {post.success ? (
+                      {post.status === 'PUBLISHED' ? (
                         <CheckCircleIcon className="w-6 h-6 text-green-600 flex-shrink-0" />
-                      ) : (
+                      ) : post.status === 'FAILED' ? (
                         <ExclamationCircleIcon className="w-6 h-6 text-red-600 flex-shrink-0" />
+                      ) : (
+                        <ClockIcon className="w-6 h-6 text-yellow-600 flex-shrink-0" />
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-gray-900 truncate">
-                          {post.success ? '投稿成功' : '投稿失敗'}
+                          {post.status === 'PUBLISHED' ? '投稿成功' :
+                           post.status === 'FAILED' ? '投稿失敗' :
+                           post.status === 'SCHEDULED' ? 'スケジュール済み' : 'ドラフト'}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {new Date().toLocaleTimeString('ja-JP', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
+                        <p className="text-xs text-gray-500 mt-1 truncate">
+                          {post.content.substring(0, 30)}...
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {new Date(post.createdAt).toLocaleString('ja-JP', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
                           })}
                         </p>
+                        {post.failureReason && (
+                          <p className="text-xs text-red-600 mt-1 truncate">
+                            {post.failureReason}
+                          </p>
+                        )}
                       </div>
                       {post.url && (
                         <a
@@ -523,13 +630,18 @@ export default function XPostPage() {
                     </div>
                   ))}
                 </div>
-                {recentPosts.length > 5 && (
-                  <p className="text-sm text-gray-500 text-center mt-4">
-                    他 {recentPosts.length - 5} 件
-                  </p>
-                )}
-              </div>
-            )}
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">まだ投稿がありません</p>
+                  <p className="text-sm text-gray-400 mt-1">最初の投稿を作成してみましょう！</p>
+                </div>
+              )}
+              {recentPosts.length > 5 && (
+                <p className="text-sm text-gray-500 text-center mt-4">
+                  他 {recentPosts.length - 5} 件
+                </p>
+              )}
+            </div>
 
             {/* API設定状況 */}
             <div className="bg-yellow-50 rounded-2xl p-6 border border-yellow-200">
