@@ -39,11 +39,15 @@ export async function POST(request: NextRequest) {
     // 一時的なユーザーID（認証システム実装後に更新）
     const tempUserId = userId || 'temp-user-001';
 
-    // 環境変数の確認
-    const apiKey = process.env.TWITTER_API_KEY;
-    const apiSecret = process.env.TWITTER_API_SECRET;
-    const accessToken = process.env.TWITTER_ACCESS_TOKEN;
-    const accessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
+    // 画面設定またはグローバル設定からAPIキーを取得
+    const config = global.twitterConfig || {
+      apiKey: process.env.TWITTER_API_KEY,
+      apiSecret: process.env.TWITTER_API_SECRET,
+      accessToken: process.env.TWITTER_ACCESS_TOKEN,
+      accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+    };
+
+    const { apiKey, apiSecret, accessToken, accessTokenSecret } = config;
 
     if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret) {
       return NextResponse.json(

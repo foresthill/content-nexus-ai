@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { CheckCircleIcon, ExclamationCircleIcon, PhotoIcon, XMarkIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, ExclamationCircleIcon, PhotoIcon, XMarkIcon, ClockIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { useTwitterStore } from '@/store/twitterStore';
+import Link from 'next/link';
 
 interface PostResult {
   success: boolean;
@@ -39,6 +41,7 @@ interface MediaFile {
 }
 
 export default function XPostPage() {
+  const { isConfigured, isConnected } = useTwitterStore();
   const [text, setText] = useState('');
   const [media, setMedia] = useState<MediaFile[]>([]);
   const [isPosting, setIsPosting] = useState(false);
@@ -243,6 +246,67 @@ export default function XPostPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* API設定状況の表示 */}
+        {!isConfigured && (
+          <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <ExclamationCircleIcon className="h-6 w-6 text-yellow-600 mt-0.5 mr-3" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-yellow-800">Twitter API設定が必要です</h3>
+                <p className="mt-1 text-sm text-yellow-700">
+                  X(Twitter)への投稿機能を使用するには、Twitter APIキーの設定が必要です。
+                </p>
+                <div className="mt-3">
+                  <Link
+                    href="/settings/twitter"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-800 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                  >
+                    <Cog6ToothIcon className="h-4 w-4 mr-2" />
+                    API設定を行う
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isConfigured && !isConnected && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <XMarkIcon className="h-6 w-6 text-red-600 mt-0.5 mr-3" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-red-800">API接続エラー</h3>
+                <p className="mt-1 text-sm text-red-700">
+                  Twitter APIへの接続に失敗しています。設定を確認してください。
+                </p>
+                <div className="mt-3">
+                  <Link
+                    href="/settings/twitter"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-800 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    <Cog6ToothIcon className="h-4 w-4 mr-2" />
+                    設定を確認する
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isConfigured && isConnected && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <CheckCircleIcon className="h-6 w-6 text-green-600 mt-0.5 mr-3" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-green-800">Twitter API接続済み</h3>
+                <p className="mt-1 text-sm text-green-700">
+                  X(Twitter)への投稿準備が完了しています。
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* メイン投稿エリア */}
           <div className="lg:col-span-3">
