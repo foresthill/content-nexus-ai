@@ -4,12 +4,9 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   Bars3Icon, 
-  BellIcon, 
-  UserCircleIcon,
+  BellIcon,
   MagnifyingGlassIcon,
-  ChevronDownIcon,
-  Cog6ToothIcon,
-  ArrowRightOnRectangleIcon
+  Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 
 interface ModernHeaderProps {
@@ -18,7 +15,6 @@ interface ModernHeaderProps {
 
 export const ModernHeader: React.FC<ModernHeaderProps> = ({ onMenuToggle }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // ContentNexus ロゴアイコン
   const ContentNexusIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -75,20 +71,25 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({ onMenuToggle }) => {
             </Link>
           </div>
 
-          {/* 中央: 検索バー */}
-          <div className="hidden md:flex flex-1 max-w-lg mx-8">
-            <div className="relative w-full">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className={`h-5 w-5 transition-colors ${isSearchFocused ? 'text-indigo-500' : 'text-gray-400'}`} />
-              </div>
-              <input
-                type="text"
-                placeholder="コンテンツを検索..."
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setIsSearchFocused(false)}
-                className="block w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50/50 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
-              />
-            </div>
+          {/* 中央: ナビゲーションメニュー */}
+          <div className="hidden md:flex flex-1 justify-center">
+            <nav className="flex items-center space-x-8">
+              <Link href="/dashboard" className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50">
+                ダッシュボード
+              </Link>
+              <Link href="/content" className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50">
+                コンテンツ
+              </Link>
+              <Link href="/x-post" className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50">
+                𝕏 投稿
+              </Link>
+              <Link href="/dify/generate" className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50">
+                AI生成
+              </Link>
+              <Link href="/social/analytics" className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50">
+                分析
+              </Link>
+            </nav>
           </div>
 
           {/* 右側: アクション群 */}
@@ -104,58 +105,57 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({ onMenuToggle }) => {
               <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
             </button>
 
-            {/* 設定ボタン */}
-            <Link
-              href="/settings"
-              className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
-            >
-              <Cog6ToothIcon className="h-5 w-5" />
-            </Link>
-
-            {/* プロフィールドロップダウン */}
+            {/* 設定ドロップダウン */}
             <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center space-x-2 p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
               >
-                <div className="h-8 w-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-medium">U</span>
-                </div>
-                <ChevronDownIcon className={`h-4 w-4 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                <Cog6ToothIcon className="h-5 w-5" />
               </button>
-
-              {/* ドロップダウンメニュー */}
+              
+              {/* 設定ドロップダウンメニュー */}
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
                   <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900">ユーザー</p>
-                    <p className="text-xs text-gray-500">user@example.com</p>
+                    <p className="text-sm font-medium text-gray-900">設定</p>
                   </div>
                   
                   <Link
-                    href="/profile"
+                    href="/settings/dify"
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <UserCircleIcon className="h-4 w-4 mr-3" />
-                    プロフィール
-                  </Link>
-                  
-                  <Link
-                    href="/settings"
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    onClick={() => setIsProfileOpen(false)}
                   >
                     <Cog6ToothIcon className="h-4 w-4 mr-3" />
-                    設定
+                    AI設定 (Dify)
                   </Link>
                   
-                  <div className="border-t border-gray-100 mt-2 pt-2">
-                    <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                      <ArrowRightOnRectangleIcon className="h-4 w-4 mr-3" />
-                      ログアウト
-                    </button>
-                  </div>
+                  <Link
+                    href="/settings/twitter"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    <svg className="h-4 w-4 mr-3" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M13.6823 10.6218L20.2391 3H18.6854L12.9921 9.61788L8.44486 3H3.2002L10.0765 13.0074L3.2002 21H4.75404L10.7663 14.0113L15.5685 21H20.8131L13.6819 10.6218H13.6823ZM11.5541 13.0956L10.8574 12.0991L5.31391 4.16971H7.70053L12.1742 10.5689L12.8709 11.5655L18.6861 19.8835H16.2995L11.5541 13.0956Z" />
+                    </svg>
+                    Twitter API設定
+                  </Link>
+                  
+                  <Link
+                    href="/settings/n8n"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    <Cog6ToothIcon className="h-4 w-4 mr-3" />
+                    n8n連携設定
+                  </Link>
                 </div>
               )}
+            </div>
+
+            {/* プロフィールボタン */}
+            <div className="h-8 w-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-sm font-medium">U</span>
             </div>
           </div>
         </div>

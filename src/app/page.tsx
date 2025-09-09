@@ -72,7 +72,7 @@ export default function HomePage() {
       name: '株式会社テックソリューション',
       age: 'マーケティング担当',
       occupation: '',
-      comment: 'ToolPlusの導入でコンテンツ作成時間が80%削減。AI分析機能によりエンゲージメント率が3倍に向上しました。',
+      comment: 'ContentNexusの導入でコンテンツ作成時間が80%削減。AI分析機能によりエンゲージメント率が3倍に向上しました。',
       image: '/window.svg', // 実際の画像に置き換えてください
     },
     {
@@ -93,49 +93,102 @@ export default function HomePage() {
 
   return (
     <div className="bg-white">
-      {/* ヒーローセクション */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-500 to-indigo-600">
-        <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 py-12 sm:py-16 md:py-20 lg:py-28 lg:max-w-2xl lg:w-full">
-            <div className="px-4 sm:px-6 lg:px-8">
-              <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
-                <span className="block">AIツールを使って</span>
-                <span className="block mt-1">効率的に</span>
-                <span className="block mt-1 text-yellow-300">コンテンツビジネスを拡大</span>
-              </h1>
-              <p className="mt-6 max-w-lg text-xl text-indigo-100 sm:max-w-3xl">
-                ToolPlusはAIを活用したコンテンツ作成・管理プラットフォーム。効率的なコンテンツビジネスの構築を実現します。
-              </p>
-              <div className="mt-8 sm:flex">
-                <div className="rounded-md shadow">
-                  <Link 
-                    href="/dashboard" 
-                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
-                  >
-                    無料で始める
-                  </Link>
-                </div>
-                <div className="mt-3 sm:mt-0 sm:ml-3">
-                  <Link 
-                    href="#features" 
-                    className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-700 bg-opacity-60 hover:bg-opacity-70 md:py-4 md:text-lg md:px-10"
-                  >
-                    詳しく見る
-                  </Link>
-                </div>
-              </div>
+      {/* ヒーローセクション - Opera Neon/Cohere/ChatGPT風モダンデザイン */}
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-purple-50 via-white to-orange-50">
+        {/* 背景のアニメーション要素 */}
+        <div className="absolute inset-0">
+          {/* メインのグラデーション円 */}
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+          <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse delay-1000"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-72 h-72 bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-pulse delay-2000"></div>
+          
+          {/* 動的な粒子効果 */}
+          <div className="absolute inset-0">
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-1 h-1 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-float opacity-60"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 5}s`,
+                  animationDuration: `${3 + Math.random() * 4}s`
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* メインコンテンツ */}
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* プリタイトル */}
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-8">
+            <div className="w-2 h-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mr-3 animate-pulse"></div>
+            <span className="text-gray-700 text-sm font-medium">Introducing ContentNexus AI</span>
+          </div>
+
+          {/* メインタイトル */}
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-8">
+            <span className="block bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent leading-tight">
+              AIが創る、
+            </span>
+            <span className="block bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 bg-clip-text text-transparent leading-tight mt-2">
+              新しいコンテンツ体験
+            </span>
+          </h1>
+
+          {/* サブタイトル */}
+          <p className="max-w-3xl mx-auto text-xl text-gray-600 mb-12 leading-relaxed">
+            次世代AIプラットフォームで、コンテンツ作成から配信、分析まで。
+            <br className="hidden sm:block" />
+            <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent font-medium">
+              一つのプラットフォームですべてを完結させましょう。
+            </span>
+          </p>
+
+          {/* CTA ボタン */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+            <Link 
+              href="/dashboard" 
+              className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl min-w-48"
+            >
+              <span className="relative z-10">無料で始める</span>
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 filter blur transition-opacity duration-300"></div>
+              <svg className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+            
+            <button className="group inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-gray-700 bg-white/80 backdrop-blur-md border border-white/50 rounded-2xl hover:bg-white/90 hover:shadow-lg transition-all duration-300 min-w-48">
+              <svg className="mr-2 w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              デモを見る
+            </button>
+          </div>
+
+          {/* 統計情報 */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-2xl mx-auto">
+            <div className="text-center">
+              <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">10,000+</div>
+              <div className="text-gray-600">アクティブユーザー</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">500M+</div>
+              <div className="text-gray-600">生成コンテンツ</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent mb-2">99.9%</div>
+              <div className="text-gray-600">アップタイム</div>
             </div>
           </div>
         </div>
-        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-          <div className="h-56 w-full bg-indigo-800 bg-opacity-50 sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src="/window.svg" 
-              alt="デモ画面" 
-              className="w-full h-full object-contain p-8" 
-            />
-          </div>
+
+        {/* スクロールインジケーター */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
         </div>
       </div>
 
@@ -145,7 +198,7 @@ export default function HomePage() {
           <div className="text-center">
             <h2 className="text-base font-semibold text-indigo-600 tracking-wide uppercase">特徴</h2>
             <p className="mt-1 text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight">
-              ToolPlusがビジネスの成長をサポート
+              ContentNexusがビジネスの成長をサポート
             </p>
             <p className="max-w-xl mt-5 mx-auto text-xl text-gray-500">
               AIを活用したコンテンツ作成からSNS投稿、分析まで、ビジネスの成長に必要な全ての機能を提供します。
@@ -214,7 +267,7 @@ export default function HomePage() {
               多くの企業・個人が成果を出しています
             </p>
             <p className="max-w-xl mt-5 mx-auto text-xl text-gray-500">
-              ToolPlusを導入した企業やフリーランサーが、ビジネスの成長を実現しています。
+              ContentNexusを導入した企業やフリーランサーが、ビジネスの成長を実現しています。
             </p>
           </div>
 
@@ -225,7 +278,6 @@ export default function HomePage() {
                   <div className="p-6">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-12 w-12 rounded-full overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={testimonial.image} alt={testimonial.name} className="h-full w-full object-cover" />
                       </div>
                       <div className="ml-4">
@@ -248,7 +300,7 @@ export default function HomePage() {
       <div className="bg-indigo-600">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
           <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            <span className="block">ToolPlusを今すぐ始めませんか？</span>
+            <span className="block">ContentNexusを今すぐ始めませんか？</span>
             <span className="block text-indigo-200">無料トライアルで全機能をお試しいただけます。</span>
           </h2>
           <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
