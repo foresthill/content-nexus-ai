@@ -64,12 +64,12 @@ export default function AIGeneratePage() {
   const [threadTweets, setThreadTweets] = useState<string[]>([]);
 
   const createContent = useContentStore((state) => state.createContent);
-  const { isConfigured: isTwitterConfigured, checkConnection } = useTwitterStore();
+  const { isConfigured: isTwitterConfigured, isConnected: isTwitterConnected, loadFromDB, username } = useTwitterStore();
   const router = useRouter();
 
   // コンポーネントマウント時にTwitter設定を確認
   useEffect(() => {
-    checkConnection();
+    loadFromDB(); // DBから設定を読み込み
   }, []);
 
   const handleGenerate = async () => {
@@ -202,7 +202,8 @@ export default function AIGeneratePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          text: postText
+          text: postText,
+          userId: 'temp-user-id' // 一時的なユーザーID
         }),
       });
 
@@ -247,7 +248,8 @@ export default function AIGeneratePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          text: threadTweets[0]
+          text: threadTweets[0],
+          userId: 'temp-user-id' // 一時的なユーザーID
         }),
       });
 
