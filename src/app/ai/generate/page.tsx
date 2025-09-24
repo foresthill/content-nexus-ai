@@ -171,8 +171,6 @@ export default function AIGeneratePage() {
         status: 'DRAFT' as any,
         featuredImage: '',
         publishedAt: new Date(),
-        updatedAt: new Date(),
-        createdAt: new Date(),
         affiliateLinks: [],
         platforms: platformsData,
       });
@@ -236,8 +234,6 @@ export default function AIGeneratePage() {
               status: 'PUBLISHED' as any,
               featuredImage: '',
               publishedAt: new Date(),
-              updatedAt: new Date(),
-              createdAt: new Date(),
               affiliateLinks: [],
               platforms: [{
                 type: 'TWITTER' as any,

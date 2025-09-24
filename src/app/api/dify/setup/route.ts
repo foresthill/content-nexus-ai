@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { UserRole } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,14 +26,15 @@ export async function POST(request: NextRequest) {
     }
 
     // 新しいテストユーザーを作成
+    const hashedPassword = await bcrypt.hash('test-password', 10);
     const testUser = await prisma.user.create({
       data: {
         id: 'dify-user-001',
         name: 'Dify Test User',
         email: 'dify-test@example.com',
+        password: hashedPassword,
         role: UserRole.USER,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        isActive: true,
       }
     });
 

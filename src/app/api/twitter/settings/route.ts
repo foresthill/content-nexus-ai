@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 // Twitter設定を取得
 export async function GET(request: NextRequest) {
@@ -13,7 +14,6 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      const bcrypt = require('bcryptjs');
       const hashedPassword = await bcrypt.hash('temp-password', 10);
 
       user = await prisma.user.create({
@@ -94,7 +94,6 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       // テスト用ユーザーを作成
-      const bcrypt = require('bcryptjs');
       const hashedPassword = await bcrypt.hash('temp-password', 10);
 
       user = await prisma.user.create({

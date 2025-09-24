@@ -123,7 +123,6 @@ function ContentForm() {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [generatedContent, setGeneratedContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
   
   // URLパラメータからキーワードを取得
   useEffect(() => {
