@@ -153,6 +153,13 @@ export default function AIGeneratePage() {
         throw new Error('保存に失敗しました');
       }
 
+      // プラットフォーム情報を設定（必ずTwitterを含める - 全タイプで投稿可能）
+      const platformsData = [{
+        type: 'TWITTER' as any,
+        status: 'DRAFT' as any,
+        scheduledAt: new Date()
+      }];
+
       // ローカルストアにも保存
       await createContent({
         title: data.title || `AI Generated Content - ${new Date().toLocaleDateString()}`,
@@ -167,7 +174,7 @@ export default function AIGeneratePage() {
         updatedAt: new Date(),
         createdAt: new Date(),
         affiliateLinks: [],
-        platforms: [],
+        platforms: platformsData,
       });
 
       alert('コンテンツが保存されました！');
@@ -215,6 +222,38 @@ export default function AIGeneratePage() {
           message: 'Xへの投稿に成功しました！',
           url: data.url || `https://twitter.com/i/web/status/${data.id}`,
         });
+
+        // 投稿成功時、コンテンツをストアに保存（まだ保存されていない場合）
+        if (result) {
+          try {
+            await createContent({
+              title: result.data.title || `X Post - ${new Date().toLocaleDateString()}`,
+              description: result.data.summary || result.data.content.substring(0, 200) + '...',
+              content: result.data.content,
+              author: 'AI Generated',
+              category: ['Social Media', 'X (Twitter)'],
+              tags: result.data.hashtags || result.data.keywords || [],
+              status: 'PUBLISHED' as any,
+              featuredImage: '',
+              publishedAt: new Date(),
+              updatedAt: new Date(),
+              createdAt: new Date(),
+              affiliateLinks: [],
+              platforms: [{
+                type: 'TWITTER' as any,
+                url: data.url || `https://twitter.com/i/web/status/${data.id}`,
+                publishedAt: new Date(),
+                engagement: {
+                  likes: 0,
+                  comments: 0,
+                  shares: 0
+                }
+              }],
+            });
+          } catch (err) {
+            console.error('Failed to save posted content:', err);
+          }
+        }
       } else {
         setPostResult({
           success: false,
@@ -542,7 +581,7 @@ export default function AIGeneratePage() {
                           </>
                         )}
                       </button>
-                      {result.type === 'social' && isTwitterConfigured && (
+                      {isTwitterConfigured && isTwitterConnected && (
                         <button
                           onClick={handlePostToTwitter}
                           disabled={isPosting}
