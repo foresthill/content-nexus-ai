@@ -83,7 +83,7 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({ onMenuToggle }) => {
               <Link href="/x-post" className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50">
                 𝕏 投稿
               </Link>
-              <Link href="/dify/generate" className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50">
+              <Link href="/ai/generate" className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50">
                 AI生成
               </Link>
               <Link href="/social/analytics" className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-gray-50">
@@ -128,6 +128,17 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({ onMenuToggle }) => {
                   >
                     <Cog6ToothIcon className="h-4 w-4 mr-3" />
                     AI設定 (Dify)
+                  </Link>
+                  
+                  <Link
+                    href="/settings/openrouter"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
+                    <svg className="h-4 w-4 mr-3" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L2 7V17L12 22L22 17V7L12 2ZM12 4.44L19.55 8.5L12 12.56L4.45 8.5L12 4.44ZM4 9.78L11 13.78V20.11L4 16.22V9.78ZM20 16.22L13 20.11V13.78L20 9.78V16.22Z"/>
+                    </svg>
+                    AI設定 (Openrouter)
                   </Link>
                   
                   <Link
