@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTwitterStore } from '@/store/twitterStore';
-import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon, CheckCircleIcon, XCircleIcon, Cog6ToothIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export const TwitterConfigPanel: React.FC = () => {
   const {
@@ -10,9 +10,12 @@ export const TwitterConfigPanel: React.FC = () => {
     isConfigured,
     isConnected,
     connectionError,
-    setConfig,
+    username,
+    isLoading,
+    saveConfig,
     testConnection,
-    clearConfig,
+    deleteConfig,
+    loadFromDB,
   } = useTwitterStore();
 
   const [showApiKey, setShowApiKey] = useState(false);
@@ -26,6 +29,11 @@ export const TwitterConfigPanel: React.FC = () => {
     accessTokenSecret: config?.accessTokenSecret || '',
   });
   const [isTesting, setIsTesting] = useState(false);
+
+  useEffect(() => {
+    // 初回ロード時にDBから設定を取得
+    loadFromDB();
+  }, []);
 
   useEffect(() => {
     if (config) {
@@ -44,27 +52,14 @@ export const TwitterConfigPanel: React.FC = () => {
   };
 
   const handleSave = async () => {
+    setIsTesting(true);
     try {
-      // APIエンドポイントに設定を保存
-      const response = await fetch('/api/twitter/config', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error('設定の保存に失敗しました');
-      }
-
-      // Zustandストアに保存
-      setConfig(formData);
-      
-      // 接続テストを実行
-      await handleTestConnection();
+      // DBに保存（接続テストも含まれる）
+      await saveConfig(formData);
     } catch (error) {
       console.error('Twitter API設定の保存に失敗:', error);
+    } finally {
+      setIsTesting(false);
     }
   };
 
@@ -77,14 +72,22 @@ export const TwitterConfigPanel: React.FC = () => {
     }
   };
 
-  const handleClear = () => {
-    clearConfig();
-    setFormData({
-      apiKey: '',
-      apiSecret: '',
-      accessToken: '',
-      accessTokenSecret: '',
-    });
+  const handleClear = async () => {
+    try {
+      await deleteConfig();
+      setFormData({
+        apiKey: '',
+        apiSecret: '',
+        accessToken: '',
+        accessTokenSecret: '',
+      });
+    } catch (error) {
+      console.error('設定の削除に失敗:', error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    await loadFromDB();
   };
 
   const isFormValid = formData.apiKey && formData.apiSecret && formData.accessToken && formData.accessTokenSecret;
@@ -101,21 +104,32 @@ export const TwitterConfigPanel: React.FC = () => {
             <p className="text-sm text-gray-500">Twitter Developer Portalから取得したAPIキーを設定してください</p>
           </div>
         </div>
-        {isConfigured && (
-          <div className="flex items-center space-x-2">
-            {isConnected ? (
-              <div className="flex items-center space-x-1 text-green-600">
-                <CheckCircleIcon className="h-5 w-5" />
-                <span className="text-sm font-medium">接続済み</span>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-1 text-red-600">
-                <XCircleIcon className="h-5 w-5" />
-                <span className="text-sm font-medium">未接続</span>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="flex items-center space-x-2">
+          {isConfigured && (
+            <>
+              {isConnected ? (
+                <div className="flex items-center space-x-1 text-green-600">
+                  <CheckCircleIcon className="h-5 w-5" />
+                  <span className="text-sm font-medium">接続済み</span>
+                  {username && <span className="text-sm text-gray-600">(@{username})</span>}
+                </div>
+              ) : (
+                <div className="flex items-center space-x-1 text-red-600">
+                  <XCircleIcon className="h-5 w-5" />
+                  <span className="text-sm font-medium">未接続</span>
+                </div>
+              )}
+            </>
+          )}
+          <button
+            onClick={handleRefresh}
+            disabled={isLoading}
+            className="p-1 text-gray-500 hover:text-gray-700 transition-colors"
+            title="設定を再読み込み"
+          >
+            <ArrowPathIcon className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -261,10 +275,17 @@ export const TwitterConfigPanel: React.FC = () => {
         <div className="flex space-x-3 pt-4">
           <button
             onClick={handleSave}
-            disabled={!isFormValid}
-            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!isFormValid || isLoading || isTesting}
+            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            設定を保存
+            {isTesting ? (
+              <>
+                <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />
+                保存と接続テスト中...
+              </>
+            ) : (
+              '設定を保存'
+            )}
           </button>
           
           {isConfigured && (

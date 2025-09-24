@@ -43,7 +43,7 @@ interface MediaFile {
 }
 
 export default function XPostPage() {
-  const { isConfigured, isConnected, checkConnection } = useTwitterStore();
+  const { isConfigured, isConnected, checkConnection, loadFromDB, username, isLoading: isStoreLoading } = useTwitterStore();
   const { isConfigured: isOpenrouterConfigured, loadConfig: loadOpenrouterConfig } = useOpenrouterStore();
   const [text, setText] = useState('');
   const [media, setMedia] = useState<MediaFile[]>([]);
@@ -61,6 +61,7 @@ export default function XPostPage() {
   const [showScheduler, setShowScheduler] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showAIModal, setShowAIModal] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -85,12 +86,27 @@ export default function XPostPage() {
     }
   };
 
-  // コンポーネントマウント時に投稿履歴を読み込み
+  // コンポーネントマウント時に投稿履歴と設定を読み込み
   useEffect(() => {
-    loadPostHistory();
-    loadOpenrouterConfig(); // OpenRouter設定を読み込み
-    checkConnection(); // Twitter設定を確認
-  }, []);
+    const initializeSettings = async () => {
+      setIsLoading(true);
+      try {
+        // 並行して設定を読み込み
+        await Promise.all([
+          loadFromDB(), // Twitter設定をDBから読み込み
+          loadOpenrouterConfig(), // OpenRouter設定を読み込み
+          loadPostHistory() // 投稿履歴を読み込み
+        ]);
+        setIsInitialized(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (!isInitialized) {
+      initializeSettings();
+    }
+  }, [isInitialized]);
 
   const maxLength = 280;
   const remainingChars = maxLength - text.length;
@@ -252,10 +268,17 @@ export default function XPostPage() {
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
               <span className="text-black font-bold text-lg">𝕏</span>
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold text-white">X (Twitter) 投稿</h1>
               <p className="text-gray-300">今何が起こってる？世界とつながろう。</p>
             </div>
+            {isConfigured && isConnected && username && (
+              <div className="flex items-center space-x-2 bg-gray-800 rounded-lg px-3 py-2">
+                <CheckCircleIcon className="h-5 w-5 text-green-400" />
+                <span className="text-sm text-gray-200">接続中:</span>
+                <span className="text-sm font-medium text-white">@{username}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -308,14 +331,14 @@ export default function XPostPage() {
           </div>
         )}
 
-        {isConfigured && isConnected && (
+        {isConfigured && isConnected && username && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-start">
               <CheckCircleIcon className="h-6 w-6 text-green-600 mt-0.5 mr-3" />
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-green-800">Twitter API接続済み</h3>
                 <p className="mt-1 text-sm text-green-700">
-                  X(Twitter)への投稿準備が完了しています。
+                  アカウント <span className="font-semibold">@{username}</span> で X(Twitter) への投稿準備が完了しています。
                 </p>
               </div>
             </div>
@@ -331,11 +354,11 @@ export default function XPostPage() {
                 {/* ユーザー情報 */}
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">あ</span>
+                    <span className="text-white font-bold">{username ? username.charAt(0).toUpperCase() : 'あ'}</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">あなた</p>
-                    <p className="text-sm text-gray-500">@your_username</p>
+                    <p className="font-semibold text-gray-900">{username ? username : 'あなた'}</p>
+                    <p className="text-sm text-gray-500">@{username || 'your_username'}</p>
                   </div>
                 </div>
 

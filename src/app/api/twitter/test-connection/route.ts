@@ -87,6 +87,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: '接続テストが成功しました',
+        userId: userData.id,
+        username: userData.username,
         user: {
           id: userData.id,
           name: userData.name,
