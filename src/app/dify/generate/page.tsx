@@ -96,22 +96,38 @@ export default function DifyGeneratePage() {
     
     setIsSaving(true);
     try {
-      // contentStoreを使用して保存
-      await createContent({
-        title: result.content.title,
-        description: result.content.summary || '',
-        content: result.content.body,
-        author: 'AI Generated',
-        category: [formData.contentType],
-        tags: result.content.keywords || [],
-        status: ContentStatus.DRAFT,
-        featuredImage: undefined,
-        publishedAt: undefined,
-        affiliateLinks: [],
-        platforms: [],
+      const response = await fetch('/api/dify/content/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: result.content.title,
+          content: result.content.body,
+          excerpt: result.content.summary,
+          tags: result.content.keywords || [],
+          metadata: {
+            contentType: formData.contentType,
+            tone: formData.tone,
+            length: formData.length,
+            targetAudience: formData.targetAudience,
+            platform: formData.platform,
+            generationMetadata: result.metadata,
+          },
+        }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'コンテンツの保存に失敗しました');
+      }
+
+      const data = await response.json();
+      console.log('Save success:', data);
       
-      alert('コンテンツが保存されました！');
+      alert(`コンテンツが正常に保存されました！\nID: ${data.content.id}`);
+      
+      // コンテンツ一覧ページに移動
       router.push('/content');
     } catch (error) {
       console.error('Save error:', error);
@@ -381,20 +397,45 @@ export default function DifyGeneratePage() {
 
               {/* アクションボタン */}
               <div className="mt-6 flex space-x-3">
-                <button
-                  onClick={handleSaveContent}
-                  disabled={isSaving}
-                  className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
-                >
-                  {isSaving ? (
-                    <>
-                      <ArrowPathIcon className="animate-spin h-5 w-5 mr-2" />
-                      保存中...
-                    </>
-                  ) : (
-                    'コンテンツを保存'
-                  )}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSaveContent}
+                    disabled={isSaving}
+                    className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+                  >
+                    {isSaving ? (
+                      <>
+                        <ArrowPathIcon className="animate-spin h-5 w-5 mr-2" />
+                        保存中...
+                      </>
+                    ) : (
+                      'DB保存'
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      if (!result) return;
+                      createContent({
+                        title: result.content.title,
+                        description: result.content.summary || '',
+                        content: result.content.body,
+                        author: 'AI Generated',
+                        category: [formData.contentType],
+                        tags: result.content.keywords || [],
+                        status: ContentStatus.DRAFT,
+                        featuredImage: undefined,
+                        publishedAt: undefined,
+                        affiliateLinks: [],
+                        platforms: [],
+                      });
+                      alert('一時保存されました（メモリ内）');
+                    }}
+                    className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 text-sm"
+                  >
+                    一時保存
+                  </button>
+                </div>
                 <button
                   onClick={() => setResult(null)}
                   className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700"

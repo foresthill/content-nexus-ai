@@ -76,12 +76,73 @@ export async function POST(request: NextRequest) {
 
     // アプリケーションタイプに応じて適切なメソッドを使用
     let result;
+    
+    // まずアプリタイプを確認
+    let appType = 'unknown';
+    let appInfo = null;
     try {
-      // まずワークフローとして実行を試みる
-      result = await difyService.executeWorkflow(
-        '', // workflowIdは設定から取得するか、デフォルトを使用
-        workflowInputs
-      );
+      console.log('Fetching app info...');
+      appInfo = await difyService.getAppInfo();
+      console.log('Raw app info response:', JSON.stringify(appInfo, null, 2));
+      
+      // レスポンスの構造を確認
+      const mode = appInfo?.mode || appInfo?.app_type || appInfo?.type;
+      appType = mode || 'completion'; // デフォルトはCompletion
+      console.log('Detected app type:', appType, 'from field:', mode ? 'mode' : (appInfo?.app_type ? 'app_type' : 'type'));
+    } catch (error: any) {
+      console.error('App info fetch failed:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        stack: error.stack
+      });
+      appType = 'completion';
+    }
+    
+    try {
+      // アプリタイプに基づいて適切なAPIを使用
+      if (appType === 'workflow') {
+        console.log('Using Workflow API');
+        result = await difyService.executeWorkflow(
+          '', // workflowIdは設定から取得するか、デフォルトを使用
+          workflowInputs
+        );
+      } else if (appType === 'chat' || appType === 'chatbot') {
+        console.log('Using Chat API');
+        // Chat APIの場合、会話形式で実行
+        const prompt = `トピック: ${body.topic}
+コンテンツタイプ: ${body.contentType || 'blog'}
+トーン: ${body.tone || 'professional'}
+長さ: ${body.length || 'medium'}
+${body.keywords ? `キーワード: ${body.keywords.join(', ')}` : ''}
+
+上記の条件でコンテンツを生成してください。`;
+
+        result = await difyService.sendChatMessage(prompt, 'content-generator');
+      } else {
+        console.log('Using Completion API');
+        // Completion APIの場合
+        const prompt = `以下の条件でコンテンツを生成してください：
+
+トピック: ${body.topic}
+コンテンツタイプ: ${body.contentType || 'blog'}
+トーン: ${body.tone || 'professional'}
+長さ: ${body.length || 'medium'}
+${body.keywords ? `キーワード: ${body.keywords.join(', ')}` : ''}
+${body.targetAudience ? `対象読者: ${body.targetAudience}` : ''}
+
+高品質で魅力的なコンテンツを作成してください。`;
+
+        result = await difyService.client.complete({
+          inputs: {
+            query: prompt,
+            ...workflowInputs
+          },
+          response_mode: 'blocking',
+          user: 'content-generator'
+        });
+      }
     } catch (error: any) {
       // ワークフローエラーの場合、通常のコンテンツ生成を試みる
       if (error?.code === 'not_workflow_app' || error?.status === 400) {
@@ -183,7 +244,7 @@ ${body.keywords?.length ? `キーワード: ${body.keywords.join(', ')}` : ''}
     }
 
     // 出力を整形
-    const outputs = result.data?.outputs || {};
+    const outputs = (result as any).data?.outputs || {};
     
     // レスポンスを構築
     const response = {
@@ -208,11 +269,25 @@ ${body.keywords?.length ? `キーワード: ${body.keywords.join(', ')}` : ''}
         additionalOutputs: outputs,
       },
       metadata: {
-        workflowRunId: result.workflow_run_id,
-        executionTime: result.data?.elapsed_time || 0,
+        workflowRunId: (result as any).workflow_run_id,
+        executionTime: (result as any).data?.elapsed_time || 0,
         tokensUsed: 0, // Workflow response doesn't include token count
         cost: '0', // Workflow response doesn't include cost
         timestamp: new Date().toISOString(),
+        
+        // デバッグ情報を追加
+        debug: {
+          detectedAppType: appType,
+          appInfoRaw: appInfo,
+          usedApiType: appType === 'workflow' ? 'workflow' : 
+                      appType === 'chat' || appType === 'chatbot' ? 'chat' : 'completion',
+          resultStructure: {
+            hasWorkflowRunId: !!(result as any).workflow_run_id,
+            hasData: !!(result as any).data,
+            hasOutputs: !!(result as any).data?.outputs,
+            outputKeys: (result as any).data?.outputs ? Object.keys((result as any).data.outputs) : []
+          }
+        }
       }
     };
 

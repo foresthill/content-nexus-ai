@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { CheckCircleIcon, ExclamationCircleIcon, PhotoIcon, XMarkIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, ExclamationCircleIcon, PhotoIcon, XMarkIcon, ClockIcon, Cog6ToothIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { useTwitterStore } from '@/store/twitterStore';
+import { useOpenrouterStore } from '@/store/openrouterStore';
+import Link from 'next/link';
+import AIGenerateModal from '@/components/social/AIGenerateModal';
 
 interface PostResult {
   success: boolean;
@@ -39,6 +43,8 @@ interface MediaFile {
 }
 
 export default function XPostPage() {
+  const { isConfigured, isConnected, checkConnection, loadFromDB, username, isLoading: isStoreLoading } = useTwitterStore();
+  const { isConfigured: isOpenrouterConfigured, loadConfig: loadOpenrouterConfig } = useOpenrouterStore();
   const [text, setText] = useState('');
   const [media, setMedia] = useState<MediaFile[]>([]);
   const [isPosting, setIsPosting] = useState(false);
@@ -54,7 +60,9 @@ export default function XPostPage() {
   const [scheduledAt, setScheduledAt] = useState('');
   const [showScheduler, setShowScheduler] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -78,10 +86,27 @@ export default function XPostPage() {
     }
   };
 
-  // コンポーネントマウント時に投稿履歴を読み込み
+  // コンポーネントマウント時に投稿履歴と設定を読み込み
   useEffect(() => {
-    loadPostHistory();
-  }, []);
+    const initializeSettings = async () => {
+      setIsLoading(true);
+      try {
+        // 並行して設定を読み込み
+        await Promise.all([
+          loadFromDB(), // Twitter設定をDBから読み込み
+          loadOpenrouterConfig(), // OpenRouter設定を読み込み
+          loadPostHistory() // 投稿履歴を読み込み
+        ]);
+        setIsInitialized(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (!isInitialized) {
+      initializeSettings();
+    }
+  }, [isInitialized]);
 
   const maxLength = 280;
   const remainingChars = maxLength - text.length;
@@ -90,6 +115,15 @@ export default function XPostPage() {
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
+    // テキストエリアの高さを自動調整
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
+
+  const handleAIGenerated = (generatedText: string) => {
+    setText(generatedText);
     // テキストエリアの高さを自動調整
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -234,15 +268,83 @@ export default function XPostPage() {
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
               <span className="text-black font-bold text-lg">𝕏</span>
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold text-white">X (Twitter) 投稿</h1>
               <p className="text-gray-300">今何が起こってる？世界とつながろう。</p>
             </div>
+            {isConfigured && isConnected && username && (
+              <div className="flex items-center space-x-2 bg-gray-800 rounded-lg px-3 py-2">
+                <CheckCircleIcon className="h-5 w-5 text-green-400" />
+                <span className="text-sm text-gray-200">接続中:</span>
+                <span className="text-sm font-medium text-white">@{username}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* API設定状況の表示 */}
+        {!isConfigured && (
+          <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <ExclamationCircleIcon className="h-6 w-6 text-yellow-600 mt-0.5 mr-3" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-yellow-800">Twitter API設定が必要です</h3>
+                <p className="mt-1 text-sm text-yellow-700">
+                  X(Twitter)への投稿機能を使用するには、Twitter APIキーの設定が必要です。
+                </p>
+                <div className="mt-3">
+                  <Link
+                    href="/settings/twitter"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-800 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                  >
+                    <Cog6ToothIcon className="h-4 w-4 mr-2" />
+                    API設定を行う
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isConfigured && !isConnected && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <XMarkIcon className="h-6 w-6 text-red-600 mt-0.5 mr-3" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-red-800">API接続エラー</h3>
+                <p className="mt-1 text-sm text-red-700">
+                  Twitter APIへの接続に失敗しています。設定を確認してください。
+                </p>
+                <div className="mt-3">
+                  <Link
+                    href="/settings/twitter"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-800 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    <Cog6ToothIcon className="h-4 w-4 mr-2" />
+                    設定を確認する
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isConfigured && isConnected && username && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <CheckCircleIcon className="h-6 w-6 text-green-600 mt-0.5 mr-3" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-green-800">Twitter API接続済み</h3>
+                <p className="mt-1 text-sm text-green-700">
+                  アカウント <span className="font-semibold">@{username}</span> で X(Twitter) への投稿準備が完了しています。
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* メイン投稿エリア */}
           <div className="lg:col-span-3">
@@ -252,11 +354,11 @@ export default function XPostPage() {
                 {/* ユーザー情報 */}
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">あ</span>
+                    <span className="text-white font-bold">{username ? username.charAt(0).toUpperCase() : 'あ'}</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">あなた</p>
-                    <p className="text-sm text-gray-500">@your_username</p>
+                    <p className="font-semibold text-gray-900">{username ? username : 'あなた'}</p>
+                    <p className="text-sm text-gray-500">@{username || 'your_username'}</p>
                   </div>
                 </div>
 
@@ -342,6 +444,19 @@ export default function XPostPage() {
                   <div className="flex items-center justify-between">
                     {/* 左側のオプションボタン */}
                     <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setShowAIModal(true)}
+                        disabled={isPosting}
+                        className={`p-3 rounded-full transition-colors ${
+                          isOpenrouterConfigured
+                            ? 'text-purple-500 hover:bg-purple-50'
+                            : 'text-gray-300 cursor-not-allowed'
+                        }`}
+                        title={isOpenrouterConfigured ? "AI投稿生成" : "OpenRouter設定が必要"}
+                      >
+                        <SparklesIcon className="w-5 h-5" />
+                      </button>
+
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={media.length >= 4 || isPosting}
@@ -682,6 +797,13 @@ export default function XPostPage() {
         accept="image/*,video/*"
         multiple
         className="hidden"
+      />
+
+      {/* AI生成モーダル */}
+      <AIGenerateModal
+        isOpen={showAIModal}
+        onClose={() => setShowAIModal(false)}
+        onGenerated={handleAIGenerated}
       />
     </div>
   );

@@ -37,13 +37,34 @@ export async function POST(request: NextRequest) {
     }
 
     // 一時的なユーザーID（認証システム実装後に更新）
-    const tempUserId = userId || 'temp-user-001';
+    const tempUserId = userId || 'temp-user-id';
 
-    // 環境変数の確認
-    const apiKey = process.env.TWITTER_API_KEY;
-    const apiSecret = process.env.TWITTER_API_SECRET;
-    const accessToken = process.env.TWITTER_ACCESS_TOKEN;
-    const accessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
+    // DBからTwitter設定を取得
+    const settingsResponse = await fetch(new URL('/api/twitter/settings', request.url).toString());
+
+    if (!settingsResponse.ok) {
+      return NextResponse.json(
+        {
+          error: '🔧 Twitter API設定が見つかりません',
+          help: '設定画面から設定してください'
+        },
+        { status: 404 }
+      );
+    }
+
+    const settings = await settingsResponse.json();
+
+    if (!settings.isConfigured || !settings.config) {
+      return NextResponse.json(
+        {
+          error: '🔧 Twitter API設定が不完全です',
+          help: '設定画面から再設定してください'
+        },
+        { status: 400 }
+      );
+    }
+
+    const { apiKey, apiSecret, accessToken, accessTokenSecret } = settings.config;
 
     if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret) {
       return NextResponse.json(

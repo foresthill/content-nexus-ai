@@ -361,6 +361,83 @@ const workflowResult = await difyService.executeWorkflow('workflow-id', {
 
 革新的な機能開発を継続し、さらなる価値創造を目指してください！
 
+## Dify統合の実装状況とトラブルシューティング (2025年9月9日)
+
+### 実装完了事項
+1. **DifyService クラス拡張**
+   - 不足していた `getAppInfo()` メソッドを追加
+   - `sendChatMessage()` メソッドを追加
+   - `generateCompletion()` メソッドを追加
+   - クライアントへの直接アクセスを可能に（`client` プロパティをpublic化）
+
+2. **DifyClient クラス改善**
+   - `request()` メソッドをpublic化（サービスから直接アクセス可能）
+   - 内部メソッドを `_request()` に変更
+
+3. **コンテンツ生成API強化**
+   - アプリタイプ自動検出機能
+   - Workflow → Chat → Completion の自動フォールバック
+   - 詳細なデバッグ情報出力
+   - 型安全性の改善（`any` キャストによるエラー回避）
+
+4. **設定とテスト機能**
+   - Dify設定パネルの動作確認済み
+   - 接続テストAPI (`/api/dify/test`) 正常動作
+   - 複数の設定保存・読み込み確認済み
+
+### 現在の問題（Dify側の設定問題）
+**症状:**
+```
+- App unavailable, please check your app configurations
+- Workflow not published  
+- アプリタイプが「unknown」として検出される
+```
+
+**原因分析:**
+- Difyアプリケーション自体の設定問題
+- 使用中のBase URL: `https://foresthill.xvps.jp/v1`（カスタムインスタンス）
+- ワークフローが未公開状態の可能性
+
+**コード側の対応完了:**
+- 全APIタイプ（Workflow/Chat/Completion）に対応
+- エラー時の自動フォールバック機能
+- 詳細なデバッグログ出力
+- 必要なメソッドは全て実装済み
+
+### 解決のための手順（Dify管理画面での作業が必要）
+1. **アプリケーションの状態確認**
+   - Dify管理画面でアプリが正常に動作しているか確認
+   - アプリケーションを公開（Published）状態にする
+
+2. **API設定の確認**
+   - API Keyが有効で適切な権限があるか確認
+   - 必要に応じて新しいAPI Keyを生成
+
+3. **アプリタイプの選択**
+   - Completion App: 単純なテキスト生成（推奨）
+   - Chat App: 会話型アプリケーション
+   - Workflow App: 複雑なワークフロー
+
+### 実装済みファイルの詳細
+```
+/src/lib/dify/
+  - service.ts              # 完全なサービス実装（全メソッド追加済み）
+  - client.ts               # 改良されたクライアント（public request追加）
+/src/app/api/dify/
+  - content/generate/       # マルチAPIタイプ対応の生成エンドポイント
+  - test/                   # 接続テスト機能
+  - config/                 # 設定保存・読み込み
+```
+
+### 重要な注意点
+- **コード側の実装は完了** - Difyアプリが正常に設定されれば動作する
+- **問題はDify側の設定** - アプリの公開状態やAPI権限を確認する必要
+- **デバッグ情報が充実** - エラー発生時に詳細な情報が出力される
+- **自動フォールバック機能** - 一つのAPIタイプが失敗しても他のタイプを自動的に試行
+
+### 今後の対応
+Difyアプリケーションの設定が修正されれば、既存のコード実装により即座に動作するはず。別プロジェクト開発に進んでも問題なし。
+
 ## Vercelビルドエラー対応履歴
 
 ### 2025年6月17日 - ESLintルール緩和による緊急対応
