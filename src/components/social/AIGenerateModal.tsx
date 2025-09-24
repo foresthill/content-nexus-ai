@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { useOpenrouterStore } from '@/store/openrouterStore';
@@ -12,13 +12,20 @@ interface AIGenerateModalProps {
 }
 
 export default function AIGenerateModal({ isOpen, onClose, onGenerated }: AIGenerateModalProps) {
-  const { isConfigured, selectedModel } = useOpenrouterStore();
+  const { isConfigured, selectedModel, loadConfig } = useOpenrouterStore();
   const [prompt, setPrompt] = useState('');
   const [tone, setTone] = useState<'casual' | 'professional' | 'funny' | 'inspirational'>('casual');
   const [includeHashtags, setIncludeHashtags] = useState(true);
   const [includeEmojis, setIncludeEmojis] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
+
+  // モーダルが開いたときに設定を読み込み
+  useEffect(() => {
+    if (isOpen) {
+      loadConfig();
+    }
+  }, [isOpen]);
 
   const toneDescriptions = {
     casual: 'カジュアル - 友達に話すような親しみやすい口調',

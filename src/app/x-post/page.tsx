@@ -43,8 +43,8 @@ interface MediaFile {
 }
 
 export default function XPostPage() {
-  const { isConfigured, isConnected } = useTwitterStore();
-  const { isConfigured: isOpenrouterConfigured } = useOpenrouterStore();
+  const { isConfigured, isConnected, checkConnection } = useTwitterStore();
+  const { isConfigured: isOpenrouterConfigured, loadConfig: loadOpenrouterConfig } = useOpenrouterStore();
   const [text, setText] = useState('');
   const [media, setMedia] = useState<MediaFile[]>([]);
   const [isPosting, setIsPosting] = useState(false);
@@ -88,6 +88,8 @@ export default function XPostPage() {
   // コンポーネントマウント時に投稿履歴を読み込み
   useEffect(() => {
     loadPostHistory();
+    loadOpenrouterConfig(); // OpenRouter設定を読み込み
+    checkConnection(); // Twitter設定を確認
   }, []);
 
   const maxLength = 280;

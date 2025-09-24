@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   SparklesIcon,
@@ -58,8 +58,13 @@ export default function AIGeneratePage() {
   const [postResult, setPostResult] = useState<{ success: boolean; message: string; url?: string } | null>(null);
 
   const { addContent } = useContentStore();
-  const { isConfigured: isTwitterConfigured } = useTwitterStore();
+  const { isConfigured: isTwitterConfigured, checkConnection } = useTwitterStore();
   const router = useRouter();
+
+  // コンポーネントマウント時にTwitter設定を確認
+  useEffect(() => {
+    checkConnection();
+  }, []);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {

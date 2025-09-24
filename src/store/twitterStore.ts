@@ -16,6 +16,7 @@ interface TwitterStore {
   setConfig: (config: TwitterConfig) => void;
   testConnection: () => Promise<void>;
   clearConfig: () => void;
+  checkConnection: () => Promise<void>;
 }
 
 export const useTwitterStore = create<TwitterStore>()(
@@ -78,6 +79,32 @@ export const useTwitterStore = create<TwitterStore>()(
           isConnected: false,
           connectionError: null,
         });
+      },
+
+      checkConnection: async () => {
+        // 環境変数からAPI設定を確認
+        try {
+          const response = await fetch('/api/twitter/check-env');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.isConfigured) {
+              set({
+                isConfigured: true,
+                isConnected: data.isConnected || false,
+                connectionError: data.error || null,
+              });
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('Failed to check environment config:', error);
+        }
+
+        // ローカルストレージの設定を確認
+        const { config } = get();
+        if (config) {
+          await get().testConnection();
+        }
       },
     }),
     {

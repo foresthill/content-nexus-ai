@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ContentService } from '@/lib/content/content-service';
-import { ContentStatus } from '@prisma/client';
+import { cookies } from 'next/headers';
 
 interface SaveContentRequest {
   title: string;
   content: string;
-  excerpt?: string;
+  summary?: string;
   tags?: string[];
   metadata?: any;
 }
+
+// インメモリストレージ (本番環境ではデータベースを使用)
+const savedContents: Map<string, any> = new Map();
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,21 +24,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // テスト用のデフォルトユーザーID (実際にはログイン機能から取得)
-    const defaultUserId = 'dify-user-001';
+    // コンテンツIDを生成
+    const contentId = `content-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    // コンテンツを作成
-    const content = await ContentService.createContent({
-      userId: defaultUserId,
+    // コンテンツを保存（インメモリ）
+    const content = {
+      id: contentId,
       title: body.title,
       content: body.content,
-      excerpt: body.excerpt,
+      summary: body.summary || body.content.substring(0, 200) + '...',
       tags: body.tags || [],
       metadata: {
         ...body.metadata,
-        source: 'dify',
+        source: 'openrouter',
         generatedAt: new Date().toISOString(),
       },
+      status: 'draft',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    savedContents.set(contentId, content);
+
+    // クッキーに最新のコンテンツIDを保存（オプション）
+    const cookieStore = await cookies();
+    cookieStore.set('last-saved-content', contentId, {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7日間
     });
 
     console.log('Content saved successfully:', {
@@ -58,13 +73,24 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Content save error:', error);
-    
+
     return NextResponse.json(
-      { 
+      {
         error: 'コンテンツの保存に失敗しました',
         details: error instanceof Error ? error.message : '不明なエラー'
       },
       { status: 500 }
     );
   }
+}
+
+// 保存されたコンテンツを取得（デバッグ用）
+export async function GET(request: NextRequest) {
+  const contentArray = Array.from(savedContents.values());
+
+  return NextResponse.json({
+    success: true,
+    contents: contentArray,
+    total: contentArray.length,
+  });
 }
