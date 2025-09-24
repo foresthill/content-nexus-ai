@@ -13,11 +13,13 @@ import {
   ExclamationTriangleIcon,
   CogIcon,
   BookmarkIcon,
-  PaperAirplaneIcon
+  PaperAirplaneIcon,
+  QueueListIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import useContentStore from '@/store/contentStore';
 import { useTwitterStore } from '@/store/twitterStore';
+import { smartSplitText } from '@/lib/twitter/utils';
 
 type ContentType = 'blog' | 'social' | 'general';
 type Tone = 'professional' | 'casual' | 'friendly' | 'formal' | 'creative';
@@ -58,6 +60,8 @@ export default function AIGeneratePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [postResult, setPostResult] = useState<{ success: boolean; message: string; url?: string } | null>(null);
+  const [showThreadPreview, setShowThreadPreview] = useState(false);
+  const [threadTweets, setThreadTweets] = useState<string[]>([]);
 
   const createContent = useContentStore((state) => state.createContent);
   const { isConfigured: isTwitterConfigured, checkConnection } = useTwitterStore();
@@ -178,10 +182,14 @@ export default function AIGeneratePage() {
   const handlePostToTwitter = async () => {
     if (!result || contentType !== 'social') return;
 
-    // 280文字を超える場合は切り詰める
-    let postText = result.data.content.trim();
+    const postText = result.data.content.trim();
+
+    // 280文字を超える場合はスレッド投稿のプレビューを表示
     if (postText.length > 280) {
-      postText = postText.substring(0, 277) + '...';
+      const tweets = smartSplitText(postText, 280);
+      setThreadTweets(tweets);
+      setShowThreadPreview(true);
+      return;
     }
 
     setIsPosting(true);
@@ -214,6 +222,51 @@ export default function AIGeneratePage() {
       }
     } catch (error) {
       console.error('Post error:', error);
+      setPostResult({
+        success: false,
+        message: 'ネットワークエラーが発生しました'
+      });
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  const handlePostThread = async () => {
+    if (threadTweets.length === 0) return;
+
+    setIsPosting(true);
+    setPostResult(null);
+    setShowThreadPreview(false);
+
+    try {
+      // 現在は単一投稿のAPIしかないため、最初のツイートのみ投稿
+      // TODO: スレッド投稿APIを実装
+      const response = await fetch('/api/social/twitter/simple-post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: threadTweets[0]
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPostResult({
+          success: true,
+          message: `スレッドの最初のツイートを投稿しました！（全${threadTweets.length}件）`,
+          url: data.url || `https://twitter.com/i/web/status/${data.id}`,
+        });
+      } else {
+        setPostResult({
+          success: false,
+          message: data.error || '投稿に失敗しました'
+        });
+      }
+    } catch (error) {
+      console.error('Thread post error:', error);
       setPostResult({
         success: false,
         message: 'ネットワークエラーが発生しました'
@@ -610,6 +663,63 @@ export default function AIGeneratePage() {
                         投稿を表示
                       </a>
                     )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* スレッドプレビューモーダル */}
+            {showThreadPreview && threadTweets.length > 0 && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden">
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      スレッド投稿プレビュー（全{threadTweets.length}件）
+                    </h3>
+                    <div className="space-y-4 max-h-[50vh] overflow-y-auto">
+                      {threadTweets.map((tweet, index) => (
+                        <div key={index} className="bg-gray-50 rounded-lg p-4">
+                          <div className="flex items-start space-x-3">
+                            <div className="flex-shrink-0">
+                              <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs font-bold">{index + 1}</span>
+                              </div>
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-gray-800 whitespace-pre-wrap">{tweet}</p>
+                              <p className="text-xs text-gray-500 mt-2">
+                                {tweet.length}/280文字
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-6 flex justify-end space-x-3">
+                      <button
+                        onClick={() => setShowThreadPreview(false)}
+                        className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                      >
+                        キャンセル
+                      </button>
+                      <button
+                        onClick={handlePostThread}
+                        disabled={isPosting}
+                        className="px-4 py-2 bg-black hover:bg-gray-800 text-white rounded-lg flex items-center transition-colors disabled:opacity-50"
+                      >
+                        {isPosting ? (
+                          <>
+                            <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />
+                            投稿中...
+                          </>
+                        ) : (
+                          <>
+                            <QueueListIcon className="h-4 w-4 mr-2" />
+                            スレッドを投稿
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
