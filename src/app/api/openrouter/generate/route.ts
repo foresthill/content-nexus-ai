@@ -8,6 +8,7 @@ interface GenerateRequest {
   options?: {
     tone?: string;
     length?: string;
+    language?: string;
     keywords?: string[];
     model?: string;
   };
@@ -80,11 +81,24 @@ export async function POST(request: NextRequest) {
 
     } else if (type === 'social') {
       // SNS投稿用の生成
-      const systemPrompt = `You are a social media expert. Create engaging, platform-optimized content that drives engagement. Keep it concise and impactful.`;
-      
+      const languageInstructions = {
+        ja: '日本語で書いてください。',
+        en: 'Write in English.',
+        zh: '请用中文写。',
+        ko: '한국어로 작성해주세요.',
+        es: 'Escribe en español.',
+        fr: 'Écris en français.',
+        de: 'Schreibe auf Deutsch.'
+      };
+
+      const languageInstruction = languageInstructions[options.language as keyof typeof languageInstructions] || languageInstructions.ja;
+
+      const systemPrompt = `You are a social media expert. Create engaging, platform-optimized content that drives engagement. Keep it concise and impactful. ${languageInstruction}`;
+
       const socialPrompt = `Create a social media post about: ${prompt}
 
 Requirements:
+- ${languageInstruction}
 - Engaging and shareable content
 - Include relevant hashtags (3-5)
 - Keep it under 280 characters for Twitter compatibility
@@ -118,11 +132,25 @@ ${options.keywords?.length ? `Keywords to include: ${options.keywords.join(', ')
 
     } else {
       // 一般的なコンテンツ生成
-      const systemPrompt = options.tone 
-        ? `You are a helpful AI assistant. Respond in a ${options.tone} tone.`
-        : 'You are a helpful AI assistant that provides clear and informative responses.';
+      const languageInstructions = {
+        ja: 'あなたの応答は日本語でお願いします。',
+        en: 'Please respond in English.',
+        zh: '请用中文回复。',
+        ko: '한국어로 답변해주세요.',
+        es: 'Por favor responde en español.',
+        fr: 'Veuillez répondre en français.',
+        de: 'Bitte antworten Sie auf Deutsch.'
+      };
 
-      const content = await client.generateContent(prompt, {
+      const languageInstruction = languageInstructions[options.language as keyof typeof languageInstructions] || languageInstructions.ja;
+
+      const systemPrompt = options.tone
+        ? `You are a helpful AI assistant. Respond in a ${options.tone} tone. ${languageInstruction}`
+        : `You are a helpful AI assistant that provides clear and informative responses. ${languageInstruction}`;
+
+      const enhancedPrompt = `${prompt}\n\nIMPORTANT: ${languageInstruction}`;
+
+      const content = await client.generateContent(enhancedPrompt, {
         model,
         systemPrompt,
         temperature: 0.7,

@@ -22,6 +22,7 @@ import { useTwitterStore } from '@/store/twitterStore';
 type ContentType = 'blog' | 'social' | 'general';
 type Tone = 'professional' | 'casual' | 'friendly' | 'formal' | 'creative';
 type Length = 'short' | 'medium' | 'long';
+type Language = 'ja' | 'en' | 'zh' | 'ko' | 'es' | 'fr' | 'de';
 
 interface GenerationResult {
   success: boolean;
@@ -48,6 +49,7 @@ export default function AIGeneratePage() {
   const [contentType, setContentType] = useState<ContentType>('general');
   const [tone, setTone] = useState<Tone>('professional');
   const [length, setLength] = useState<Length>('medium');
+  const [language, setLanguage] = useState<Language>('ja');
   const [keywords, setKeywords] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
@@ -57,7 +59,7 @@ export default function AIGeneratePage() {
   const [isPosting, setIsPosting] = useState(false);
   const [postResult, setPostResult] = useState<{ success: boolean; message: string; url?: string } | null>(null);
 
-  const { addContent } = useContentStore();
+  const createContent = useContentStore((state) => state.createContent);
   const { isConfigured: isTwitterConfigured, checkConnection } = useTwitterStore();
   const router = useRouter();
 
@@ -88,6 +90,7 @@ export default function AIGeneratePage() {
           options: {
             tone,
             length,
+            language,
             keywords: keywords ? keywords.split(',').map(k => k.trim()).filter(k => k) : [],
           },
         }),
@@ -147,16 +150,20 @@ export default function AIGeneratePage() {
       }
 
       // ローカルストアにも保存
-      addContent({
+      await createContent({
         title: data.title || `AI Generated Content - ${new Date().toLocaleDateString()}`,
+        description: data.summary || data.content.substring(0, 200) + '...',
         content: data.content,
-        summary: data.summary || data.content.substring(0, 200) + '...',
+        author: 'AI Generated',
+        category: ['AI Generated'],
         tags: data.keywords || [],
-        status: 'draft' as const,
-        publishedAt: null,
-        slug: '',
-        metaDescription: data.metaDescription || '',
-        featuredImage: null,
+        status: 'DRAFT' as any,
+        featuredImage: '',
+        publishedAt: new Date(),
+        updatedAt: new Date(),
+        createdAt: new Date(),
+        affiliateLinks: [],
+        platforms: [],
       });
 
       alert('コンテンツが保存されました！');
@@ -171,6 +178,12 @@ export default function AIGeneratePage() {
   const handlePostToTwitter = async () => {
     if (!result || contentType !== 'social') return;
 
+    // 280文字を超える場合は切り詰める
+    let postText = result.data.content.trim();
+    if (postText.length > 280) {
+      postText = postText.substring(0, 277) + '...';
+    }
+
     setIsPosting(true);
     setPostResult(null);
 
@@ -181,7 +194,7 @@ export default function AIGeneratePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          text: result.data.content.trim()
+          text: postText
         }),
       });
 
@@ -299,6 +312,27 @@ export default function AIGeneratePage() {
 
                 {/* 詳細設定 */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* 言語 */}
+                  <div>
+                    <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
+                      言語
+                    </label>
+                    <select
+                      id="language"
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value as Language)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                      <option value="ja">日本語</option>
+                      <option value="en">English</option>
+                      <option value="zh">中文</option>
+                      <option value="ko">한국어</option>
+                      <option value="es">Español</option>
+                      <option value="fr">Français</option>
+                      <option value="de">Deutsch</option>
+                    </select>
+                  </div>
+
                   {/* トーン */}
                   <div>
                     <label htmlFor="tone" className="block text-sm font-medium text-gray-700 mb-1">
