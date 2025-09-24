@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { CheckCircleIcon, ExclamationCircleIcon, PhotoIcon, XMarkIcon, ClockIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, ExclamationCircleIcon, PhotoIcon, XMarkIcon, ClockIcon, Cog6ToothIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { useTwitterStore } from '@/store/twitterStore';
+import { useOpenrouterStore } from '@/store/openrouterStore';
 import Link from 'next/link';
+import AIGenerateModal from '@/components/social/AIGenerateModal';
 
 interface PostResult {
   success: boolean;
@@ -42,6 +44,7 @@ interface MediaFile {
 
 export default function XPostPage() {
   const { isConfigured, isConnected } = useTwitterStore();
+  const { isConfigured: isOpenrouterConfigured } = useOpenrouterStore();
   const [text, setText] = useState('');
   const [media, setMedia] = useState<MediaFile[]>([]);
   const [isPosting, setIsPosting] = useState(false);
@@ -57,7 +60,8 @@ export default function XPostPage() {
   const [scheduledAt, setScheduledAt] = useState('');
   const [showScheduler, setShowScheduler] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [showAIModal, setShowAIModal] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -93,6 +97,15 @@ export default function XPostPage() {
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
+    // テキストエリアの高さを自動調整
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
+
+  const handleAIGenerated = (generatedText: string) => {
+    setText(generatedText);
     // テキストエリアの高さを自動調整
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -406,6 +419,19 @@ export default function XPostPage() {
                   <div className="flex items-center justify-between">
                     {/* 左側のオプションボタン */}
                     <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setShowAIModal(true)}
+                        disabled={isPosting}
+                        className={`p-3 rounded-full transition-colors ${
+                          isOpenrouterConfigured
+                            ? 'text-purple-500 hover:bg-purple-50'
+                            : 'text-gray-300 cursor-not-allowed'
+                        }`}
+                        title={isOpenrouterConfigured ? "AI投稿生成" : "OpenRouter設定が必要"}
+                      >
+                        <SparklesIcon className="w-5 h-5" />
+                      </button>
+
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={media.length >= 4 || isPosting}
@@ -746,6 +772,13 @@ export default function XPostPage() {
         accept="image/*,video/*"
         multiple
         className="hidden"
+      />
+
+      {/* AI生成モーダル */}
+      <AIGenerateModal
+        isOpen={showAIModal}
+        onClose={() => setShowAIModal(false)}
+        onGenerated={handleAIGenerated}
       />
     </div>
   );

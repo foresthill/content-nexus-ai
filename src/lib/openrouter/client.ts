@@ -61,20 +61,40 @@ export class OpenrouterClient {
   }
 
   async chat(request: OpenrouterChatRequest): Promise<OpenrouterChatResponse> {
+    // デバッグログ
+    console.log('OpenRouter API Request:', {
+      url: `${this.baseUrl}/chat/completions`,
+      apiKey: this.apiKey ? 'Set' : 'Not set',
+      model: request.model,
+    });
+
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+        'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
         'X-Title': 'ContentNexus AI',
       },
       body: JSON.stringify(request),
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(`Openrouter API error: ${response.status} - ${error.message || response.statusText}`);
+      const errorText = await response.text().catch(() => '');
+      let errorMessage = response.statusText;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.error?.message || errorJson.message || errorMessage;
+      } catch {
+        errorMessage = errorText || errorMessage;
+      }
+      console.error('OpenRouter API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorMessage,
+        headers: Object.fromEntries(response.headers.entries()),
+      });
+      throw new Error(`Openrouter API error: ${response.status} - ${errorMessage}`);
     }
 
     return response.json();
@@ -97,7 +117,7 @@ export class OpenrouterClient {
     return response.json();
   }
 
-  async testConnection(model: string = 'anthropic/claude-3-haiku:beta'): Promise<{ success: true; model: string }> {
+  async testConnection(model: string = 'openai/gpt-3.5-turbo'): Promise<{ success: true; model: string }> {
     const testRequest: OpenrouterChatRequest = {
       model,
       messages: [

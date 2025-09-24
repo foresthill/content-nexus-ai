@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { 
+import { useRouter } from 'next/navigation';
+import {
   SparklesIcon,
   DocumentTextIcon,
   ChatBubbleLeftRightIcon,
@@ -10,10 +11,13 @@ import {
   ClipboardDocumentIcon,
   CheckIcon,
   ExclamationTriangleIcon,
-  CogIcon
+  CogIcon,
+  BookmarkIcon,
+  PaperAirplaneIcon
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import useContentStore from '@/store/contentStore';
+import { useTwitterStore } from '@/store/twitterStore';
 
 type ContentType = 'blog' | 'social' | 'general';
 type Tone = 'professional' | 'casual' | 'friendly' | 'formal' | 'creative';
@@ -49,8 +53,13 @@ export default function AIGeneratePage() {
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+  const [postResult, setPostResult] = useState<{ success: boolean; message: string; url?: string } | null>(null);
 
   const { addContent } = useContentStore();
+  const { isConfigured: isTwitterConfigured } = useTwitterStore();
+  const router = useRouter();
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -106,24 +115,94 @@ export default function AIGeneratePage() {
     }
   };
 
-  const handleSaveContent = () => {
+  const handleSaveContent = async () => {
     if (!result) return;
 
-    const { data } = result;
-    
-    addContent({
-      title: data.title || `AI Generated Content - ${new Date().toLocaleDateString()}`,
-      content: data.content,
-      summary: data.summary || data.content.substring(0, 200) + '...',
-      tags: data.keywords || [],
-      status: 'draft' as const,
-      publishedAt: null,
-      slug: '',
-      metaDescription: data.metaDescription || '',
-      featuredImage: null,
-    });
+    setIsSaving(true);
+    try {
+      const { data } = result;
 
-    alert('コンテンツがドラフトとして保存されました！');
+      // Difyコンテンツとして保存
+      const response = await fetch('/api/dify/content/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: data.title || `AI Generated - ${new Date().toLocaleDateString()}`,
+          content: data.content,
+          summary: data.summary || data.content.substring(0, 200) + '...',
+          tags: data.keywords || [],
+          metadata: data.metadata,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('保存に失敗しました');
+      }
+
+      // ローカルストアにも保存
+      addContent({
+        title: data.title || `AI Generated Content - ${new Date().toLocaleDateString()}`,
+        content: data.content,
+        summary: data.summary || data.content.substring(0, 200) + '...',
+        tags: data.keywords || [],
+        status: 'draft' as const,
+        publishedAt: null,
+        slug: '',
+        metaDescription: data.metaDescription || '',
+        featuredImage: null,
+      });
+
+      alert('コンテンツが保存されました！');
+    } catch (err) {
+      console.error('Save error:', err);
+      alert('保存に失敗しました');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handlePostToTwitter = async () => {
+    if (!result || contentType !== 'social') return;
+
+    setIsPosting(true);
+    setPostResult(null);
+
+    try {
+      const response = await fetch('/api/social/twitter/simple-post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: result.data.content.trim()
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPostResult({
+          success: true,
+          message: 'Xへの投稿に成功しました！',
+          url: data.url || `https://twitter.com/i/web/status/${data.id}`,
+        });
+      } else {
+        setPostResult({
+          success: false,
+          message: data.error || '投稿に失敗しました'
+        });
+      }
+    } catch (error) {
+      console.error('Post error:', error);
+      setPostResult({
+        success: false,
+        message: 'ネットワークエラーが発生しました'
+      });
+    } finally {
+      setIsPosting(false);
+    }
   };
 
   return (
@@ -352,12 +431,40 @@ export default function AIGeneratePage() {
                           </>
                         )}
                       </button>
-                      {result.type === 'blog' && (
+                      <button
+                        onClick={handleSaveContent}
+                        disabled={isSaving}
+                        className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center transition-colors disabled:opacity-50"
+                      >
+                        {isSaving ? (
+                          <>
+                            <ArrowPathIcon className="h-4 w-4 mr-1 animate-spin" />
+                            保存中...
+                          </>
+                        ) : (
+                          <>
+                            <BookmarkIcon className="h-4 w-4 mr-1" />
+                            保存
+                          </>
+                        )}
+                      </button>
+                      {result.type === 'social' && isTwitterConfigured && (
                         <button
-                          onClick={handleSaveContent}
-                          className="px-3 py-1.5 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                          onClick={handlePostToTwitter}
+                          disabled={isPosting}
+                          className="px-3 py-1.5 text-sm bg-black hover:bg-gray-800 text-white rounded-lg flex items-center transition-colors disabled:opacity-50"
                         >
-                          保存
+                          {isPosting ? (
+                            <>
+                              <ArrowPathIcon className="h-4 w-4 mr-1 animate-spin" />
+                              投稿中...
+                            </>
+                          ) : (
+                            <>
+                              <PaperAirplaneIcon className="h-4 w-4 mr-1" />
+                              Xに投稿
+                            </>
+                          )}
                         </button>
                       )}
                     </div>
@@ -430,6 +537,40 @@ export default function AIGeneratePage() {
                     <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
                       {result.data.content}
                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 投稿結果表示 */}
+            {postResult && (
+              <div className={`rounded-lg p-4 ${
+                postResult.success
+                  ? 'bg-green-50 border border-green-200'
+                  : 'bg-red-50 border border-red-200'
+              }`}>
+                <div className="flex items-start">
+                  {postResult.success ? (
+                    <CheckIcon className="h-5 w-5 text-green-600 mr-2 mt-0.5" />
+                  ) : (
+                    <ExclamationTriangleIcon className="h-5 w-5 text-red-600 mr-2 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <p className={`font-medium ${
+                      postResult.success ? 'text-green-800' : 'text-red-800'
+                    }`}>
+                      {postResult.message}
+                    </p>
+                    {postResult.success && postResult.url && (
+                      <a
+                        href={postResult.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center mt-2 text-sm text-green-700 hover:text-green-900 underline"
+                      >
+                        投稿を表示
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
