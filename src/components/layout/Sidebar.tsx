@@ -1,5 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
+import { ArrowRightOnRectangleIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 
 interface NavItem {
   name: string;
@@ -9,6 +13,12 @@ interface NavItem {
 }
 
 const Sidebar = ({ currentPath }: { currentPath: string }) => {
+  const { data: session, status } = useSession();
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' });
+  };
+
   // 簡易的なアイコンコンポーネント
   const HomeIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -87,7 +97,7 @@ const Sidebar = ({ currentPath }: { currentPath: string }) => {
         <div className="flex flex-shrink-0 items-center px-4">
           <Link href="/" className="flex items-center text-lg font-semibold text-indigo-600">
             <HomeIcon className="h-6 w-6 mr-2" />
-            <span>ContentNexus</span>
+            <span>ToolPlus</span>
           </Link>
         </div>
         <nav className="mt-5 flex-1 space-y-1 px-2">
@@ -114,6 +124,70 @@ const Sidebar = ({ currentPath }: { currentPath: string }) => {
             </Link>
           ))}
         </nav>
+      </div>
+
+      {/* ユーザー情報とログアウトボタン */}
+      <div className="flex flex-shrink-0 border-t border-gray-200 p-4">
+        {status === 'loading' ? (
+          <div className="flex items-center space-x-3 w-full">
+            <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="flex-1 space-y-2">
+              <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-2 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+            </div>
+          </div>
+        ) : session?.user ? (
+          <div className="w-full">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                {session.user.image ? (
+                  <img
+                    className="h-10 w-10 rounded-full"
+                    src={session.user.image}
+                    alt={session.user.name || ''}
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span className="text-white text-sm font-medium">
+                      {session.user.name?.charAt(0).toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {session.user.name || 'ユーザー'}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {session.user.email}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="mt-3 w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+              ログアウト
+            </button>
+          </div>
+        ) : (
+          <div className="w-full space-y-2">
+            <Link
+              href="/auth/signin"
+              className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-md hover:from-indigo-700 hover:to-purple-700 transition-all"
+            >
+              <UserCircleIcon className="h-4 w-4 mr-2" />
+              ログイン
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              新規登録
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
