@@ -997,3 +997,214 @@ try {
 1. ESLint警告の段階的な解消
 2. `any`型の具体的な型定義への置き換え
 3. 未使用変数・インポートのクリーンアップ
+
+## 2025年10月20日 - NextAuth認証システムとAPIキー管理基盤構築 (Phase 1)
+
+### 概要
+NextAuth v5を使用したマルチプロバイダー認証システムと、AES-256-GCM暗号化によるセキュアなAPIキー管理機能を実装しました。
+
+### 実装内容
+
+#### 1. **Prismaスキーマ拡張**
+
+**追加されたモデル**:
+- `Account` - NextAuth OAuth連携用（Google, GitHub等）
+- `Session` - セッション管理用（JWTセッション時はオプション）
+- `VerificationToken` - メール認証用トークン
+- `ApiKey` - 汎用APIキー管理（暗号化保存）
+- `ServiceType` enum - 8種類のサービス対応（DIFY, N8N, SNS API等）
+
+**Userモデル拡張**:
+- `emailVerified: DateTime?` - メール認証日時
+- `image: String?` - プロフィール画像URL
+- `password: String?` - OAuth時はnull可に変更
+- `accounts: Account[]` - OAuth連携リレーション
+- `sessions: Session[]` - セッション管理リレーション
+- `apiKeys: ApiKey[]` - APIキー管理リレーション
+
+#### 2. **暗号化サービス実装**
+
+**ファイル**: `src/lib/encryption/service.ts`
+
+**主要機能**:
+- **encrypt()**: AES-256-GCM暗号化
+  - ランダムIV生成（16バイト）
+  - 認証タグによる改ざん検知
+  - hex形式でデータ保存
+
+- **decrypt()**: 安全な復号化
+  - 認証タグ検証
+  - 改ざん検知時のエラーハンドリング
+
+- **maskApiKey()**: セキュアな表示
+  - 末尾4文字のみ表示（例: `●●●●●●●●1234`）
+
+- **rotateKey()**: キーローテーション機能
+  - 古いキーで復号 → 新しいキーで再暗号化
+  - ダウンタイムなしの移行対応
+
+**セキュリティ特性**:
+- アルゴリズム: AES-256-GCM（認証付き暗号化）
+- キー長: 256ビット（32バイト）
+- IV長: 128ビット（16バイト、ランダム生成）
+- 認証タグ: 128ビット（改ざん検知）
+
+#### 3. **NextAuth v5 設定**
+
+**ファイル構成**:
+- `src/auth.config.ts` - NextAuth設定（プロバイダー、コールバック）
+- `src/auth.ts` - NextAuthインスタンス（Prisma Adapter統合）
+- `src/app/api/auth/[...nextauth]/route.ts` - APIルートハンドラー
+- `src/types/next-auth.d.ts` - 型定義拡張（role, isActive追加）
+
+**認証プロバイダー**:
+1. **Credentials**: メール/パスワード認証（bcryptでハッシュ検証）
+2. **Google OAuth**: ソーシャルログイン
+3. **GitHub OAuth**: 開発者向けログイン
+
+**セッション戦略**:
+- JWT戦略（サーバーレス環境最適化）
+- 30日間の有効期限
+- 24時間ごとの自動更新
+
+**セキュリティ機能**:
+- アクティブユーザーチェック
+- ロールベースアクセス制御（ADMIN, EDITOR, USER）
+- サインイン/サインアウト時の監査ログ自動記録
+
+#### 4. **環境変数設定**
+
+**追加された環境変数** (`.env.example`):
+```env
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=<openssl rand -base64 32で生成>
+
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=<GoogleコンソールからのID>
+GOOGLE_CLIENT_SECRET=<Googleシークレット>
+
+# GitHub OAuth (optional)
+GITHUB_CLIENT_ID=<GitHubからのID>
+GITHUB_CLIENT_SECRET=<GitHubシークレット>
+
+# Encryption Configuration
+ENCRYPTION_KEY=<openssl rand -hex 32で生成>
+```
+
+### セットアップ手順
+
+#### ステップ1: 依存関係のインストール
+```bash
+npm install next-auth@beta @auth/prisma-adapter
+```
+
+#### ステップ2: 環境変数の設定
+```bash
+# シークレット生成
+openssl rand -base64 32  # NEXTAUTH_SECRET用
+openssl rand -hex 32     # ENCRYPTION_KEY用
+
+# .envファイル作成
+cp .env.example .env
+# 生成した値を.envに設定
+```
+
+#### ステップ3: Prismaクライアント生成
+```bash
+npm run db:generate
+```
+
+#### ステップ4: データベースマイグレーション
+```bash
+npm run db:migrate
+# マイグレーション名: add_nextauth_and_apikey_models
+```
+
+#### ステップ5: 動作確認
+```bash
+npm run dev
+```
+
+### 実装ファイル一覧
+
+```
+prisma/
+  └── schema.prisma                              # ✅ 拡張済み
+
+src/
+  ├── lib/
+  │   └── encryption/
+  │       └── service.ts                         # ✅ 新規作成
+  ├── auth.config.ts                             # ✅ 新規作成
+  ├── auth.ts                                    # ✅ 新規作成
+  ├── types/
+  │   └── next-auth.d.ts                         # ✅ 新規作成
+  └── app/
+      └── api/
+          └── auth/
+              └── [...nextauth]/
+                  └── route.ts                   # ✅ 新規作成
+
+docs/
+  ├── architecture/
+  │   └── nextauth-api-key-management.md         # ✅ 設計書
+  └── phase1-implementation-summary.md           # ✅ 実装サマリー
+
+.env.example                                     # ✅ 更新済み
+NEXTAUTH_SETUP.md                                # ✅ セットアップガイド
+```
+
+### 次のフェーズ (Phase 2)
+
+Phase 1の基盤構築が完了しました。次のPhase 2では以下を実装予定：
+
+1. **認証UI実装**
+   - サインインページ（/auth/signin）
+   - サインアップページ（/auth/signup）
+   - エラーページ（/auth/error）
+
+2. **ミドルウェア実装**
+   - ページ保護（middleware.ts）
+   - ロールベースアクセス制御
+
+3. **セッション管理コンポーネント**
+   - useSessionフックの活用
+   - クライアント側の認証状態管理
+
+4. **APIキー管理UI**
+   - APIキー一覧表示
+   - 新規登録/編集/削除フォーム
+   - 接続テスト機能
+
+### 技術的特徴
+
+**セキュリティ**:
+- ✅ 業界標準AES-256-GCM暗号化
+- ✅ 認証タグによる改ざん検知
+- ✅ 環境変数での安全なキー管理
+- ✅ 監査ログによるトレーサビリティ
+
+**アーキテクチャ**:
+- ✅ NextAuth v5 (Auth.js) 最新版対応
+- ✅ Prisma Adapter統合
+- ✅ JWT戦略（サーバーレス最適化）
+- ✅ 既存システムとの互換性（段階的移行可能）
+
+**拡張性**:
+- ✅ ServiceType enumで新サービス追加容易
+- ✅ キーローテーション機能
+- ✅ マルチプロバイダー対応
+
+### 参考ドキュメント
+
+- **詳細設計書**: `docs/architecture/nextauth-api-key-management.md`
+- **実装サマリー**: `docs/phase1-implementation-summary.md`
+- **セットアップガイド**: `NEXTAUTH_SETUP.md`
+- [NextAuth v5 公式ドキュメント](https://authjs.dev/)
+
+### 開発ブランチ
+
+**ブランチ**: `feature/nextauth-user-management`
+
+Phase 1実装完了後、上記セットアップ手順を実行してからPhase 2の開発に進んでください。
