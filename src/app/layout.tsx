@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ModernHeader } from '@/components/layout/ModernHeader';
+import { SessionProvider } from '@/components/auth';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ContentNexus - AI Content Management Platform",
-  description: "AIを活用したコンテンツ作成・管理プラットフォーム",
+  title: "ToolPlus - AI Content Management Platform",
+  description: "AIツールを使って効率的にコンテンツビジネスを拡大",
 };
 
 export default function RootLayout({
@@ -24,18 +25,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-screen bg-gray-50">
-          <ModernHeader />
-          <main className="py-10">
-            <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-              {children}
-            </div>
-          </main>
-        </div>
+        <SessionProvider>
+          <div className="min-h-screen bg-gray-50">
+            <ModernHeader />
+            <main className="py-10">
+              <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                {children}
+              </div>
+            </main>
+          </div>
+        </SessionProvider>
       </body>
     </html>
   );

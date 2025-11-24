@@ -2,12 +2,14 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Bars3Icon, 
+import {
+  Bars3Icon,
   BellIcon,
   MagnifyingGlassIcon,
   Cog6ToothIcon
 } from '@heroicons/react/24/outline';
+import { UserButton } from '@/components/auth/UserButton';
+import { useSession } from 'next-auth/react';
 
 interface ModernHeaderProps {
   onMenuToggle?: () => void;
@@ -15,6 +17,7 @@ interface ModernHeaderProps {
 
 export const ModernHeader: React.FC<ModernHeaderProps> = ({ onMenuToggle }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   // ContentNexus ロゴアイコン
   const ContentNexusIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -64,9 +67,9 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({ onMenuToggle }) => {
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  ContentNexus
+                  ToolPlus
                 </h1>
-                <p className="text-xs text-gray-500 -mt-1">AI-Powered Content Hub</p>
+                <p className="text-xs text-gray-500 -mt-1">AI Content Platform</p>
               </div>
             </Link>
           </div>
@@ -164,10 +167,19 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({ onMenuToggle }) => {
               )}
             </div>
 
-            {/* プロフィールボタン */}
-            <div className="h-8 w-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">U</span>
-            </div>
+            {/* ユーザーボタン（ログイン/ログアウト） */}
+            {status === 'loading' ? (
+              <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse"></div>
+            ) : session ? (
+              <UserButton />
+            ) : (
+              <Link
+                href="/auth/signin"
+                className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-sm hover:shadow-md"
+              >
+                ログイン
+              </Link>
+            )}
           </div>
         </div>
       </div>
