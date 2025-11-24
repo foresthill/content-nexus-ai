@@ -1,5 +1,3 @@
-'use client';
-
 import { TwitterConfigPanel } from '@/components/twitter/TwitterConfigPanel';
 
 export default function TwitterSettingsPage() {
@@ -22,9 +20,9 @@ export default function TwitterSettingsPage() {
             <div>
               <h3 className="font-medium text-gray-900">1. Twitter Developer Portalでアプリを作成</h3>
               <p>
-                <a 
-                  href="https://developer.twitter.com/en/portal/dashboard" 
-                  target="_blank" 
+                <a
+                  href="https://developer.twitter.com/en/portal/dashboard"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:text-blue-800 underline"
                 >
@@ -33,7 +31,7 @@ export default function TwitterSettingsPage() {
                 にアクセスし、新しいアプリを作成してください。
               </p>
             </div>
-            
+
             <div>
               <h3 className="font-medium text-gray-900">2. APIキーとトークンを取得</h3>
               <ul className="list-disc list-inside ml-4 space-y-1">
@@ -41,18 +39,18 @@ export default function TwitterSettingsPage() {
                 <li><strong>Authentication Tokens</strong>: Access Token と Access Token Secret</li>
               </ul>
             </div>
-            
+
             <div>
               <h3 className="font-medium text-gray-900">3. アプリの権限設定</h3>
               <p>アプリの設定で「Read and Write」権限を有効にしてください。</p>
             </div>
-            
+
             <div>
               <h3 className="font-medium text-gray-900">4. 設定完了後</h3>
               <p>
                 設定が完了したら、
-                <a 
-                  href="/x-post" 
+                <a
+                  href="/x-post"
                   className="text-blue-600 hover:text-blue-800 underline ml-1"
                 >
                   X投稿ページ
