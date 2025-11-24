@@ -3,6 +3,7 @@ import axios from 'axios';
 import crypto from 'crypto';
 import { SocialPostService } from '@/lib/social/post-service';
 import { SocialPlatform, PostStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 interface TwitterPostRequest {
   text: string;
@@ -39,10 +40,17 @@ export async function POST(request: NextRequest) {
     // 一時的なユーザーID（認証システム実装後に更新）
     const tempUserId = userId || 'temp-user-id';
 
-    // DBからTwitter設定を取得
-    const settingsResponse = await fetch(new URL('/api/twitter/settings', request.url).toString());
+    // DBから直接Twitter設定を取得（サーバーサイドから直接Prismaを使用）
+    const socialAccount = await prisma.socialAccount.findUnique({
+      where: {
+        userId_platform: {
+          userId: tempUserId,
+          platform: 'TWITTER'
+        }
+      }
+    });
 
-    if (!settingsResponse.ok) {
+    if (!socialAccount) {
       return NextResponse.json(
         {
           error: '🔧 Twitter API設定が見つかりません',
@@ -52,19 +60,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const settings = await settingsResponse.json();
-
-    if (!settings.isConfigured || !settings.config) {
+    if (!socialAccount.isActive) {
       return NextResponse.json(
         {
-          error: '🔧 Twitter API設定が不完全です',
-          help: '設定画面から再設定してください'
+          error: '🔧 Twitter API設定が無効です',
+          help: '設定画面から有効化してください'
         },
         { status: 400 }
       );
     }
 
-    const { apiKey, apiSecret, accessToken, accessTokenSecret } = settings.config;
+    const apiKey = socialAccount.apiKey;
+    const apiSecret = socialAccount.apiSecret;
+    const accessToken = socialAccount.accessToken;
+    const accessTokenSecret = socialAccount.accessTokenSecret;
 
     if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret) {
       return NextResponse.json(
