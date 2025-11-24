@@ -79,7 +79,7 @@ export class UserService {
         where: { email },
       });
 
-      if (!user) {
+      if (!user || !user.password) {
         throw new Error('Invalid email or password');
       }
 
@@ -88,8 +88,8 @@ export class UserService {
         throw new Error('Account is deactivated');
       }
 
-      // パスワード検証
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      // パスワード検証（型ガードでnullチェック済み）
+      const isPasswordValid = await bcrypt.compare(password, user.password as string);
       if (!isPasswordValid) {
         throw new Error('Invalid email or password');
       }
@@ -118,6 +118,8 @@ export class UserService {
           id: true,
           email: true,
           name: true,
+          image: true,
+          emailVerified: true,
           role: true,
           isActive: true,
           createdAt: true,
@@ -151,6 +153,8 @@ export class UserService {
           id: true,
           email: true,
           name: true,
+          image: true,
+          emailVerified: true,
           role: true,
           isActive: true,
           createdAt: true,
@@ -218,6 +222,8 @@ export class UserService {
             id: true,
             email: true,
             name: true,
+            image: true,
+            emailVerified: true,
             role: true,
             isActive: true,
             createdAt: true,

@@ -6,6 +6,7 @@
  */
 
 import type { NextAuthConfig } from 'next-auth';
+import type { JWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
 import GitHub from 'next-auth/providers/github';
@@ -42,8 +43,8 @@ export const authConfig: NextAuthConfig = {
           throw new Error('ユーザーが見つかりません');
         }
 
-        // パスワード検証
-        const isPasswordValid = await compare(password, user.password);
+        // パスワード検証（型ガードでnullチェック済み）
+        const isPasswordValid = await compare(password, user.password as string);
 
         if (!isPasswordValid) {
           throw new Error('パスワードが正しくありません');
@@ -113,7 +114,7 @@ export const authConfig: NextAuthConfig = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
-        token.isActive = user.isActive;
+        token.isActive = user.isActive ?? true;
       }
 
       // OAuth認証の場合、プロバイダー情報を保存
@@ -130,7 +131,7 @@ export const authConfig: NextAuthConfig = {
 
         if (dbUser) {
           token.role = dbUser.role;
-          token.isActive = dbUser.isActive;
+          token.isActive = dbUser.isActive ?? true;
           token.name = dbUser.name;
           token.image = dbUser.image;
         }
@@ -214,22 +215,26 @@ export const authConfig: NextAuthConfig = {
     /**
      * サインアウト時のイベント
      */
-    async signOut({ token }) {
-      console.log(`User signed out: ${token?.email}`);
+    async signOut(message: any) {
+      // NextAuth v5の型定義に合わせて処理
+      if ('token' in message && message.token?.id) {
+        const token = message.token as JWT & { id?: string; email?: string };
+        console.log(`User signed out: ${token.email || 'Unknown'}`);
 
-      // 監査ログの記録
-      if (token?.id) {
-        await prisma.auditLog.create({
-          data: {
-            userId: token.id as string,
-            action: 'LOGOUT',
-            entityType: 'User',
-            entityId: token.id as string,
-            changes: {
-              timestamp: new Date().toISOString(),
+        // 監査ログの記録
+        if (token.id) {
+          await prisma.auditLog.create({
+            data: {
+              userId: token.id,
+              action: 'LOGOUT',
+              entityType: 'User',
+              entityId: token.id,
+              changes: {
+                timestamp: new Date().toISOString(),
+              },
             },
-          },
-        });
+          });
+        }
       }
     },
   },

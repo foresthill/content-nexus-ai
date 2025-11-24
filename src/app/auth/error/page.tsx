@@ -9,6 +9,10 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Suspense } from 'react';
+
+// 動的レンダリングを強制（useSearchParams使用のため）
+export const dynamic = 'force-dynamic';
 
 /**
  * NextAuthエラーコードとメッセージのマッピング
@@ -30,7 +34,7 @@ const errorMessages: Record<string, string> = {
   Default: '認証中にエラーが発生しました。',
 };
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
 
@@ -188,5 +192,17 @@ export default function AuthErrorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    }>
+      <AuthErrorContent />
+    </Suspense>
   );
 }
