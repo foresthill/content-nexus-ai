@@ -16,15 +16,18 @@ export async function GET(
 
     const difyConfig = await getDifyConfig();
 
-    if (!difyConfig?.apiKey) {
+    // データセットAPIキーを優先的に使用
+    const apiKey = difyConfig?.datasetApiKey || difyConfig?.apiKey;
+
+    if (!apiKey) {
       return NextResponse.json(
-        { error: 'Dify API Keyが設定されていません' },
+        { error: 'Dify API Keyが設定されていません。データセットAPI Keyを設定してください。' },
         { status: 401 }
       );
     }
 
     const knowledgeService = new DifyKnowledgeService({
-      apiKey: difyConfig.apiKey,
+      apiKey: apiKey,
       baseUrl: difyConfig.baseUrl,
     });
 
@@ -59,15 +62,18 @@ export async function POST(
 
     const difyConfig = await getDifyConfig();
 
-    if (!difyConfig?.apiKey) {
+    // データセットAPIキーを優先的に使用
+    const apiKey = difyConfig?.datasetApiKey || difyConfig?.apiKey;
+
+    if (!apiKey) {
       return NextResponse.json(
-        { error: 'Dify API Keyが設定されていません' },
+        { error: 'Dify API Keyが設定されていません。データセットAPI Keyを設定してください。' },
         { status: 401 }
       );
     }
 
     const knowledgeService = new DifyKnowledgeService({
-      apiKey: difyConfig.apiKey,
+      apiKey: apiKey,
       baseUrl: difyConfig.baseUrl,
     });
 
@@ -110,15 +116,18 @@ export async function DELETE(
 
     const difyConfig = await getDifyConfig();
 
-    if (!difyConfig?.apiKey) {
+    // データセットAPIキーを優先的に使用
+    const apiKey = difyConfig?.datasetApiKey || difyConfig?.apiKey;
+
+    if (!apiKey) {
       return NextResponse.json(
-        { error: 'Dify API Keyが設定されていません' },
+        { error: 'Dify API Keyが設定されていません。データセットAPI Keyを設定してください。' },
         { status: 401 }
       );
     }
 
     const knowledgeService = new DifyKnowledgeService({
-      apiKey: difyConfig.apiKey,
+      apiKey: apiKey,
       baseUrl: difyConfig.baseUrl,
     });
 

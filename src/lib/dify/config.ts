@@ -23,6 +23,7 @@ export async function getDifyConfig(): Promise<DifyConfig | null> {
         apiKey: process.env.DIFY_API_KEY,
         baseUrl: process.env.DIFY_BASE_URL,
         appId: process.env.DIFY_APP_ID,
+        datasetApiKey: process.env.DIFY_DATASET_API_KEY,
       };
     }
     

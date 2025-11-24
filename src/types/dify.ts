@@ -7,6 +7,7 @@ export interface DifyConfig {
   apiKey: string;
   baseUrl: string;
   appId?: string;
+  datasetApiKey?: string; // Knowledge Base API用のデータセットAPIキー
 }
 
 // Chat Types
