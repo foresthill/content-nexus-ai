@@ -121,6 +121,40 @@ export class DifyService {
     }
   }
 
+  // Get App Information
+  async getAppInfo() {
+    try {
+      // Difyアプリの情報を取得するためのエンドポイント
+      const response = await this.client.request<any>('/meta', {
+        method: 'GET',
+      });
+      return response;
+    } catch (error: any) {
+      console.error('Failed to get app info:', error);
+      throw error;
+    }
+  }
+
+  // Send Chat Message
+  async sendChatMessage(query: string, user: string = 'content-nexus', conversationId?: string) {
+    return this.client.chat({
+      query,
+      user,
+      conversation_id: conversationId || '',
+      response_mode: 'blocking',
+      inputs: {},
+    });
+  }
+
+  // Generate Completion (missing method)
+  async generateCompletion(request: {
+    inputs: Record<string, any>;
+    response_mode: 'blocking' | 'streaming';
+    user: string;
+  }) {
+    return this.client.complete(request);
+  }
+
   // Execute Custom Workflow
   async executeWorkflow(
     workflowId: string,

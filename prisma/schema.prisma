@@ -15,14 +15,19 @@ datasource db {
 model User {
   id                String             @id @default(cuid())
   email             String             @unique
-  password          String
+  password          String?            // OAuth時はnull可
   name              String?
+  image             String?            // プロフィール画像URL
+  emailVerified     DateTime?          // メール認証日時
   role              UserRole           @default(USER)
   isActive          Boolean            @default(true)
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
-  
+
   // Relations
+  accounts          Account[]          // NextAuth OAuth連携
+  sessions          Session[]          // NextAuth セッション
+  apiKeys           ApiKey[]           // APIキー管理
   contents          Content[]
   socialPosts       SocialPost[]
   socialAccounts    SocialAccount[]
@@ -84,15 +89,17 @@ model SocialAccount {
   accessToken      String          @db.Text
   refreshToken     String?         @db.Text
   accessTokenSecret String?         @db.Text // Twitter用
+  apiKey           String?         @db.Text // Twitter API Key
+  apiSecret        String?         @db.Text // Twitter API Secret
   tokenExpiresAt   DateTime?
   isActive         Boolean         @default(true)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
-  
+
   // Relations
   user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   socialPosts      SocialPost[]
-  
+
   @@unique([userId, platform])
   @@index([platform, isActive])
 }
@@ -363,4 +370,94 @@ enum JobStatus {
   FAILED
   DELAYED
   PAUSED
+}
+
+// ========================================
+// NextAuth Models
+// ========================================
+
+// OAuth連携アカウント情報
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String  // oauth, email, credentials
+  provider          String  // google, github, credentials
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+// セッション管理（JWT使用時はオプション）
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// メール認証トークン
+model VerificationToken {
+  identifier String   // メールアドレス
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ========================================
+// API Key Management
+// ========================================
+
+// 汎用APIキー管理
+model ApiKey {
+  id            String      @id @default(cuid())
+  userId        String
+  serviceType   ServiceType
+  name          String      // ユーザー定義の識別名
+
+  // 暗号化されたキー情報
+  encryptedKey  String      @db.Text
+  iv            String      // 初期化ベクトル（16バイト、hex）
+  authTag       String      // 認証タグ（16バイト、hex）
+
+  // メタデータ
+  metadata      Json?       // サービス固有の追加情報
+  lastUsedAt    DateTime?
+  expiresAt     DateTime?
+  isActive      Boolean     @default(true)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relations
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, serviceType])
+  @@index([userId, isActive])
+}
+
+// APIキーのサービスタイプ
+enum ServiceType {
+  DIFY
+  N8N
+  TWITTER_API
+  INSTAGRAM_API
+  TIKTOK_API
+  OPENAI
+  ANTHROPIC
+  CUSTOM
 }

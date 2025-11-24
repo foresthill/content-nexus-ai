@@ -17,7 +17,15 @@ export class DifyClient {
     this.config = config;
   }
 
-  private async request<T>(
+  // Public request method for service access
+  async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    return this._request<T>(endpoint, options);
+  }
+
+  private async _request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
@@ -59,7 +67,7 @@ export class DifyClient {
 
   // Chat API
   async chat(request: DifyChatRequest): Promise<DifyChatResponse> {
-    return this.request<DifyChatResponse>('/chat-messages', {
+    return this._request<DifyChatResponse>('/chat-messages', {
       method: 'POST',
       body: JSON.stringify(request),
     });
@@ -112,7 +120,7 @@ export class DifyClient {
 
   // Workflow API
   async runWorkflow(request: DifyWorkflowRequest): Promise<DifyWorkflowResponse> {
-    return this.request<DifyWorkflowResponse>('/workflows/run', {
+    return this._request<DifyWorkflowResponse>('/workflows/run', {
       method: 'POST',
       body: JSON.stringify(request),
     });
@@ -120,7 +128,7 @@ export class DifyClient {
 
   // Completion API
   async complete(request: DifyCompletionRequest): Promise<DifyCompletionResponse> {
-    return this.request<DifyCompletionResponse>('/completion-messages', {
+    return this._request<DifyCompletionResponse>('/completion-messages', {
       method: 'POST',
       body: JSON.stringify(request),
     });
@@ -148,7 +156,7 @@ export class DifyClient {
 
   // Stop Chat
   async stopChat(taskId: string): Promise<void> {
-    await this.request(`/chat-messages/${taskId}/stop`, {
+    await this._request(`/chat-messages/${taskId}/stop`, {
       method: 'POST',
     });
   }
@@ -161,7 +169,7 @@ export class DifyClient {
     });
     if (lastId) params.append('last_id', lastId);
 
-    return this.request(`/conversations?${params.toString()}`);
+    return this._request(`/conversations?${params.toString()}`);
   }
 
   // Get Messages
@@ -172,12 +180,12 @@ export class DifyClient {
     });
     if (firstId) params.append('first_id', firstId);
 
-    return this.request(`/messages?conversation_id=${conversationId}&${params.toString()}`);
+    return this._request(`/messages?conversation_id=${conversationId}&${params.toString()}`);
   }
 
   // Submit Feedback
   async submitFeedback(messageId: string, rating: 'like' | 'dislike', user: string) {
-    return this.request(`/messages/${messageId}/feedbacks`, {
+    return this._request(`/messages/${messageId}/feedbacks`, {
       method: 'POST',
       body: JSON.stringify({ rating, user }),
     });

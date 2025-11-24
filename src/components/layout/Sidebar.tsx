@@ -1,5 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { useSession, signOut } from 'next-auth/react';
+import { ArrowRightOnRectangleIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 
 interface NavItem {
   name: string;
@@ -9,6 +13,12 @@ interface NavItem {
 }
 
 const Sidebar = ({ currentPath }: { currentPath: string }) => {
+  const { data: session, status } = useSession();
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' });
+  };
+
   // 簡易的なアイコンコンポーネント
   const HomeIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -60,15 +70,24 @@ const Sidebar = ({ currentPath }: { currentPath: string }) => {
     </svg>
   );
 
+  // X (Twitter) アイコン
+  const XTwitterIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M13.6823 10.6218L20.2391 3H18.6854L12.9921 9.61788L8.44486 3H3.2002L10.0765 13.0074L3.2002 21H4.75404L10.7663 14.0113L15.5685 21H20.8131L13.6819 10.6218H13.6823ZM11.5541 13.0956L10.8574 12.0991L5.31391 4.16971H7.70053L12.1742 10.5689L12.8709 11.5655L18.6861 19.8835H16.2995L11.5541 13.0956Z" />
+    </svg>
+  );
+
   const navigation: NavItem[] = [
     { name: 'ダッシュボード', href: '/dashboard', icon: ChartBarIcon, current: currentPath === '/dashboard' },
     { name: 'コンテンツ生成', href: '/content', icon: DocumentIcon, current: currentPath.startsWith('/content') },
     { name: 'Difyコンテンツ生成', href: '/dify/generate', icon: SparklesIcon, current: currentPath === '/dify/generate' },
     { name: '動画管理', href: '/videos', icon: VideoIcon, current: currentPath.startsWith('/videos') },
     { name: 'SNS投稿', href: '/social', icon: ShareIcon, current: currentPath === '/social' || currentPath === '/social/new' },
+    { name: '𝕏 投稿', href: '/x-post', icon: XTwitterIcon, current: currentPath === '/x-post' },
     { name: 'SNS分析', href: '/social/analytics', icon: ChartBarIcon, current: currentPath === '/social/analytics' },
     { name: 'キーワード検索', href: '/keywords', icon: ChatBubbleIcon, current: currentPath === '/keywords' },
     { name: 'AI設定', href: '/settings/dify', icon: CogIcon, current: currentPath === '/settings/dify' },
+    { name: 'Twitter API設定', href: '/settings/twitter', icon: XTwitterIcon, current: currentPath === '/settings/twitter' },
     { name: 'n8n連携', href: '/settings/n8n', icon: ShareIcon, current: currentPath === '/settings/n8n' },
   ];
 
@@ -105,6 +124,70 @@ const Sidebar = ({ currentPath }: { currentPath: string }) => {
             </Link>
           ))}
         </nav>
+      </div>
+
+      {/* ユーザー情報とログアウトボタン */}
+      <div className="flex flex-shrink-0 border-t border-gray-200 p-4">
+        {status === 'loading' ? (
+          <div className="flex items-center space-x-3 w-full">
+            <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse"></div>
+            <div className="flex-1 space-y-2">
+              <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+              <div className="h-2 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+            </div>
+          </div>
+        ) : session?.user ? (
+          <div className="w-full">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                {session.user.image ? (
+                  <img
+                    className="h-10 w-10 rounded-full"
+                    src={session.user.image}
+                    alt={session.user.name || ''}
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <span className="text-white text-sm font-medium">
+                      {session.user.name?.charAt(0).toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {session.user.name || 'ユーザー'}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {session.user.email}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="mt-3 w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+              ログアウト
+            </button>
+          </div>
+        ) : (
+          <div className="w-full space-y-2">
+            <Link
+              href="/auth/signin"
+              className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-md hover:from-indigo-700 hover:to-purple-700 transition-all"
+            >
+              <UserCircleIcon className="h-4 w-4 mr-2" />
+              ログイン
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            >
+              新規登録
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
