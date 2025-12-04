@@ -7,6 +7,7 @@ export interface DifyConfig {
   apiKey: string;
   baseUrl: string;
   appId?: string;
+  datasetApiKey?: string; // Knowledge Base API用のデータセットAPIキー
 }
 
 // Chat Types
@@ -146,4 +147,161 @@ export interface DifyAnalysisResult {
     topics: string[];
     readabilityScore: number;
   };
+}
+
+// Knowledge Base Types
+export interface DifyDataset {
+  id: string;
+  name: string;
+  description: string;
+  permission: 'only_me' | 'all_team_members';
+  data_source_type: 'upload_file' | 'notion_import' | 'website_crawl';
+  indexing_technique: 'high_quality' | 'economy';
+  app_count: number;
+  document_count: number;
+  word_count: number;
+  created_by: string;
+  created_at: number;
+  updated_by: string;
+  updated_at: number;
+  embedding_model: string;
+  embedding_model_provider: string;
+  embedding_available: boolean;
+}
+
+export interface DifyDatasetListResponse {
+  data: DifyDataset[];
+  has_more: boolean;
+  limit: number;
+  total: number;
+  page: number;
+}
+
+export interface DifyDocument {
+  id: string;
+  position: number;
+  data_source_type: 'upload_file' | 'notion_import' | 'website_crawl';
+  data_source_info: {
+    upload_file_id?: string;
+    notion_page_id?: string;
+    url?: string;
+  };
+  dataset_process_rule_id: string;
+  name: string;
+  created_from: string;
+  created_by: string;
+  created_at: number;
+  tokens: number;
+  indexing_status: 'waiting' | 'parsing' | 'cleaning' | 'splitting' | 'indexing' | 'paused' | 'error' | 'completed';
+  error?: string;
+  enabled: boolean;
+  disabled_at?: number;
+  disabled_by?: string;
+  archived: boolean;
+  display_status: string;
+  word_count: number;
+  hit_count: number;
+  doc_form: 'text_model' | 'qa_model';
+}
+
+export interface DifyDocumentListResponse {
+  data: DifyDocument[];
+  has_more: boolean;
+  limit: number;
+  total: number;
+  page: number;
+}
+
+export interface DifySegment {
+  id: string;
+  position: number;
+  document_id: string;
+  content: string;
+  answer?: string;
+  word_count: number;
+  tokens: number;
+  keywords: string[];
+  index_node_id: string;
+  index_node_hash: string;
+  hit_count: number;
+  enabled: boolean;
+  disabled_at?: number;
+  disabled_by?: string;
+  status: 'waiting' | 'completed' | 'error' | 'indexing';
+  created_by: string;
+  created_at: number;
+  indexing_at?: number;
+  completed_at?: number;
+  error?: string;
+  stopped_at?: number;
+}
+
+export interface DifySegmentListResponse {
+  data: DifySegment[];
+  has_more: boolean;
+  limit: number;
+  total: number;
+}
+
+export interface DifyCreateDatasetRequest {
+  name: string;
+  description?: string;
+  indexing_technique?: 'high_quality' | 'economy';
+  permission?: 'only_me' | 'all_team_members';
+}
+
+export interface DifyCreateDocumentRequest {
+  name: string;
+  text: string;
+  indexing_technique?: 'high_quality' | 'economy';
+  process_rule?: {
+    mode: 'automatic' | 'custom';
+    rules?: {
+      pre_processing_rules?: Array<{
+        id: string;
+        enabled: boolean;
+      }>;
+      segmentation?: {
+        separator: string;
+        max_tokens: number;
+      };
+    };
+  };
+}
+
+export interface DifyCreateSegmentRequest {
+  segments: Array<{
+    content: string;
+    answer?: string;
+    keywords?: string[];
+  }>;
+}
+
+export interface DifyRetrievalRequest {
+  query: string;
+  retrieval_model?: {
+    search_method: 'keyword_search' | 'semantic_search' | 'full_text_search' | 'hybrid_search';
+    reranking_enable?: boolean;
+    reranking_model?: {
+      reranking_provider_name: string;
+      reranking_model_name: string;
+    };
+    top_k?: number;
+    score_threshold_enabled?: boolean;
+    score_threshold?: number;
+  };
+}
+
+export interface DifyRetrievalResponse {
+  query: {
+    content: string;
+  };
+  records: Array<{
+    segment: DifySegment;
+    score: number;
+    tsne_position?: {
+      x: number;
+      y: number;
+    };
+  }>;
 }

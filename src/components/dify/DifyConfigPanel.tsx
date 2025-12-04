@@ -20,7 +20,9 @@ export const DifyConfigPanel: React.FC = () => {
     apiKey: config?.apiKey || '',
     baseUrl: config?.baseUrl || 'https://api.dify.ai/v1',
     appId: config?.appId || '',
+    datasetApiKey: config?.datasetApiKey || '',
   });
+  const [showDatasetApiKey, setShowDatasetApiKey] = useState(false);
   const [isLocalDify, setIsLocalDify] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
 
@@ -77,6 +79,7 @@ export const DifyConfigPanel: React.FC = () => {
         apiKey: '',
         baseUrl: 'https://api.dify.ai/v1',
         appId: '',
+        datasetApiKey: '',
       });
     }
   };
@@ -153,6 +156,38 @@ export const DifyConfigPanel: React.FC = () => {
             placeholder="特定のアプリケーションIDを指定"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
           />
+        </div>
+
+        {/* Dataset API Key Input (for Knowledge Base) */}
+        <div>
+          <label htmlFor="datasetApiKey" className="block text-sm font-medium text-gray-700 mb-1">
+            データセットAPI Key (ナレッジベース用)
+          </label>
+          <div className="relative">
+            <input
+              type={showDatasetApiKey ? 'text' : 'password'}
+              id="datasetApiKey"
+              name="datasetApiKey"
+              value={formData.datasetApiKey}
+              onChange={handleInputChange}
+              placeholder="dataset-xxxxxxxxxxxxxxxxxxxxxx"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <button
+              type="button"
+              onClick={() => setShowDatasetApiKey(!showDatasetApiKey)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            >
+              {showDatasetApiKey ? (
+                <EyeSlashIcon className="h-5 w-5 text-gray-400" />
+              ) : (
+                <EyeIcon className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+          </div>
+          <p className="mt-1 text-sm text-gray-500">
+            ナレッジベース管理に使用します。Dify管理画面の「ナレッジベース」→「API」から取得してください。
+          </p>
         </div>
 
         {/* Connection Status */}

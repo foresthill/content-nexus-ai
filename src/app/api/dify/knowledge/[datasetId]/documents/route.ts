@@ -2,14 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { DifyKnowledgeService } from '@/lib/dify/knowledge-service';
 import { getDifyConfig } from '@/lib/dify/config';
 
-// GET: ナレッジベース一覧の取得
-export async function GET(request: NextRequest) {
+// GET: ドキュメント一覧の取得
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ datasetId: string }> }
+) {
   try {
+    const { datasetId } = await params;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
+    const keyword = searchParams.get('keyword') || undefined;
 
-    // Dify設定を取得
     const difyConfig = await getDifyConfig();
 
     // データセットAPIキーを優先的に使用
@@ -27,32 +31,35 @@ export async function GET(request: NextRequest) {
       baseUrl: difyConfig.baseUrl,
     });
 
-    const result = await knowledgeService.listDatasets(page, limit);
+    const result = await knowledgeService.listDocuments(datasetId, page, limit, keyword);
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Knowledge fetch error:', error);
+    console.error('Document fetch error:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'ナレッジベースの取得に失敗しました' },
+      { error: error instanceof Error ? error.message : 'ドキュメントの取得に失敗しました' },
       { status: 500 }
     );
   }
 }
 
-// POST: 新しいナレッジベースの作成
-export async function POST(request: NextRequest) {
+// POST: 新しいドキュメントの作成（テキスト）
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ datasetId: string }> }
+) {
   try {
+    const { datasetId } = await params;
     const body = await request.json();
-    const { name, description, indexing_technique, permission } = body;
+    const { name, text, indexing_technique, process_rule } = body;
 
-    if (!name) {
+    if (!name || !text) {
       return NextResponse.json(
-        { error: 'name パラメータが必要です' },
+        { error: 'name と text パラメータが必要です' },
         { status: 400 }
       );
     }
 
-    // Dify設定を取得
     const difyConfig = await getDifyConfig();
 
     // データセットAPIキーを優先的に使用
@@ -70,40 +77,43 @@ export async function POST(request: NextRequest) {
       baseUrl: difyConfig.baseUrl,
     });
 
-    const dataset = await knowledgeService.createDataset({
+    const result = await knowledgeService.createDocumentByText(datasetId, {
       name,
-      description,
+      text,
       indexing_technique,
-      permission,
+      process_rule,
     });
 
     return NextResponse.json({
       success: true,
-      dataset,
+      ...result,
     });
   } catch (error) {
-    console.error('Knowledge creation error:', error);
+    console.error('Document creation error:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'ナレッジベースの作成に失敗しました' },
+      { error: error instanceof Error ? error.message : 'ドキュメントの作成に失敗しました' },
       { status: 500 }
     );
   }
 }
 
-// DELETE: ナレッジベースの削除
-export async function DELETE(request: NextRequest) {
+// DELETE: ドキュメントの削除
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ datasetId: string }> }
+) {
   try {
+    const { datasetId } = await params;
     const { searchParams } = new URL(request.url);
-    const datasetId = searchParams.get('id');
+    const documentId = searchParams.get('documentId');
 
-    if (!datasetId) {
+    if (!documentId) {
       return NextResponse.json(
-        { error: 'id パラメータが必要です' },
+        { error: 'documentId パラメータが必要です' },
         { status: 400 }
       );
     }
 
-    // Dify設定を取得
     const difyConfig = await getDifyConfig();
 
     // データセットAPIキーを優先的に使用
@@ -121,16 +131,16 @@ export async function DELETE(request: NextRequest) {
       baseUrl: difyConfig.baseUrl,
     });
 
-    await knowledgeService.deleteDataset(datasetId);
+    await knowledgeService.deleteDocument(datasetId, documentId);
 
     return NextResponse.json({
       success: true,
-      message: `ナレッジベース ${datasetId} を削除しました`,
+      message: `ドキュメント ${documentId} を削除しました`,
     });
   } catch (error) {
-    console.error('Knowledge deletion error:', error);
+    console.error('Document deletion error:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'ナレッジベースの削除に失敗しました' },
+      { error: error instanceof Error ? error.message : 'ドキュメントの削除に失敗しました' },
       { status: 500 }
     );
   }
