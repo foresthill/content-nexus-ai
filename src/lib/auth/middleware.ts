@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { UserService, JWTPayload } from '@/lib/auth/user';
+import { UserRole } from '@prisma/client';
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: JWTPayload;
@@ -14,9 +15,18 @@ export async function withAuth(
   handler: (req: AuthenticatedRequest) => Promise<NextResponse>
 ): Promise<NextResponse> {
   try {
+    // サービス間連携 (Kotone 等からの push)。x-api-key が SERVICE_API_KEY と
+    // 一致すれば、SERVICE_USER_ID のユーザーとして振る舞う。env 未設定なら無効。
+    const serviceUser = getServiceUser(request);
+    if (serviceUser) {
+      const authenticatedRequest = request as AuthenticatedRequest;
+      authenticatedRequest.user = serviceUser;
+      return handler(authenticatedRequest);
+    }
+
     // トークンを取得（ヘッダーまたはクッキーから）
     const token = getToken(request);
-    
+
     if (!token) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -58,6 +68,29 @@ export async function withAdminAuth(
     }
     return handler(req);
   });
+}
+
+/**
+ * サービス間連携用の API キー認証。
+ * SERVICE_API_KEY と SERVICE_USER_ID が両方設定されていて、リクエストの
+ * x-api-key ヘッダーが一致する場合のみ、その userId のサービスユーザーを返す。
+ * 未設定・不一致なら null（通常の JWT / cookie 認証にフォールバック）。
+ *
+ * 用途例: Kotone (別アプリ) が完成記事を POST /api/contents に push する。
+ */
+function getServiceUser(request: NextRequest): JWTPayload | null {
+  const apiKey = process.env.SERVICE_API_KEY;
+  const userId = process.env.SERVICE_USER_ID;
+  if (!apiKey || !userId) return null;
+
+  const provided = request.headers.get('x-api-key');
+  if (!provided || provided !== apiKey) return null;
+
+  return {
+    userId,
+    email: process.env.SERVICE_USER_EMAIL ?? 'service@kotone.local',
+    role: UserRole.USER,
+  };
 }
 
 /**
