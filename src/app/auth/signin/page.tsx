@@ -78,7 +78,7 @@ function SignInForm() {
         {/* ヘッダー */}
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            ToolPlus
+            Content Nexus AI
           </h1>
           <h2 className="text-xl font-semibold text-gray-700 mb-4">
             ログイン

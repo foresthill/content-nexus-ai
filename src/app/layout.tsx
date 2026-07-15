@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ToolPlus - AI Content Management Platform",
+  title: "Content Nexus AI - AI Content Management Platform",
   description: "AIツールを使って効率的にコンテンツビジネスを拡大",
 };
 
