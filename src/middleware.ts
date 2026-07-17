@@ -5,7 +5,12 @@
  * 認証が必要なページへのアクセス制御を行う
  */
 
-import { auth } from '@/auth';
+// Edge ランタイムで安全に JWT セッションを読む。
+// 以前は adapter (Prisma) を含む `@/auth` の `auth` を import していたが、
+// それは Edge 非対応で middleware のセッション判定が壊れ、未ログインでも全員
+// ログイン扱いになっていた (= 全ページが素通り)。getToken は Cookie の JWT を
+// secret で復号するだけなので Edge 安全、かつログイン処理には一切触れない。
+import { getToken } from 'next-auth/jwt';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -37,11 +42,19 @@ const publicPaths = ['/'];
  */
 const adminOnlyPaths = ['/admin'];
 
-export default auth((req) => {
+export default async function middleware(req: NextRequest) {
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-  const userRole = req.auth?.user?.role;
-  const isActive = req.auth?.user?.isActive ?? true; // デフォルトでアクティブと見なす
+
+  // Cookie の JWT を復号してセッションを判定 (無ければ token は null = 未ログイン)。
+  // NextAuth v5 は AUTH_SECRET を使う。念のため NEXTAUTH_SECRET にもフォールバック。
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+    secureCookie: process.env.NODE_ENV === 'production',
+  });
+  const isLoggedIn = !!token;
+  const userRole = token?.role as string | undefined;
+  const isActive = (token?.isActive as boolean | undefined) ?? true; // デフォルトでアクティブと見なす
 
   // パスの分類
   const isProtectedPath = protectedPaths.some((path) => nextUrl.pathname.startsWith(path));
@@ -86,7 +99,7 @@ export default auth((req) => {
 
   // 6. その他のリクエストは通過（認証済みの保護パスを含む）
   return NextResponse.next();
-});
+}
 
 /**
  * Middlewareの適用範囲を設定
