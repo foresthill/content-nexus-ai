@@ -104,7 +104,7 @@ const Sidebar = ({ currentPath }: { currentPath: string }) => {
         <div className="flex flex-shrink-0 items-center px-4">
           <Link href="/" className="flex items-center text-lg font-semibold text-indigo-600">
             <HomeIcon className="h-6 w-6 mr-2" />
-            <span>ToolPlus</span>
+            <span>Content Nexus AI</span>
           </Link>
         </div>
         <nav className="mt-5 flex-1 space-y-1 px-2">

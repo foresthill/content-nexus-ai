@@ -129,7 +129,7 @@ export default function SignUpPage() {
       <div className="max-w-md w-full space-y-8">
         {/* ヘッダー */}
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">ToolPlus</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Content Nexus AI</h1>
           <h2 className="text-xl font-semibold text-gray-700 mb-4">新規登録</h2>
           <p className="text-gray-600">AIツールで効率的にコンテンツビジネスを拡大</p>
         </div>

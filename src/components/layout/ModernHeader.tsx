@@ -67,7 +67,7 @@ export const ModernHeader: React.FC<ModernHeaderProps> = ({ onMenuToggle }) => {
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  ToolPlus
+                  Content Nexus AI
                 </h1>
                 <p className="text-xs text-gray-500 -mt-1">AI Content Platform</p>
               </div>
