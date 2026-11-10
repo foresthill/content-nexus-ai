@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useN8nStore } from '@/store/n8nStore';
 import { N8nConnectionConfig } from '@/types/n8n';
 
 export function N8nConfigPanel() {
-  const { config, isConnected, connectionError, setConfig, testConnection, disconnect } = useN8nStore();
+  const { config, isConnected, connectionError, setConfig, loadConfig, testConnection, disconnect } = useN8nStore();
   
   const [formData, setFormData] = useState<N8nConnectionConfig>({
     baseUrl: config?.baseUrl || '',
@@ -17,6 +17,24 @@ export function N8nConfigPanel() {
   
   const [webhookPath, setWebhookPath] = useState('');
   const [testing, setTesting] = useState(false);
+
+  // サーバの暗号化DBから設定を復元（localStorage には秘匿値を持たないため）
+  useEffect(() => {
+    loadConfig();
+  }, [loadConfig]);
+
+  // 復元された config をフォームに反映
+  useEffect(() => {
+    if (config) {
+      setFormData({
+        baseUrl: config.baseUrl || '',
+        apiKey: config.apiKey || '',
+        username: config.username || '',
+        password: config.password || '',
+        timeout: config.timeout || 30000,
+      });
+    }
+  }, [config]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

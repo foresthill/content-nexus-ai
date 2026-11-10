@@ -14,6 +14,7 @@ interface N8nStore {
   
   // Actions
   setConfig: (config: N8nConnectionConfig) => void;
+  loadConfig: () => Promise<void>;
   testConnection: (webhookPath: string) => Promise<boolean>;
   disconnect: () => void;
   
@@ -37,6 +38,27 @@ export const useN8nStore = create<N8nStore>()(
       setConfig: (config) => {
         n8nService.initialize(config);
         set({ config, connectionError: null });
+        // サーバの暗号化DBへ永続化(ユーザーごと)。localStorage に秘匿値は残さない。
+        fetch('/api/n8n/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config),
+        }).catch((e) => console.error('n8n config save failed:', e));
+      },
+
+      // サーバの暗号化DBから設定を復元
+      loadConfig: async () => {
+        try {
+          const res = await fetch('/api/n8n/config');
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data.hasConfig && data.config) {
+            n8nService.initialize(data.config);
+            set({ config: data.config, connectionError: null });
+          }
+        } catch (e) {
+          console.error('n8n config load failed:', e);
+        }
       },
 
       // Test connection
@@ -80,11 +102,12 @@ export const useN8nStore = create<N8nStore>()(
 
       // Disconnect
       disconnect: () => {
-        set({ 
-          config: null, 
-          isConnected: false, 
-          connectionError: null 
+        set({
+          config: null,
+          isConnected: false,
+          connectionError: null
         });
+        fetch('/api/n8n/config', { method: 'DELETE' }).catch(() => {});
       },
 
       // Add workflow
@@ -135,8 +158,9 @@ export const useN8nStore = create<N8nStore>()(
     }),
     {
       name: 'n8n-config',
+      // 秘匿値(apiKey/password)を含む config は localStorage に残さない。
+      // サーバの暗号化DBから loadConfig() で復元する。workflows(非秘匿)のみ保持。
       partialize: (state) => ({
-        config: state.config,
         workflows: state.workflows,
       }),
     }
