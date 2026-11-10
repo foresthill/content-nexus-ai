@@ -1,7 +1,9 @@
 // Dify API Types
 
 // Base Types
-export type DifyModel = 'gpt-3.5-turbo' | 'gpt-4' | 'claude-3-opus' | 'claude-3-sonnet' | string;
+// Dify はモデルをアプリ側で決定し、API レスポンスではモデル名を返さない。
+// そのため実際の値は 'unknown' になることが多い。列挙は参考値。
+export type DifyModel = 'unknown' | 'claude-opus-4.8' | 'claude-sonnet-4.6' | 'gpt-4o' | string;
 
 export interface DifyConfig {
   apiKey: string;

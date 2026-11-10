@@ -16,7 +16,7 @@ export async function GET() {
     if (!configCookie) {
       return NextResponse.json({
         apiKey: '',
-        model: 'anthropic/claude-3-sonnet:beta',
+        model: 'anthropic/claude-sonnet-4.6',
         isConfigured: false,
       });
     }

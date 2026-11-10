@@ -22,13 +22,13 @@ export const useOpenrouterStore = create<OpenrouterStore>()(
     (set) => ({
       config: null,
       isConfigured: false,
-      selectedModel: 'openai/gpt-3.5-turbo',
+      selectedModel: 'anthropic/claude-sonnet-4.6',
 
       setConfig: (config) => {
         set({
           config,
           isConfigured: true,
-          selectedModel: config.selectedModel || 'openai/gpt-3.5-turbo',
+          selectedModel: config.selectedModel || 'anthropic/claude-sonnet-4.6',
         });
       },
 
@@ -36,7 +36,7 @@ export const useOpenrouterStore = create<OpenrouterStore>()(
         set({
           config: null,
           isConfigured: false,
-          selectedModel: 'openai/gpt-3.5-turbo',
+          selectedModel: 'anthropic/claude-sonnet-4.6',
         });
       },
 
@@ -56,7 +56,7 @@ export const useOpenrouterStore = create<OpenrouterStore>()(
               set({
                 config: data.config,
                 isConfigured: true,
-                selectedModel: data.config.selectedModel || 'openai/gpt-3.5-turbo',
+                selectedModel: data.config.selectedModel || 'anthropic/claude-sonnet-4.6',
               });
             }
           }

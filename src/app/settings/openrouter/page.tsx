@@ -26,12 +26,13 @@ export default function OpenrouterSettingsPage() {
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState('');
   const [models, setModels] = useState<OpenrouterModel[]>([]);
-  const [selectedModel, setSelectedModel] = useState('anthropic/claude-3-sonnet:beta');
+  const [selectedModel, setSelectedModel] = useState('anthropic/claude-sonnet-4.6');
   const [isLoading, setIsLoading] = useState(false);
 
-  // 設定の読み込み
+  // 設定の読み込み + モデル一覧の取得
   useEffect(() => {
     loadConfig();
+    loadModels();
   }, []);
 
   const loadConfig = async () => {
@@ -40,7 +41,7 @@ export default function OpenrouterSettingsPage() {
       if (response.ok) {
         const data = await response.json();
         setApiKey(data.apiKey || '');
-        setSelectedModel(data.model || 'anthropic/claude-3-sonnet:beta');
+        setSelectedModel(data.model || 'anthropic/claude-sonnet-4.6');
         setIsConfigured(data.isConfigured || false);
       }
     } catch (error) {
@@ -131,15 +132,17 @@ export default function OpenrouterSettingsPage() {
     }
   };
 
-  // 人気のモデル一覧
-  const popularModels = [
-    { id: 'anthropic/claude-3-sonnet:beta', name: 'Claude 3 Sonnet', description: '高品質で汎用的なAI' },
-    { id: 'anthropic/claude-3-haiku:beta', name: 'Claude 3 Haiku', description: '高速で効率的なAI' },
-    { id: 'openai/gpt-4-turbo', name: 'GPT-4 Turbo', description: 'OpenAIの最新高性能モデル' },
-    { id: 'openai/gpt-3.5-turbo', name: 'GPT-3.5 Turbo', description: 'コスト効率的なモデル' },
-    { id: 'google/gemini-pro', name: 'Gemini Pro', description: 'Googleの高性能AI' },
-    { id: 'meta-llama/llama-2-70b-chat', name: 'Llama 2 70B', description: 'Metaのオープンソースモデル' },
+  // モデル一覧の取得に失敗した場合のフォールバック（確認済みの現行モデル）
+  const fallbackModels = [
+    { id: 'anthropic/claude-sonnet-4.6', name: 'Claude Sonnet 4.6', description: '速度と品質のバランス（推奨）' },
+    { id: 'anthropic/claude-opus-4.8', name: 'Claude Opus 4.8', description: '最上位・高度な推論' },
+    { id: 'anthropic/claude-haiku-4.5', name: 'Claude Haiku 4.5', description: '高速・低コスト' },
   ];
+
+  // OpenRouter から取得した一覧を優先。失敗時はフォールバックを使用。
+  const modelOptions = models.length > 0
+    ? models.map((m) => ({ id: m.id, name: m.name, description: '' }))
+    : fallbackModels;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -199,9 +202,9 @@ export default function OpenrouterSettingsPage() {
                 onChange={(e) => setSelectedModel(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               >
-                {popularModels.map((model) => (
+                {modelOptions.map((model) => (
                   <option key={model.id} value={model.id}>
-                    {model.name} - {model.description}
+                    {model.description ? `${model.name} - ${model.description}` : model.name}
                   </option>
                 ))}
               </select>
@@ -269,10 +272,10 @@ export default function OpenrouterSettingsPage() {
             <div>
               <h3 className="font-medium text-gray-900">2. AIモデルを選択</h3>
               <ul className="list-disc list-inside ml-4 space-y-1">
-                <li><strong>Claude 3 Sonnet</strong>: 高品質な文章生成</li>
-                <li><strong>GPT-4 Turbo</strong>: 複雑なタスクに対応</li>
-                <li><strong>Gemini Pro</strong>: Googleの高性能AI</li>
-                <li><strong>Llama 2</strong>: オープンソースモデル</li>
+                <li><strong>Claude Sonnet 4.6</strong>: 速度と品質のバランス（推奨）</li>
+                <li><strong>Claude Opus 4.8</strong>: 最上位・高度な推論タスク向け</li>
+                <li><strong>Claude Haiku 4.5</strong>: 高速・低コスト</li>
+                <li>その他、OpenRouter で利用可能な最新モデルから選択できます</li>
               </ul>
             </div>
             
