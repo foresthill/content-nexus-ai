@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { OpenrouterClient } from '@/lib/openrouter/client';
+import { getServerUserId } from '@/lib/auth/server-user';
+import {
+  getOpenrouterKeyForUser,
+  OPENROUTER_DEFAULT_MODEL,
+} from '@/lib/openrouter/user-config';
 
 interface GenerateRequest {
   prompt: string;
@@ -27,28 +31,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 設定をクッキーから取得
-    const cookieStore = await cookies();
-    const configCookie = cookieStore.get('openrouter-config');
+    // ログインユーザーの設定を暗号化DBから取得
+    const userId = await getServerUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (!configCookie) {
+    const keyRecord = await getOpenrouterKeyForUser(userId);
+    if (!keyRecord) {
       return NextResponse.json(
         { error: 'Openrouter API not configured. Please configure in settings first.' },
         { status: 400 }
       );
     }
 
-    const config = JSON.parse(configCookie.value);
-    if (!config.apiKey || !config.isConfigured) {
-      return NextResponse.json(
-        { error: 'Openrouter API key not configured' },
-        { status: 400 }
-      );
-    }
-
     // Openrouterクライアントを初期化
-    const client = new OpenrouterClient(config.apiKey);
-    const model = options.model || config.model;
+    const client = new OpenrouterClient(keyRecord.apiKey);
+    const savedModel = (keyRecord.metadata?.model as string) || OPENROUTER_DEFAULT_MODEL;
+    const model = options.model || savedModel;
 
     let result: any;
 

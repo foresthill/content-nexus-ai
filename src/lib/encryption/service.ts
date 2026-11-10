@@ -183,5 +183,15 @@ export class EncryptionService {
   }
 }
 
-// シングルトンインスタンスをエクスポート
-export const encryptionService = new EncryptionService();
+// 遅延初期化シングルトン。
+// 注意: ここで即時 new すると、このモジュールを import しただけで
+// ENCRYPTION_KEY 未設定時に throw し、ビルド/起動が落ちる。
+// 実際に暗号化処理が必要になった時点で初めてインスタンス化する。
+let _instance: EncryptionService | null = null;
+
+export function getEncryptionService(): EncryptionService {
+  if (!_instance) {
+    _instance = new EncryptionService();
+  }
+  return _instance;
+}
