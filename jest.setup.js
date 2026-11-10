@@ -31,3 +31,12 @@ global.IntersectionObserver = class IntersectionObserver {
     return [];
   }
 };
+
+// Polyfill AbortSignal.timeout（jsdom では未実装。Node18+/ブラウザには存在）
+if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout !== 'function') {
+  AbortSignal.timeout = (ms) => {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(new DOMException('TimeoutError', 'TimeoutError')), ms);
+    return controller.signal;
+  };
+}

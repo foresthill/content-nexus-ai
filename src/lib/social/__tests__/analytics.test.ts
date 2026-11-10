@@ -17,15 +17,17 @@ describe('SocialAnalyticsService', () => {
   let mockTikTokAuth: jest.Mocked<TikTokAuth>;
 
   beforeEach(() => {
+    // 先に全mockをクリア（mock.instances の蓄積をリセット）してから
+    // サービスを生成し、その生成で作られた「現在の」インスタンスを捕捉する。
+    // ※clearAllMocks を後にすると instances[0] が過去テストの古いインスタンスを指し、
+    //   サービスが実際に使うインスタンスに mock が当たらない。
+    jest.clearAllMocks();
+
     service = new SocialAnalyticsService();
-    
-    // Get mocked instances
+
     mockTwitterAuth = (TwitterAuth as jest.MockedClass<typeof TwitterAuth>).mock.instances[0] as jest.Mocked<TwitterAuth>;
     mockInstagramAuth = (InstagramAuth as jest.MockedClass<typeof InstagramAuth>).mock.instances[0] as jest.Mocked<InstagramAuth>;
     mockTikTokAuth = (TikTokAuth as jest.MockedClass<typeof TikTokAuth>).mock.instances[0] as jest.Mocked<TikTokAuth>;
-
-    // Clear all mocks
-    jest.clearAllMocks();
   });
 
   describe('getAllPlatformMetrics', () => {

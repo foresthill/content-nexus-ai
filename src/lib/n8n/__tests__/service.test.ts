@@ -259,12 +259,13 @@ describe('N8nService', () => {
       const post = {
         id: 'post-1',
         platform: 'twitter' as const,
+        platforms: [{ platform: 'twitter' as const, text: 'Test tweet' }],
         content: 'Test tweet',
         status: 'published' as const,
         publishedAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date()
-      };
+      } as any;
 
       await service.onPostPublished(post);
 
@@ -286,12 +287,13 @@ describe('N8nService', () => {
       const post = {
         id: 'post-1',
         platform: 'instagram' as const,
+        platforms: [{ platform: 'instagram' as const, text: 'Failed post' }],
         content: 'Failed post',
         status: 'failed' as const,
         scheduledFor: new Date(),
         createdAt: new Date(),
         updatedAt: new Date()
-      };
+      } as any;
 
       await service.onPostFailed(post, 'Rate limit exceeded');
 
