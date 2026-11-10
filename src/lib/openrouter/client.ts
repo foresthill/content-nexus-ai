@@ -117,7 +117,7 @@ export class OpenrouterClient {
     return response.json();
   }
 
-  async testConnection(model: string = 'openai/gpt-3.5-turbo'): Promise<{ success: true; model: string }> {
+  async testConnection(model: string = 'anthropic/claude-sonnet-4.6'): Promise<{ success: true; model: string }> {
     const testRequest: OpenrouterChatRequest = {
       model,
       messages: [
@@ -150,7 +150,7 @@ export class OpenrouterClient {
     maxTokens?: number;
   } = {}): Promise<string> {
     const {
-      model = 'anthropic/claude-3-sonnet:beta',
+      model = 'anthropic/claude-sonnet-4.6',
       systemPrompt = 'You are a helpful AI assistant that creates high-quality content.',
       temperature = 0.7,
       maxTokens = 2000,
@@ -200,7 +200,7 @@ export class OpenrouterClient {
     metaDescription: string;
   }> {
     const {
-      model = 'anthropic/claude-3-sonnet:beta',
+      model = 'anthropic/claude-sonnet-4.6',
       tone = 'professional',
       length = 'medium',
       keywords = [],

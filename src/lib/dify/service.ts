@@ -33,7 +33,8 @@ export class DifyService {
       improvedContent: response.answer || content,
       suggestions: this.extractSuggestions(response.answer || ''),
       confidence: 0.85, // This could be calculated based on response metadata
-      model: 'gpt-4', // This should come from response metadata
+      // Dify はレスポンスでモデル名を返さない（モデルは Dify アプリ側で決定）ため unknown。
+      model: 'unknown',
     };
   }
 
@@ -62,7 +63,8 @@ export class DifyService {
       prompt,
       generatedContent: response.answer,
       metadata: {
-        model: 'gpt-4',
+        // Dify はレスポンスでモデル名を返さない（モデルは Dify アプリ側で決定）ため unknown。
+        model: 'unknown',
         tokens: response.metadata?.usage?.total_tokens || 0,
         duration: Date.now() - startTime,
       },
