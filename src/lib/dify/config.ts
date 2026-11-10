@@ -1,22 +1,38 @@
-import { cookies } from 'next/headers';
 import { DifyConfig } from '@/types/dify';
+import { getServerUserId } from '@/lib/auth/server-user';
+import { getApiKey } from '@/lib/apikey/service';
 
-// サーバーサイドでDify設定を取得する関数
+// Dify 設定は ApiKey テーブルにユーザーごと暗号化保存する。
+// 秘匿値が2つ（apiKey, datasetApiKey）あるため2レコードに分割:
+//   name='dify'         : encryptedKey=apiKey, metadata={baseUrl, appId}
+//   name='dify-dataset' : encryptedKey=datasetApiKey
+export const DIFY_SERVICE_TYPE = 'DIFY' as const;
+export const DIFY_MAIN_NAME = 'dify';
+export const DIFY_DATASET_NAME = 'dify-dataset';
+
+// サーバーサイドでDify設定を取得する関数。
+// ログインユーザーの暗号化DBを優先し、無ければ環境変数にフォールバック。
 export async function getDifyConfig(): Promise<DifyConfig | null> {
   try {
-    // Cookieから設定を取得（クライアントサイドのlocalStorageの代わり）
-    const cookieStore = await cookies();
-    const configCookie = cookieStore.get('dify-config');
-    
-    if (configCookie) {
-      try {
-        const config = JSON.parse(configCookie.value) as DifyConfig;
-        return config;
-      } catch (e) {
-        console.error('Failed to parse Dify config from cookie:', e);
+    const userId = await getServerUserId();
+
+    if (userId) {
+      const main = await getApiKey(userId, DIFY_SERVICE_TYPE, DIFY_MAIN_NAME);
+      if (main) {
+        const dataset = await getApiKey(
+          userId,
+          DIFY_SERVICE_TYPE,
+          DIFY_DATASET_NAME
+        );
+        return {
+          apiKey: main.apiKey,
+          baseUrl: (main.metadata?.baseUrl as string) || '',
+          appId: (main.metadata?.appId as string) || undefined,
+          datasetApiKey: dataset?.apiKey,
+        };
       }
     }
-    
+
     // 環境変数から取得（フォールバック）
     if (process.env.DIFY_API_KEY && process.env.DIFY_BASE_URL) {
       return {
@@ -26,7 +42,7 @@ export async function getDifyConfig(): Promise<DifyConfig | null> {
         datasetApiKey: process.env.DIFY_DATASET_API_KEY,
       };
     }
-    
+
     return null;
   } catch (error) {
     console.error('Error getting Dify config:', error);
