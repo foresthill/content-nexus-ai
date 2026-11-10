@@ -234,20 +234,23 @@ export const processTikTokPost = async (job: Bull.Job<PostJobData>): Promise<Job
     if (error.message?.includes('token')) {
       // トークンリフレッシュが必要
       if (credentials.refreshToken) {
+        // リフレッシュ自体の失敗だけを catch する。成功時の TOKEN_REFRESH_NEEDED を
+        // 同じ try 内で throw すると直後の catch に飲まれてしまうため分離する（旧バグ修正）。
+        let newTokens;
         try {
-          const newTokens = await tiktokAuth.refreshAccessToken(credentials.refreshToken);
-          // 新しいトークンで再試行するためエラーをスロー
-          throw { 
-            code: 'TOKEN_REFRESH_NEEDED', 
-            message: 'Token refresh required',
-            newTokens 
-          };
+          newTokens = await tiktokAuth.refreshAccessToken(credentials.refreshToken);
         } catch {
           throw { code: 'TOKEN_REFRESH_FAILED', message: 'Failed to refresh token' };
         }
+        // 新しいトークンで再試行するためエラーをスロー
+        throw {
+          code: 'TOKEN_REFRESH_NEEDED',
+          message: 'Token refresh required',
+          newTokens,
+        };
       }
     }
-    
+
     throw error;
   }
 };

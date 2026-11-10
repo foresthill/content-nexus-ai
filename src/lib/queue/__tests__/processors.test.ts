@@ -24,6 +24,9 @@ describe('Queue Processors', () => {
   let mockTikTokAuth: jest.Mocked<TikTokAuth>;
 
   beforeEach(() => {
+    // 各テスト間で実装・呼び出し履歴が漏れないよう全mockをリセット
+    jest.resetAllMocks();
+
     // Create mock job
     mockJob = {
       id: 'job-123',
@@ -43,13 +46,13 @@ describe('Queue Processors', () => {
       progress: jest.fn().mockResolvedValue(undefined)
     } as any;
 
-    // Get mocked instances
-    mockTwitterAuth = (TwitterAuth as jest.MockedClass<typeof TwitterAuth>).mock.instances[0] as jest.Mocked<TwitterAuth>;
-    mockInstagramAuth = (InstagramAuth as jest.MockedClass<typeof InstagramAuth>).mock.instances[0] as jest.Mocked<InstagramAuth>;
-    mockTikTokAuth = (TikTokAuth as jest.MockedClass<typeof TikTokAuth>).mock.instances[0] as jest.Mocked<TikTokAuth>;
-
-    // Clear all mocks
-    jest.clearAllMocks();
+    // processors は auth を module-level singleton で生成するため、
+    // mock.instances[0] に依存すると clearAllMocks で instances 配列が空になり
+    // 2件目以降が undefined 化する。prototype 上の mock メソッドを対象にすれば
+    // instances に依存せず安定する。
+    mockTwitterAuth = (TwitterAuth as unknown as { prototype: jest.Mocked<TwitterAuth> }).prototype;
+    mockInstagramAuth = (InstagramAuth as unknown as { prototype: jest.Mocked<InstagramAuth> }).prototype;
+    mockTikTokAuth = (TikTokAuth as unknown as { prototype: jest.Mocked<TikTokAuth> }).prototype;
   });
 
   describe('processTwitterPost', () => {
@@ -78,12 +81,13 @@ describe('Queue Processors', () => {
       expect(mockJob.progress).toHaveBeenCalledWith(10);
       expect(mockJob.progress).toHaveBeenCalledWith(100);
 
-      // Check n8n event was triggered
+      // Check n8n event was triggered（現行の SocialPost は platforms 配列）
       expect(n8nService.onPostPublished).toHaveBeenCalledWith(
         expect.objectContaining({
           id: 'post-123',
-          platform: 'twitter',
-          content: 'Test tweet'
+          platforms: expect.arrayContaining([
+            expect.objectContaining({ platform: 'twitter', text: 'Test tweet' }),
+          ]),
         })
       );
     });
@@ -281,25 +285,34 @@ describe('Queue Processors', () => {
     });
 
     it('should timeout if video processing takes too long', async () => {
-      mockTikTokAuth.initializeVideoUpload.mockResolvedValue({
-        upload_id: 'upload-123'
-      });
+      // ポーリングは 2000ms × 最大10回の実待ちになるため fake timers で高速化
+      jest.useFakeTimers();
+      try {
+        mockTikTokAuth.initializeVideoUpload.mockResolvedValue({
+          upload_id: 'upload-123'
+        });
 
-      mockTikTokAuth.publishVideo.mockResolvedValue({
-        share_id: 'share-123'
-      });
+        mockTikTokAuth.publishVideo.mockResolvedValue({
+          share_id: 'share-123'
+        });
 
-      // Always return processing status
-      mockTikTokAuth.checkPublishStatus.mockResolvedValue({
-        status: 'processing'
-      });
+        // Always return processing status
+        mockTikTokAuth.checkPublishStatus.mockResolvedValue({
+          status: 'processing'
+        });
 
-      const result = await processTikTokPost(mockJob);
+        const promise = processTikTokPost(mockJob);
+        // 保留中のタイマーを再帰的に進めつつ Promise を解決
+        await jest.runAllTimersAsync();
+        const result = await promise;
 
-      // Should still succeed but without video_id
-      expect(result.success).toBe(true);
-      expect(result.postId).toBeUndefined();
-      expect(mockTikTokAuth.checkPublishStatus).toHaveBeenCalledTimes(10);
+        // Should still succeed but without video_id
+        expect(result.success).toBe(true);
+        expect(result.postId).toBeUndefined();
+        expect(mockTikTokAuth.checkPublishStatus).toHaveBeenCalledTimes(10);
+      } finally {
+        jest.useRealTimers();
+      }
     });
   });
 
@@ -325,6 +338,7 @@ describe('Queue Processors', () => {
       mockJob.data.platform = 'tiktok';
       mockJob.data.content.mediaUrls = ['video.mp4'];
       mockJob.data.credentials.openId = 'open123';
+      mockJob.data.metadata = { videoSize: 1000000 };
       mockTikTokAuth.initializeVideoUpload.mockResolvedValue({ upload_id: 'up-123' });
       mockTikTokAuth.publishVideo.mockResolvedValue({ share_id: 'share-123' });
       mockTikTokAuth.checkPublishStatus.mockResolvedValue({ 
