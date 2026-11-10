@@ -3,10 +3,11 @@ import axios from 'axios';
 import crypto from 'crypto';
 import { SocialPostService } from '@/lib/social/post-service';
 import { SocialPlatform, PostStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { getServerUserId } from '@/lib/auth/server-user';
 
 interface TwitterPostRequest {
   text: string;
-  userId?: string; // 一時的にオプショナル
 }
 
 // ハッシュタグを抽出する関数
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
   let draftPost: any = null;
   
   try {
-    const { text, userId }: TwitterPostRequest = await request.json();
+    const { text }: TwitterPostRequest = await request.json();
 
     // 入力検証
     if (!text || typeof text !== 'string') {
@@ -36,13 +37,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 一時的なユーザーID（認証システム実装後に更新）
-    const tempUserId = userId || 'temp-user-id';
+    // ログインユーザーを特定
+    const userId = await getServerUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    // DBからTwitter設定を取得
-    const settingsResponse = await fetch(new URL('/api/twitter/settings', request.url).toString());
+    // DBからTwitter設定を取得（ユーザーごと）
+    const socialAccount = await prisma.socialAccount.findUnique({
+      where: { userId_platform: { userId, platform: 'TWITTER' } },
+    });
 
-    if (!settingsResponse.ok) {
+    if (!socialAccount || !socialAccount.isActive) {
       return NextResponse.json(
         {
           error: '🔧 Twitter API設定が見つかりません',
@@ -52,19 +58,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const settings = await settingsResponse.json();
-
-    if (!settings.isConfigured || !settings.config) {
-      return NextResponse.json(
-        {
-          error: '🔧 Twitter API設定が不完全です',
-          help: '設定画面から再設定してください'
-        },
-        { status: 400 }
-      );
-    }
-
-    const { apiKey, apiSecret, accessToken, accessTokenSecret } = settings.config;
+    const apiKey = socialAccount.apiKey || '';
+    const apiSecret = socialAccount.apiSecret || '';
+    const accessToken = socialAccount.accessToken || '';
+    const accessTokenSecret = socialAccount.accessTokenSecret || '';
 
     if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret) {
       return NextResponse.json(
@@ -129,8 +126,8 @@ export async function POST(request: NextRequest) {
     try {
       // まずドラフト投稿をデータベースに作成
       draftPost = await SocialPostService.createPost({
-        userId: tempUserId,
-        socialAccountId: 'temp-twitter-account', // 一時的なアカウントID
+        userId,
+        socialAccountId: socialAccount.id,
         platform: SocialPlatform.TWITTER,
         content: text,
         hashtags: extractHashtags(text),
