@@ -133,17 +133,15 @@ export const useDifyStore = create<DifyStore>()(
     }),
     {
       name: 'dify-config',
+      // 秘匿値(apiKey / datasetApiKey)は localStorage に保持しない。
+      // サーバの暗号化DB(getDifyConfig)が正。表示用の baseUrl / appId のみ残す。
       partialize: (state) => ({
-        config: state.config,
+        config: state.config
+          ? ({ baseUrl: state.config.baseUrl, appId: state.config.appId } as DifyConfig)
+          : null,
         selectedAppId: state.selectedAppId,
         isConfigured: state.isConfigured,
       }),
-      onRehydrateStorage: () => (state) => {
-        // ハイドレーション後、configがある場合はisConfiguredをtrueに設定
-        if (state && state.config && state.config.apiKey) {
-          state.isConfigured = true;
-        }
-      },
     }
   )
 );

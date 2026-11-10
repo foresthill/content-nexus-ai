@@ -34,24 +34,15 @@ export default function TwitterPostModal({ isOpen, onClose, content, title }: Tw
     setSuccess(false);
 
     try {
-      // Twitter認証情報を取得（実際の実装では、認証フローを実装する必要があります）
-      const accessToken = localStorage.getItem('twitter_access_token');
-      const accessTokenSecret = localStorage.getItem('twitter_access_token_secret');
-
-      if (!accessToken || !accessTokenSecret) {
-        setError('Twitter認証が必要です。設定画面から認証してください。');
-        return;
-      }
-
-      const response = await fetch('/api/social/twitter/post', {
+      // 認証情報はクライアントに持たせない。サーバがログインユーザーの
+      // SocialAccount(DB) から取得して投稿する（localStorage のトークンは廃止）。
+      const response = await fetch('/api/social/twitter/simple-post', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           text: tweetText,
-          accessToken,
-          accessTokenSecret,
         }),
       });
 
