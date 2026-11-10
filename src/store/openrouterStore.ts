@@ -67,6 +67,12 @@ export const useOpenrouterStore = create<OpenrouterStore>()(
     }),
     {
       name: 'openrouter-config',
+      // APIキー(config)は localStorage に保持しない（サーバの暗号化DBが正）。
+      // 表示用の選択モデルと設定済みフラグのみ永続化する。
+      partialize: (state) => ({
+        selectedModel: state.selectedModel,
+        isConfigured: state.isConfigured,
+      }),
     }
   )
 );
