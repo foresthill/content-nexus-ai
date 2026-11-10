@@ -208,7 +208,6 @@ export default function AIGeneratePage() {
         },
         body: JSON.stringify({
           text: postText,
-          userId: 'temp-user-id' // 一時的なユーザーID
         }),
       });
 
@@ -284,7 +283,6 @@ export default function AIGeneratePage() {
         },
         body: JSON.stringify({
           text: threadTweets[0],
-          userId: 'temp-user-id' // 一時的なユーザーID
         }),
       });
 

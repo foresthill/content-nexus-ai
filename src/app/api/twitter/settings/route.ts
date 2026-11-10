@@ -1,31 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
+import { getServerUserId } from '@/lib/auth/server-user';
 
 // Twitter設定を取得
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // 仮のユーザーID（実際の実装では認証から取得）
-    const userId = 'temp-user-id';
-
-    // ユーザーが存在することを確認（なければ作成）
-    let user = await prisma.user.findUnique({
-      where: { id: userId }
-    });
-
-    if (!user) {
-      const hashedPassword = await bcrypt.hash('temp-password', 10);
-
-      user = await prisma.user.create({
-        data: {
-          id: userId,
-          email: 'temp@example.com',
-          password: hashedPassword,
-          name: 'Temporary User',
-          role: 'USER',
-          isActive: true
-        }
-      });
+    const userId = await getServerUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // DBから設定を取得
@@ -84,28 +66,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 仮のユーザーID（実際の実装では認証から取得）
-    const userId = 'temp-user-id';
-
-    // ユーザーが存在しない場合は作成
-    let user = await prisma.user.findUnique({
-      where: { id: userId }
-    });
-
-    if (!user) {
-      // テスト用ユーザーを作成
-      const hashedPassword = await bcrypt.hash('temp-password', 10);
-
-      user = await prisma.user.create({
-        data: {
-          id: userId,
-          email: 'temp@example.com',
-          password: hashedPassword,
-          name: 'Temporary User',
-          role: 'USER',
-          isActive: true
-        }
-      });
+    const userId = await getServerUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // まず接続テストを実行
@@ -175,29 +138,17 @@ export async function POST(request: NextRequest) {
 }
 
 // Twitter設定を削除
-export async function DELETE(request: NextRequest) {
+export async function DELETE() {
   try {
-    // 仮のユーザーID（実際の実装では認証から取得）
-    const userId = 'temp-user-id';
-
-    // ユーザーの存在を確認（削除時もユーザーが必要）
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'ユーザーが見つかりません' },
-        { status: 404 }
-      );
+    const userId = await getServerUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await prisma.socialAccount.delete({
+    await prisma.socialAccount.deleteMany({
       where: {
-        userId_platform: {
-          userId,
-          platform: 'TWITTER'
-        }
+        userId,
+        platform: 'TWITTER'
       }
     });
 
