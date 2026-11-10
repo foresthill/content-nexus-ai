@@ -1,18 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { OpenrouterClient } from '@/lib/openrouter/client';
+import { getServerUserId } from '@/lib/auth/server-user';
+import {
+  getOpenrouterKeyForUser,
+  isMaskedKey,
+} from '@/lib/openrouter/user-config';
 
 export async function POST(request: NextRequest) {
   let body: any = null;
 
   try {
-    body = await request.json();
-    const { apiKey, model } = body;
+    const userId = await getServerUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: 'API key is required' },
-        { status: 400 }
-      );
+    body = await request.json();
+    const { model } = body;
+    let { apiKey } = body;
+
+    // フォームのキーがマスク済み/空なら、保存済みの復号キーでテストする
+    if (isMaskedKey(apiKey)) {
+      const saved = await getOpenrouterKeyForUser(userId);
+      if (!saved) {
+        return NextResponse.json(
+          { error: 'API key is required' },
+          { status: 400 }
+        );
+      }
+      apiKey = saved.apiKey;
     }
 
     // OpenRouter API Keyの形式チェック（sk-or-v1-などの形式に対応）
