@@ -1,29 +1,76 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getServerUserId } from '@/lib/auth/server-user';
+import {
+  saveApiKey,
+  updateMetadata,
+  getApiKey,
+  getMaskedApiKey,
+  deleteApiKey,
+} from '@/lib/apikey/service';
+import {
+  DIFY_SERVICE_TYPE,
+  DIFY_MAIN_NAME,
+  DIFY_DATASET_NAME,
+} from '@/lib/dify/config';
 
-// Dify設定を保存するAPI
+// 送信されたキーがマスク済み（未変更）か判定
+function isMasked(value: unknown): boolean {
+  return typeof value !== 'string' || value === '' || value.includes('●');
+}
+
+// Dify設定を保存するAPI（ユーザーごと・暗号化DB）
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { apiKey, baseUrl, appId } = body;
+    const userId = await getServerUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (!apiKey || !baseUrl) {
+    const body = await request.json();
+    const { apiKey, baseUrl, appId, datasetApiKey } = body;
+
+    if (!baseUrl) {
       return NextResponse.json(
-        { error: 'API KeyとBase URLは必須です' },
+        { error: 'Base URLは必須です' },
         { status: 400 }
       );
     }
 
-    // Cookieに設定を保存（httpOnlyで安全に）
-    const config = { apiKey, baseUrl, appId };
-    const cookieStore = await cookies();
-    
-    cookieStore.set('dify-config', JSON.stringify(config), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30日間
-    });
+    const metadata = { baseUrl, appId: appId || null };
+
+    // メインキー: マスク済み（未変更）ならメタ情報のみ更新
+    if (isMasked(apiKey)) {
+      const updated = await updateMetadata(
+        userId,
+        DIFY_SERVICE_TYPE,
+        DIFY_MAIN_NAME,
+        metadata
+      );
+      if (!updated) {
+        return NextResponse.json(
+          { error: 'API Keyは必須です' },
+          { status: 400 }
+        );
+      }
+    } else {
+      await saveApiKey({
+        userId,
+        serviceType: DIFY_SERVICE_TYPE,
+        name: DIFY_MAIN_NAME,
+        apiKey,
+        metadata,
+      });
+    }
+
+    // データセットAPIキー: 入力があり未マスクなら保存
+    if (!isMasked(datasetApiKey)) {
+      await saveApiKey({
+        userId,
+        serviceType: DIFY_SERVICE_TYPE,
+        name: DIFY_DATASET_NAME,
+        apiKey: datasetApiKey,
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -35,27 +82,39 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Dify設定を取得するAPI
+// Dify設定を取得するAPI（平文は返さない）
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const configCookie = cookieStore.get('dify-config');
-    
-    if (!configCookie) {
+    const userId = await getServerUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const main = await getMaskedApiKey(
+      userId,
+      DIFY_SERVICE_TYPE,
+      DIFY_MAIN_NAME
+    );
+
+    if (!main) {
       return NextResponse.json(
         { error: '設定が見つかりません' },
         { status: 404 }
       );
     }
 
-    const config = JSON.parse(configCookie.value);
-    
-    // API Keyは一部のみ返す（セキュリティのため）
+    const dataset = await getApiKey(
+      userId,
+      DIFY_SERVICE_TYPE,
+      DIFY_DATASET_NAME
+    );
+
     return NextResponse.json({
       hasConfig: true,
-      apiKeyPrefix: config.apiKey?.substring(0, 10) + '...',
-      baseUrl: config.baseUrl,
-      appId: config.appId,
+      apiKey: main.maskedKey,
+      baseUrl: (main.metadata?.baseUrl as string) || '',
+      appId: (main.metadata?.appId as string) || null,
+      hasDatasetKey: !!dataset,
     });
   } catch (error) {
     console.error('Config get error:', error);
@@ -66,12 +125,17 @@ export async function GET() {
   }
 }
 
-// Dify設定を削除するAPI
+// Dify設定を削除するAPI（ユーザーごと）
 export async function DELETE() {
   try {
-    const cookieStore = await cookies();
-    cookieStore.delete('dify-config');
-    
+    const userId = await getServerUserId();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await deleteApiKey(userId, DIFY_SERVICE_TYPE, DIFY_MAIN_NAME);
+    await deleteApiKey(userId, DIFY_SERVICE_TYPE, DIFY_DATASET_NAME);
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Config delete error:', error);
