@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerUserId } from '@/lib/auth/server-user';
+import { encryptField, decryptField } from '@/lib/encryption/field';
 
 // Twitter設定を取得
 export async function GET() {
@@ -35,12 +36,12 @@ export async function GET() {
       username: socialAccount.username,
       platformUserId: socialAccount.platformUserId,
       updatedAt: socialAccount.updatedAt,
-      // 実際の認証情報を返す（storeで使用）
+      // 実際の認証情報を返す（storeで使用）。DBは暗号化保存のため復号して返す。
       config: {
-        apiKey: socialAccount.apiKey || '',
-        apiSecret: socialAccount.apiSecret || '',
-        accessToken: socialAccount.accessToken || '',
-        accessTokenSecret: socialAccount.accessTokenSecret || ''
+        apiKey: decryptField(socialAccount.apiKey),
+        apiSecret: decryptField(socialAccount.apiSecret),
+        accessToken: decryptField(socialAccount.accessToken),
+        accessTokenSecret: decryptField(socialAccount.accessTokenSecret)
       }
     });
 
@@ -89,6 +90,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 認証情報は at-rest 暗号化して保存（自己完結形式でカラムに格納）
+    const encApiKey = encryptField(apiKey);
+    const encApiSecret = encryptField(apiSecret);
+    const encAccessToken = encryptField(accessToken);
+    const encAccessTokenSecret = encryptField(accessTokenSecret);
+
     // DBに保存または更新
     const socialAccount = await prisma.socialAccount.upsert({
       where: {
@@ -98,10 +105,10 @@ export async function POST(request: NextRequest) {
         }
       },
       update: {
-        apiKey,
-        apiSecret,
-        accessToken,
-        accessTokenSecret,
+        apiKey: encApiKey,
+        apiSecret: encApiSecret,
+        accessToken: encAccessToken,
+        accessTokenSecret: encAccessTokenSecret,
         platformUserId: testResult.userId || 'unknown',
         username: testResult.username || null,
         isActive: true,
@@ -110,10 +117,10 @@ export async function POST(request: NextRequest) {
       create: {
         userId,
         platform: 'TWITTER',
-        apiKey,
-        apiSecret,
-        accessToken,
-        accessTokenSecret,
+        apiKey: encApiKey,
+        apiSecret: encApiSecret,
+        accessToken: encAccessToken,
+        accessTokenSecret: encAccessTokenSecret,
         platformUserId: testResult.userId || 'unknown',
         username: testResult.username || null,
         isActive: true

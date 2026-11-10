@@ -5,6 +5,7 @@ import { SocialPostService } from '@/lib/social/post-service';
 import { SocialPlatform, PostStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getServerUserId } from '@/lib/auth/server-user';
+import { decryptField } from '@/lib/encryption/field';
 
 interface TwitterPostRequest {
   text: string;
@@ -58,10 +59,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const apiKey = socialAccount.apiKey || '';
-    const apiSecret = socialAccount.apiSecret || '';
-    const accessToken = socialAccount.accessToken || '';
-    const accessTokenSecret = socialAccount.accessTokenSecret || '';
+    // DBは at-rest 暗号化保存のため復号して使う
+    const apiKey = decryptField(socialAccount.apiKey);
+    const apiSecret = decryptField(socialAccount.apiSecret);
+    const accessToken = decryptField(socialAccount.accessToken);
+    const accessTokenSecret = decryptField(socialAccount.accessTokenSecret);
 
     if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret) {
       return NextResponse.json(
