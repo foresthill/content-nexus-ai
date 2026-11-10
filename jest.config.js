@@ -14,7 +14,13 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   moduleDirectories: ['node_modules', '<rootDir>/'],
-  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+  testPathIgnorePatterns: [
+    '<rootDir>/.next/',
+    '<rootDir>/node_modules/',
+    // 結合テスト(実DB)は test:integration、E2EはPlaywrightで実行するため既定runから除外
+    '\\.integration\\.test\\.',
+    '<rootDir>/e2e/',
+  ],
   coveragePathIgnorePatterns: [
     '<rootDir>/node_modules/',
     '<rootDir>/.next/',
